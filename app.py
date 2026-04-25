@@ -33,7 +33,23 @@ API_KEY = "AIzaSyD8g_xNCWUWlr7kZCvoKKj_6B-JutUf9uw"   # keep your working key
 # ================= ROUTES =================
 @app.route("/")
 def home():
-    return "ChainSight Backend Running"
+    return render_template("index.html")
+
+@app.route("/shipment")
+def shipment():
+    return render_template("shipment.html")
+
+@app.route("/about")
+def about():
+    return render_template("about.html")
+
+@app.route("/contact")
+def contact():
+    return render_template("contact.html")
+
+@app.route("/login")
+def login():
+    return render_template("login.html")
 
 @app.route("/health")
 def health():
