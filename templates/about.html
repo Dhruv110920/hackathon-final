@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ChainSight – About Us</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+  <style>
+    :root{
+      --blue:#1a56ff;--blue-soft:#4f7cff;--blue-dim:#eef2ff;
+      --dark:#060612;--text:#0c0c1e;--muted:#7e8ca0;
+      --border:#e5eaf5;--surface:#fff;--bg:#f0f3fb;
+      --green:#16a34a;--amber:#d97706;--red:#dc2626;
+      --hdr:62px;--sidebar-w:252px;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;}
+    ::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:#c5cfea;border-radius:99px;}
+
+    /* HEADER */
+    .hdr{display:flex;justify-content:space-between;align-items:center;padding:0 26px;height:var(--hdr);background:rgba(255,255,255,.92);backdrop-filter:blur(22px);position:fixed;top:0;left:0;right:0;z-index:1000;border-bottom:1px solid var(--border);box-shadow:0 4px 24px rgba(26,86,255,.06);}
+    .logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+    .logo-box{width:38px;height:38px;background:linear-gradient(135deg,#1a56ff,#4f7cff);border-radius:11px;display:flex;align-items:center;justify-content:center;transition:transform .4s cubic-bezier(.34,1.56,.64,1);}
+    .logo-box:hover{transform:rotate(-11deg) scale(1.12);}
+    .logo-box svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+    .logo-txt{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--dark);letter-spacing:-.6px;}
+    .logo-txt em{color:var(--blue);font-style:normal;}
+    .nav{display:flex;align-items:center;gap:2px;}
+    .nav a{text-decoration:none;color:#555;font-size:14px;font-weight:600;padding:6px 14px;border-radius:8px;transition:all .2s;}
+    .nav a:hover{color:var(--blue);background:var(--blue-dim);}
+    .nav a.on{color:var(--blue);}
+
+    /* HEADER RIGHT — notification + sign in (matches index page) */
+    .hdr-r{display:flex;align-items:center;gap:10px;}
+    .notif{position:relative;width:38px;height:38px;background:#fff;border:1.5px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .28s;}
+    .notif i{color:var(--blue);font-size:15px;transition:transform .35s cubic-bezier(.34,1.56,.64,1);}
+    .notif:hover{background:var(--blue-dim);border-color:var(--blue);}
+    .notif:hover i{transform:rotate(18deg) scale(1.15);}
+    .nbadge{position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;font-size:9px;font-weight:800;width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2.5px solid var(--bg);animation:pop .5s cubic-bezier(.34,1.56,.64,1) both 1s;}
+    @keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+
+    .signin{display:flex;align-items:center;gap:8px;padding:7px 16px 7px 7px;background:linear-gradient(135deg,#1a56ff,#4f7cff);border:none;border-radius:24px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;text-decoration:none;transition:all .3s cubic-bezier(.34,1.56,.64,1);}
+    .signin:hover{transform:translateY(-2px) scale(1.04);}
+    .s-av{width:26px;height:26px;background:rgba(255,255,255,.22);border-radius:50%;display:flex;align-items:center;justify-content:center;}
+    .sep{position:fixed;top:var(--hdr);left:0;right:0;height:3px;z-index:999;background:linear-gradient(90deg,transparent,var(--blue),var(--blue-soft),var(--blue),transparent);background-size:200% 100%;animation:sep-a 3s linear infinite;}
+    @keyframes sep-a{0%{background-position:100% 0}100%{background-position:-100% 0}}
+    .mob-tog{display:none;width:38px;height:38px;border:1.5px solid var(--border);border-radius:10px;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:var(--muted);background:var(--surface);}
+
+    /* SIDEBAR */
+    .app{display:flex;margin-top:calc(var(--hdr)+3px);min-height:calc(100vh - var(--hdr) - 3px);}
+    .sb{width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);position:fixed;top:calc(var(--hdr)+3px);left:0;bottom:0;z-index:800;display:flex;flex-direction:column;overflow:hidden;transition:transform .38s cubic-bezier(.4,0,.2,1);}
+    .sb-top{padding:22px 14px 16px;}
+    .sb-sec{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:12px;}
+    .sbtn{display:flex;align-items:center;gap:11px;width:100%;padding:12px 13px;border-radius:13px;border:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;margin-bottom:9px;transition:all .3s cubic-bezier(.34,1.56,.64,1);}
+    .sbtn-ico{width:34px;height:34px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;}
+    .sbtn-new{background:linear-gradient(135deg,#1a56ff,#4f7cff);color:#fff;box-shadow:0 6px 22px rgba(26,86,255,.35);}
+    .sbtn-new .sbtn-ico{background:rgba(255,255,255,.2);color:#fff;}
+    .sbtn-new:hover{transform:translateY(-2px);}
+    .sb-div{height:1px;background:var(--border);margin:4px 14px 14px;}
+    .sb-nav{padding:0 8px;flex:1;}
+    .sbnl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:700;padding:0 6px;margin-bottom:8px;}
+    .sbl{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;font-size:14px;color:#555;text-decoration:none;margin-bottom:3px;font-weight:600;transition:all .2s;}
+    .sbl-i{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);}
+    .sbl:hover,.sbl.on{background:var(--blue-dim);color:var(--blue);}
+    .sbl.on .sbl-i,.sbl:hover .sbl-i{color:var(--blue);}
+    .sb-foot{padding:14px;border-top:1px solid var(--border);}
+    .sys-ok{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:11px;background:#f7fff9;border:1px solid #bbf7d0;}
+    .sdot{width:8px;height:8px;background:var(--green);border-radius:50%;flex-shrink:0;animation:sdot 2.2s ease-in-out infinite;}
+    @keyframes sdot{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.45)}50%{box-shadow:0 0 0 6px rgba(34,197,94,0)}}
+    .sys-txt{font-size:12px;color:#16a34a;font-weight:700;}
+    .sys-sub{font-size:10px;color:#4ade80;margin-top:1px;}
+    .sb-overlay{display:none;position:fixed;inset:0;background:rgba(4,4,16,.5);backdrop-filter:blur(6px);z-index:799;}
+
+    /* MAIN */
+    .main{margin-left:var(--sidebar-w);flex:1;padding:28px 32px 80px;}
+
+    /* HERO */
+    .hero{border-radius:24px;overflow:hidden;position:relative;margin-bottom:28px;background:linear-gradient(135deg,#040410 0%,#0c0c28 40%,#0a1540 70%,#07091e 100%);}
+    .hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(79,124,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(79,124,255,.07) 1px,transparent 1px);background-size:44px 44px;pointer-events:none;animation:grid-drift 28s linear infinite;}
+    @keyframes grid-drift{0%{background-position:0 0}100%{background-position:44px 44px}}
+    .hero-orb1{position:absolute;width:550px;height:550px;border-radius:50%;background:radial-gradient(circle,rgba(26,86,255,.22),transparent 65%);top:-180px;right:-120px;pointer-events:none;animation:float1 10s ease-in-out infinite;}
+    .hero-orb2{position:absolute;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,.14),transparent 65%);bottom:-80px;left:24%;pointer-events:none;animation:float1 13s ease-in-out infinite reverse;}
+    @keyframes float1{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-22px) scale(1.05)}}
+    .hero-inner{position:relative;z-index:2;padding:56px 52px 48px;}
+    .hero-split{display:grid;grid-template-columns:1fr auto;gap:40px;align-items:center;}
+    .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(26,86,255,.18);border:1px solid rgba(79,124,255,.32);border-radius:100px;padding:5px 14px 5px 7px;font-size:11px;font-weight:700;color:#a5b4fc;letter-spacing:1.3px;text-transform:uppercase;margin-bottom:20px;}
+    .hb-dot{width:22px;height:22px;background:rgba(96,165,250,.18);border-radius:50%;display:flex;align-items:center;justify-content:center;}
+    .hb-dot::after{content:'';width:8px;height:8px;background:#60a5fa;border-radius:50%;animation:pulse-dot 1.8s ease-in-out infinite;}
+    @keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(1.6)}}
+    .hero-title{font-family:'Syne',sans-serif;font-size:clamp(26px,3.4vw,46px);font-weight:800;color:#fff;letter-spacing:-2px;line-height:1.08;margin-bottom:16px;}
+    .hero-title em{font-style:normal;background:linear-gradient(90deg,#60a5fa,#818cf8,#a78bfa,#60a5fa);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:grad-shift 5s linear infinite;}
+    @keyframes grad-shift{0%{background-position:0 0}100%{background-position:300% 0}}
+    .hero-desc{font-size:15px;color:rgba(255,255,255,.48);line-height:1.85;max-width:520px;margin-bottom:28px;}
+    .hero-cta{display:inline-flex;align-items:center;gap:9px;padding:13px 26px;background:linear-gradient(135deg,#1a56ff,#4f7cff);color:#fff;border-radius:13px;font-size:14px;font-weight:800;text-decoration:none;box-shadow:0 8px 28px rgba(26,86,255,.45);transition:all .35s cubic-bezier(.34,1.56,.64,1);}
+    .hero-cta:hover{transform:translateY(-3px) scale(1.04);}
+    .hero-apis{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;}
+    .hapi{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:5px 12px;font-size:11px;font-weight:700;color:rgba(255,255,255,.5);}
+    .hapi-dot{width:6px;height:6px;border-radius:50%;background:#4ade80;}
+    .hero-stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;min-width:240px;}
+    .hs-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:18px 20px;text-align:center;transition:all .3s;}
+    .hs-card:hover{background:rgba(255,255,255,.09);border-color:rgba(79,124,255,.4);}
+    .hs-num{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;color:#fff;letter-spacing:-1px;line-height:1;}
+    .hs-num em{color:#60a5fa;font-style:normal;}
+    .hs-lbl{font-size:11px;color:rgba(255,255,255,.38);font-weight:600;margin-top:6px;letter-spacing:.6px;text-transform:uppercase;}
+
+    /* SECTION */
+    .sec-wrap{margin-bottom:32px;}
+    .sec-head{display:flex;align-items:center;gap:13px;margin-bottom:20px;}
+    .sec-icon{width:40px;height:40px;background:var(--blue-dim);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--blue);flex-shrink:0;}
+    .sec-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;letter-spacing:-.5px;}
+    .sec-sub{font-size:13px;color:var(--muted);margin-top:2px;}
+
+    /* CARD */
+    .card{background:var(--surface);border-radius:20px;border:1.5px solid var(--border);box-shadow:0 2px 16px rgba(26,86,255,.05);}
+    .card-accent{position:relative;overflow:hidden;}
+    .card-accent::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue),var(--blue-soft),var(--blue));background-size:200%;animation:sep-a 3s linear infinite;}
+
+    /* QUOTE */
+    .quote-band{background:linear-gradient(135deg,var(--blue-dim),#e4ecff);border:1.5px solid #c7d7ff;border-radius:20px;padding:36px 44px;text-align:center;margin-bottom:28px;}
+    .quote-mark{font-size:64px;line-height:.8;color:var(--blue);font-family:'Syne',sans-serif;font-weight:800;opacity:.25;margin-bottom:10px;}
+    .quote-text{font-family:'Syne',sans-serif;font-size:clamp(16px,2vw,22px);font-weight:700;color:var(--dark);letter-spacing:-.4px;line-height:1.5;max-width:680px;margin:0 auto 14px;}
+    .quote-author{font-size:13px;color:var(--muted);font-weight:600;}
+
+    /* MISSION */
+    .mission-layout{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+    .mission-body{padding:36px 38px;}
+    .mission-body p{font-size:15px;color:var(--text);line-height:1.9;margin-bottom:14px;}
+    .mission-body p:last-child{margin-bottom:0;}
+    .mission-hl{color:var(--blue);font-weight:700;}
+    .impact-stack{display:flex;flex-direction:column;gap:14px;}
+    .impact-card{padding:22px;border-radius:16px;border:1.5px solid var(--border);background:var(--surface);transition:all .3s cubic-bezier(.34,1.56,.64,1);}
+    .impact-card:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(26,86,255,.1);border-color:#cdd8ff;}
+    .ic-ico{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:17px;margin-bottom:8px;}
+    .ic-num{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;letter-spacing:-1px;line-height:1;}
+    .ic-lbl{font-size:12px;color:var(--muted);font-weight:600;margin-top:4px;}
+    .i-blue{background:#eff3ff;color:#3b5bdb;}
+    .i-green{background:#f0fdf4;color:#16a34a;}
+    .i-amber{background:#fffbeb;color:#d97706;}
+    .i-purple{background:#f5f3ff;color:#7c3aed;}
+    .i-teal{background:#f0fdfa;color:#0d9488;}
+    .i-rose{background:#fff1f2;color:#e11d48;}
+
+    /* HOW IT WORKS */
+    .flow-wrap{padding:36px 32px;}
+    .flow-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative;}
+    .flow-steps::before{content:'';position:absolute;top:35px;left:calc(12.5%);right:calc(12.5%);height:2px;background:linear-gradient(90deg,var(--blue),var(--blue-soft));z-index:0;}
+    .flow-step{display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 10px;position:relative;z-index:1;}
+    .fs-bubble{width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,#1a56ff,#4f7cff);color:#fff;font-family:'Syne',sans-serif;font-size:22px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-bottom:18px;box-shadow:0 8px 24px rgba(26,86,255,.4);transition:all .4s cubic-bezier(.34,1.56,.64,1);}
+    .flow-step:hover .fs-bubble{transform:scale(1.12) rotate(-5deg);}
+    .fs-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;margin-bottom:6px;}
+    .fs-desc{font-size:12px;color:var(--muted);line-height:1.6;}
+    .fs-tag{display:inline-flex;align-items:center;gap:5px;background:var(--blue-dim);color:var(--blue);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;margin-top:8px;}
+
+    /* FEATURES */
+    .feat-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;}
+    .feat-card{padding:26px 22px;border-radius:16px;border:1.5px solid var(--border);background:var(--surface);transition:all .35s cubic-bezier(.34,1.56,.64,1);position:relative;overflow:hidden;}
+    .feat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue),var(--blue-soft));transform:scaleX(0);transform-origin:left;transition:transform .4s cubic-bezier(.22,1,.36,1);}
+    .feat-card:hover{transform:translateY(-5px);box-shadow:0 22px 52px rgba(26,86,255,.12);border-color:#cdd8ff;}
+    .feat-card:hover::before{transform:scaleX(1);}
+    .feat-ico{width:48px;height:48px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:19px;margin-bottom:16px;transition:transform .35s cubic-bezier(.34,1.56,.64,1);}
+    .feat-card:hover .feat-ico{transform:rotate(-8deg) scale(1.12);}
+    .feat-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;margin-bottom:7px;}
+    .feat-desc{font-size:13px;color:var(--muted);line-height:1.7;}
+
+    /* TECH */
+    .tech-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;}
+    .tech-card{background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:20px 16px;text-align:center;transition:all .3s cubic-bezier(.34,1.56,.64,1);}
+    .tech-card:hover{border-color:#cdd8ff;transform:translateY(-4px);box-shadow:0 14px 36px rgba(26,86,255,.1);}
+    .tech-ico-wrap{width:52px;height:52px;border-radius:14px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:22px;transition:transform .35s cubic-bezier(.34,1.56,.64,1);}
+    .tech-card:hover .tech-ico-wrap{transform:rotate(-8deg) scale(1.1);}
+    .tech-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;margin-bottom:3px;}
+    .tech-role{font-size:11px;color:var(--muted);}
+    .tech-badge{display:inline-flex;margin-top:8px;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;}
+    .tb-free{background:#f0fdf4;color:#16a34a;}
+    .tb-ml{background:#eff3ff;color:#3b5bdb;}
+    .tb-ui{background:#f5f3ff;color:#7c3aed;}
+
+    /* VALUES */
+    .values-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;}
+    .val-card{padding:26px 22px;border-radius:16px;border:1.5px solid var(--border);background:var(--surface);position:relative;overflow:hidden;transition:all .3s;}
+    .val-card:hover{transform:translateY(-4px);box-shadow:0 14px 36px rgba(26,86,255,.09);border-color:#cdd8ff;}
+    .val-bg-num{position:absolute;top:12px;right:16px;font-family:'Syne',sans-serif;font-size:52px;font-weight:800;color:var(--bg);line-height:1;user-select:none;}
+    .val-ico{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:17px;margin-bottom:12px;}
+    .val-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;margin-bottom:6px;}
+    .val-desc{font-size:13px;color:var(--muted);line-height:1.65;}
+
+    /* TEAM */
+    .team-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;}
+    .team-card{background:var(--surface);border:1.5px solid var(--border);border-radius:20px;padding:28px 22px;text-align:center;transition:all .35s cubic-bezier(.34,1.56,.64,1);position:relative;overflow:hidden;}
+    .team-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue),var(--blue-soft));transform:scaleX(0);transform-origin:left;transition:transform .4s cubic-bezier(.22,1,.36,1);}
+    .team-card:hover{transform:translateY(-6px);box-shadow:0 24px 56px rgba(26,86,255,.13);border-color:#cdd8ff;}
+    .team-card:hover::after{transform:scaleX(1);}
+    .team-av{width:76px;height:76px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#fff;margin:0 auto 16px;position:relative;}
+    .av-ring{position:absolute;inset:-4px;border-radius:50%;border:2px solid transparent;background:linear-gradient(135deg,var(--blue),var(--blue-soft)) border-box;-webkit-mask:linear-gradient(#fff 0 0) padding-box,linear-gradient(#fff 0 0);mask-composite:exclude;-webkit-mask-composite:destination-out;}
+    .av1{background:linear-gradient(135deg,#1a56ff,#4f7cff);}
+    .av2{background:linear-gradient(135deg,#7c3aed,#a78bfa);}
+    .av3{background:linear-gradient(135deg,#0d9488,#2dd4bf);}
+    .av4{background:linear-gradient(135deg,#e11d48,#fb7185);}
+    .av5{background:linear-gradient(135deg,#d97706,#fbbf24);}
+    .av6{background:linear-gradient(135deg,#16a34a,#4ade80);}
+    .team-name{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;margin-bottom:3px;}
+    .team-role{font-size:12px;color:var(--blue);font-weight:700;margin-bottom:10px;text-transform:uppercase;letter-spacing:.8px;}
+    .team-bio{font-size:13px;color:var(--muted);line-height:1.65;}
+    .team-tags{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-top:12px;}
+    .ttag{background:var(--blue-dim);color:var(--blue);border-radius:20px;padding:3px 9px;font-size:10px;font-weight:700;}
+
+    /* TIMELINE */
+    .tl-wrap{padding:36px 38px;}
+    .timeline{position:relative;padding-left:32px;}
+    .timeline::before{content:'';position:absolute;left:10px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--blue),var(--blue-soft),#c4d3ff);border-radius:2px;}
+    .tl-item{position:relative;margin-bottom:32px;}
+    .tl-item:last-child{margin-bottom:0;}
+    .tl-dot{position:absolute;left:-26px;top:5px;width:18px;height:18px;border-radius:50%;border:3px solid var(--surface);}
+    .tl-dot.done{background:var(--green);box-shadow:0 0 0 2px var(--green);}
+    .tl-dot.active{background:var(--blue);box-shadow:0 0 0 2px var(--blue),0 0 0 5px rgba(26,86,255,.2);}
+    .tl-dot.soon{background:var(--amber);box-shadow:0 0 0 2px var(--amber);}
+    .tl-dot.future{background:var(--muted);box-shadow:0 0 0 2px var(--muted);}
+    .tl-phase{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.3px;color:var(--muted);margin-bottom:4px;}
+    .tl-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;margin-bottom:5px;}
+    .tl-desc{font-size:13px;color:var(--muted);line-height:1.65;}
+    .tl-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+    .tl-chip{padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;}
+    .tc-done{background:#dcfce7;color:#15803d;}
+    .tc-soon{background:#fef3c7;color:#92400e;}
+    .tc-future{background:#f1f5f9;color:#475569;}
+
+    /* HACKATHON */
+    .hack-card{background:linear-gradient(135deg,#040410,#0d0d28);border-radius:22px;border:1px solid rgba(255,255,255,.06);padding:40px 44px;position:relative;overflow:hidden;}
+    .hack-card::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(79,124,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(79,124,255,.06) 1px,transparent 1px);background-size:42px 42px;pointer-events:none;}
+    .hack-orb{position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(26,86,255,.18),transparent 65%);top:-160px;right:-100px;pointer-events:none;}
+    .hack-inner{position:relative;z-index:2;display:flex;align-items:center;gap:36px;flex-wrap:wrap;}
+    .hack-trophy{width:80px;height:80px;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:36px;flex-shrink:0;}
+    .hack-txt h2{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#fff;letter-spacing:-1px;margin-bottom:8px;}
+    .hack-txt p{font-size:14px;color:rgba(255,255,255,.44);line-height:1.75;max-width:520px;}
+    .hack-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;}
+    .hchip{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:6px 14px;font-size:11px;font-weight:700;color:rgba(255,255,255,.55);}
+    .hack-cta{margin-top:22px;display:inline-flex;align-items:center;gap:9px;padding:12px 24px;background:linear-gradient(135deg,#1a56ff,#4f7cff);color:#fff;border-radius:12px;font-size:14px;font-weight:800;text-decoration:none;box-shadow:0 6px 22px rgba(26,86,255,.45);transition:all .3s cubic-bezier(.34,1.56,.64,1);}
+    .hack-cta:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(26,86,255,.55);}
+
+    /* FOOTER */
+    footer{margin-left:var(--sidebar-w);background:var(--dark);padding:28px 38px;}
+    .fi{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;border-top:1px solid rgba(255,255,255,.07);padding-top:20px;}
+    .fl{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#fff;}
+    .fl em{color:#4f7cff;font-style:normal;}
+    .flinks{display:flex;gap:18px;flex-wrap:wrap;}
+    .flinks a{font-size:13px;color:rgba(255,255,255,.3);text-decoration:none;transition:color .2s;}
+    .flinks a:hover{color:#4f7cff;}
+    .fc2{font-size:12px;color:rgba(255,255,255,.18);text-align:center;width:100%;margin-top:8px;}
+
+    /* ANIMATIONS */
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+    .reveal{opacity:0;transform:translateY(20px);transition:opacity .65s cubic-bezier(.22,1,.36,1),transform .65s cubic-bezier(.22,1,.36,1);}
+    .reveal.on{opacity:1;transform:none;}
+
+    /* ═══ TABLET ≤1024px ═══ */
+    @media(max-width:1024px){
+      .feat-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+      .tech-grid{grid-template-columns:repeat(4,minmax(0,1fr));}
+      .team-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+      .values-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+      .mission-layout{grid-template-columns:1fr;}
+      .flow-steps{grid-template-columns:repeat(2,1fr);gap:28px;}
+      .flow-steps::before{display:none;}
+      .hero-split{grid-template-columns:1fr;gap:28px;}
+      .hero-stats-grid{grid-template-columns:repeat(4,1fr);min-width:unset;}
+    }
+
+    /* ═══ MOBILE ≤768px ═══ */
+    @media(max-width:768px){
+      .sb{transform:translateX(-100%);width:260px;z-index:900;}
+      .sb.open{transform:translateX(0);}
+      .sb-overlay.open{display:block;}
+      .nav{display:none;}
+      .mob-tog{display:flex;}
+      .main{margin-left:0;padding:14px 14px 64px;}
+      footer{margin-left:0;padding:22px 18px;}
+
+      .hero-inner{padding:28px 20px 32px;}
+      .hero-split{grid-template-columns:1fr;gap:24px;}
+      .hero-stats-grid{grid-template-columns:repeat(2,1fr);gap:10px;}
+      .hs-num{font-size:24px;}
+      .hs-card{padding:14px 16px;}
+      .hero-title{font-size:28px;letter-spacing:-1.2px;}
+      .hero-desc{font-size:14px;}
+      .hero-apis{gap:6px;}
+      .hapi{font-size:10px;padding:4px 9px;}
+
+      .feat-grid{grid-template-columns:1fr;}
+      .tech-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+      .team-grid{grid-template-columns:1fr;}
+      .values-grid{grid-template-columns:1fr;}
+      .mission-layout{grid-template-columns:1fr;}
+      .flow-steps{grid-template-columns:1fr;gap:20px;}
+      .flow-steps::before{display:none;}
+      .fs-bubble{width:56px;height:56px;font-size:18px;}
+
+      .hack-card{padding:26px 20px;}
+      .hack-inner{flex-direction:column;gap:18px;}
+      .hack-txt h2{font-size:20px;}
+      .hack-trophy{width:64px;height:64px;font-size:28px;}
+
+      .quote-band{padding:24px 20px;}
+      .quote-mark{font-size:48px;}
+      .quote-text{font-size:16px;}
+
+      .mission-body{padding:22px 20px;}
+      .flow-wrap{padding:24px 20px;}
+      .tl-wrap{padding:24px 22px;}
+
+      .sec-title{font-size:17px;}
+      .hdr{padding:0 14px;}
+    }
+
+    /* ═══ SMALL MOBILE ≤480px ═══ */
+    @media(max-width:480px){
+      .tech-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+      .hero-stats-grid{grid-template-columns:repeat(2,1fr);}
+      .hchip{font-size:10px;padding:4px 10px;}
+      .hack-chips{gap:6px;}
+    }
+  </style>
+</head>
+<body>
+
+<div class="sb-overlay" id="sbOverlay" onclick="closeSb()"></div>
+
+<header class="hdr">
+  <div style="display:flex;align-items:center;gap:12px;">
+    <div class="mob-tog" onclick="toggleSb()"><i class="fas fa-bars"></i></div>
+    <a href="/" class="logo">
+      <div class="logo-box"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+      <span class="logo-txt">Chain<em>Sight</em></span>
+    </a>
+  </div>
+  <nav class="nav">
+    <a href="/">Home</a>
+    <a href="/about" class="on">About Us</a>
+    <a href="/contact">Contact</a>
+    <a href="/shipment">New Shipment</a>
+  </nav>
+  <!-- Header right: notification bell + sign in (matches index page) -->
+  <div class="hdr-r">
+    <div class="notif" title="High/Moderate risk shipments" onclick="location.href='/'">
+      <i class="fas fa-bell"></i>
+      <span class="nbadge" id="notifBadge">0</span>
+    </div>
+    <a href="/login" class="signin">
+      <div class="s-av"><i class="fas fa-user"></i></div>Sign In
+    </a>
+  </div>
+</header>
+<div class="sep"></div>
+
+<div class="app">
+  <aside class="sb" id="sidebar">
+    <div class="sb-top">
+      <div class="sb-sec">Quick Actions</div>
+      <a href="/shipment" class="sbtn sbtn-new"><div class="sbtn-ico"><i class="fas fa-plus"></i></div>New Shipment</a>
+    </div>
+    <div class="sb-div"></div>
+    <div class="sb-nav">
+      <div class="sbnl">Navigate</div>
+      <a href="/" class="sbl"><div class="sbl-i"><i class="fas fa-home"></i></div>Dashboard</a>
+      <a href="/shipment" class="sbl"><div class="sbl-i"><i class="fas fa-truck"></i></div>New Shipment</a>
+      <a href="/about" class="sbl on"><div class="sbl-i"><i class="fas fa-info-circle"></i></div>About Us</a>
+      <a href="/contact" class="sbl"><div class="sbl-i"><i class="fas fa-envelope"></i></div>Contact</a>
+    </div>
+    <div class="sb-foot">
+      <div class="sys-ok">
+        <div class="sdot"></div>
+        <div>
+          <div class="sys-txt">All Systems Online</div>
+          <div class="sys-sub">ML Model · Weather APIs</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- HERO -->
+    <div class="hero" style="animation:fadeUp .7s cubic-bezier(.22,1,.36,1) both;">
+      <div class="hero-grid"></div>
+      <div class="hero-orb1"></div>
+      <div class="hero-orb2"></div>
+      <canvas id="heroCanvas" style="position:absolute;inset:0;pointer-events:none;opacity:.7;"></canvas>
+      <div class="hero-inner">
+        <div class="hero-split">
+          <div>
+            <div class="hero-badge"><div class="hb-dot"></div>Hackathon 2025 · Built with Purpose</div>
+            <h1 class="hero-title">We predict delays<br>before they <em>cost you</em></h1>
+            <p class="hero-desc">ChainSight was born at a hackathon with one mission — make logistics smarter and more resilient by pairing machine learning with real-time global data, completely free to use.</p>
+            <a href="/shipment" class="hero-cta"><i class="fas fa-rocket"></i> Try It Now — Free</a>
+            <div class="hero-apis">
+              <div class="hapi"><span class="hapi-dot"></span>Nominatim</div>
+              <div class="hapi"><span class="hapi-dot"></span>OpenRouteService</div>
+              <div class="hapi"><span class="hapi-dot"></span>OpenWeatherMap</div>
+              <div class="hapi"><span class="hapi-dot"></span>Leaflet / OSM</div>
+            </div>
+          </div>
+          <div class="hero-stats-grid">
+            <div class="hs-card"><div class="hs-num" id="cnt1">0<em>%</em></div><div class="hs-lbl">Prediction Accuracy</div></div>
+            <div class="hs-card"><div class="hs-num" id="cnt2">0<em>h</em></div><div class="hs-lbl">Early Warning</div></div>
+            <div class="hs-card"><div class="hs-num" id="cnt3">0<em>+</em></div><div class="hs-lbl">Data Sources</div></div>
+            <div class="hs-card"><div class="hs-num">₹<em>0</em></div><div class="hs-lbl">Cost to Use</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUOTE BAND -->
+    <div class="quote-band reveal">
+      <div class="quote-mark">"</div>
+      <p class="quote-text">Supply chain disruptions cost the global economy over $4 trillion annually. We built ChainSight to give every logistics team enterprise-grade intelligence — completely free.</p>
+      <div class="quote-author">— ChainSight Team, Hackathon 2025</div>
+    </div>
+
+    <!-- MISSION -->
+    <div class="sec-wrap reveal">
+      <div class="sec-head">
+        <div class="sec-icon"><i class="fas fa-bullseye"></i></div>
+        <div>
+          <div class="sec-title">Our Mission</div>
+          <div class="sec-sub">Why ChainSight exists</div>
+        </div>
+      </div>
+      <div class="mission-layout">
+        <div class="card card-accent mission-body">
+          <p>Most logistics teams still rely on <span class="mission-hl">reactive decision-making</span> — finding out about delays only after they've already happened. We believed that had to change.</p>
+          <p>ChainSight uses a <span class="mission-hl">gradient-boosted XGBoost model</span> trained on real traffic, weather, and logistics data to predict shipment delays up to 48 hours before they occur. By combining live data from four completely free APIs, we deliver enterprise-grade intelligence with <span class="mission-hl">zero infrastructure cost</span>.</p>
+          <p>We believe powerful supply chain tools shouldn't be locked behind expensive enterprise contracts. Open data + thoughtful ML + great UX can compete with anything the market offers — and we built this in 48 hours to prove it.</p>
+        </div>
+        <div class="impact-stack">
+          <div class="impact-card">
+            <div class="ic-ico i-rose"><i class="fas fa-triangle-exclamation"></i></div>
+            <div class="ic-num" style="color:#e11d48;">$4T</div>
+            <div class="ic-lbl">annual cost of supply chain disruptions globally</div>
+          </div>
+          <div class="impact-card">
+            <div class="ic-ico i-blue"><i class="fas fa-brain"></i></div>
+            <div class="ic-num" style="color:#1a56ff;">11</div>
+            <div class="ic-lbl">real-time features processed per prediction</div>
+          </div>
+          <div class="impact-card">
+            <div class="ic-ico i-green"><i class="fas fa-leaf"></i></div>
+            <div class="ic-num" style="color:#16a34a;">100%</div>
+            <div class="ic-lbl">free and open APIs — no credit card ever</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HOW IT WORKS -->
+    <div class="sec-wrap reveal">
+      <div class="sec-head">
+        <div class="sec-icon"><i class="fas fa-diagram-project"></i></div>
+        <div>
+          <div class="sec-title">How It Works</div>
+          <div class="sec-sub">From city names to ML prediction in 4 steps</div>
+        </div>
+      </div>
+      <div class="card flow-wrap">
+        <div class="flow-steps">
+          <div class="flow-step">
+            <div class="fs-bubble">1</div>
+            <div class="fs-title">Enter Route</div>
+            <div class="fs-desc">Type any origin and destination city. Nominatim geocodes them instantly at zero cost.</div>
+            <span class="fs-tag"><i class="fas fa-map-marker-alt" style="font-size:10px;"></i> Nominatim OSM</span>
+          </div>
+          <div class="flow-step">
+            <div class="fs-bubble">2</div>
+            <div class="fs-title">Fetch Live Data</div>
+            <div class="fs-desc">OpenRouteService calculates the real driving route. OpenWeatherMap fetches weather at 3 corridor points simultaneously.</div>
+            <span class="fs-tag"><i class="fas fa-satellite-dish" style="font-size:10px;"></i> Live APIs</span>
+          </div>
+          <div class="flow-step">
+            <div class="fs-bubble">3</div>
+            <div class="fs-title">ML Analysis</div>
+            <div class="fs-desc">XGBoost processes 11 features — temperature, traffic ratio, wind, humidity, delay reason — and returns a calibrated delay probability.</div>
+            <span class="fs-tag"><i class="fas fa-brain" style="font-size:10px;"></i> XGBoost Model</span>
+          </div>
+          <div class="flow-step">
+            <div class="fs-bubble">4</div>
+            <div class="fs-title">Act on Insights</div>
+            <div class="fs-desc">Get a risk score, view alternative routes on an interactive map, and save shipments to your live dashboard.</div>
+            <span class="fs-tag"><i class="fas fa-shield-alt" style="font-size:10px;"></i> Risk Score</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FEATURES -->
+    <div class="sec-wrap reveal">
+      <div class="sec-head">
+        <div class="sec-icon"><i class="fas fa-layer-group"></i></div>
+        <div>
+          <div class="sec-title">What ChainSight Does</div>
+          <div class="sec-sub">Six core capabilities in one free platform</div>
+        </div>
+      </div>
+      <div class="feat-grid">
+        <div class="feat-card">
+          <div class="feat-ico i-blue"><i class="fas fa-brain"></i></div>
+          <div class="feat-name">ML Delay Prediction</div>
+          <div class="feat-desc">XGBoost model processes 11 real-time features and returns a calibrated delay probability with Low / Moderate / High risk classification in milliseconds.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-ico i-teal"><i class="fas fa-cloud-sun-rain"></i></div>
+          <div class="feat-name">3-Point Weather Analysis</div>
+          <div class="feat-desc">We fetch live weather at origin, midpoint, and destination simultaneously — then derive worst-case corridor conditions for accurate risk scoring across the full route.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-ico i-green"><i class="fas fa-map-marked-alt"></i></div>
+          <div class="feat-name">Live Route Mapping</div>
+          <div class="feat-desc">Real driving routes via OpenRouteService, rendered on Leaflet/OSM with traffic-adjusted ETAs and colour-coded risk polylines on a fully interactive map.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-ico i-rose"><i class="fas fa-route"></i></div>
+          <div class="feat-name">Alternative Route Engine</div>
+          <div class="feat-desc">When risk is flagged, ChainSight suggests transport-specific alternative routes, timings, and strategies — visualised live on an interactive modal map with clickable overlays.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-ico i-amber"><i class="fas fa-shield-alt"></i></div>
+          <div class="feat-name">Risk Scoring 0–100</div>
+          <div class="feat-desc">Every shipment gets a live probability ring with a single actionable number and colour — no interpretation needed, just see the score and make the call.</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-ico i-purple"><i class="fas fa-chart-line"></i></div>
+          <div class="feat-name">Shipment Dashboard</div>
+          <div class="feat-desc">Save unlimited shipments locally and track all active routes in one view — with per-shipment weather, animated probability bars, risk ribbons, and full detail drill-down.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TECH STACK -->
+    <div class="sec-wrap reveal">
+      <div class="sec-head">
+        <div class="sec-icon"><i class="fas fa-code"></i></div>
+        <div>
+          <div class="sec-title">Technology Stack</div>
+          <div class="sec-sub">Built entirely on free, open-source tools</div>
+        </div>
+      </div>
+      <div class="tech-grid">
+        <div class="tech-card">
+          <div class="tech-ico-wrap i-blue"><i class="fab fa-python" style="font-size:22px;"></i></div>
+          <div class="tech-name">Python + Flask</div>
+          <div class="tech-role">ML Backend & REST API</div>
+          <div class="tech-badge tb-ml">Backend</div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-ico-wrap i-green" style="font-size:22px;">🌲</div>
+          <div class="tech-name">XGBoost</div>
+          <div class="tech-role">Delay Prediction Model</div>
+          <div class="tech-badge tb-ml">ML Model</div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-ico-wrap i-teal" style="font-size:22px;">🗺️</div>
+          <div class="tech-name">Leaflet + OSM</div>
+          <div class="tech-role">Interactive Route Maps</div>
+          <div class="tech-badge tb-free">Free API</div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-ico-wrap i-amber" style="font-size:22px;">🌤️</div>
+          <div class="tech-name">OpenWeatherMap</div>
+          <div class="tech-role">Live Weather — 3 Points</div>
+          <div class="tech-badge tb-free">Free API</div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-ico-wrap i-blue" style="font-size:22px;">🛣️</div>
+          <div class="tech-name">OpenRouteService</div>
+          <div class="tech-role">Driving Routes & ETAs</div>
+          <div class="tech-badge tb-free">Free API</div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-ico-wrap i-rose" style="font-size:22px;">📍</div>
+          <div class="tech-name">Nominatim</div>
+          <div class="tech-role">City Geocoding</div>
+          <div class="tech-badge tb-free">Free API</div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-ico-wrap i-purple"><i class="fab fa-js" style="font-size:22px;"></i></div>
+          <div class="tech-name">Vanilla JS</div>
+          <div class="tech-role">Zero-framework Frontend</div>
+          <div class="tech-badge tb-ui">Frontend</div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-ico-wrap i-green" style="font-size:22px;">📦</div>
+          <div class="tech-name">localStorage</div>
+          <div class="tech-role">Client-side Shipment Store</div>
+          <div class="tech-badge tb-ui">Frontend</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VALUES -->
+    <div class="sec-wrap reveal">
+      <div class="sec-head">
+        <div class="sec-icon"><i class="fas fa-heart"></i></div>
+        <div>
+          <div class="sec-title">What We Stand For</div>
+          <div class="sec-sub">The principles behind every design decision</div>
+        </div>
+      </div>
+      <div class="values-grid">
+        <div class="val-card">
+          <div class="val-bg-num">01</div>
+          <div class="val-ico i-blue"><i class="fas fa-unlock"></i></div>
+          <div class="val-name">Radically Open</div>
+          <div class="val-desc">Every API we use is free. Every model we train is on open data. Powerful tools should never be paywalled from those who need them most.</div>
+        </div>
+        <div class="val-card">
+          <div class="val-bg-num">02</div>
+          <div class="val-ico i-green"><i class="fas fa-bolt"></i></div>
+          <div class="val-name">Speed Above All</div>
+          <div class="val-desc">A prediction that arrives after the delay has happened is useless. We obsess over latency at every layer — from API calls to model inference.</div>
+        </div>
+        <div class="val-card">
+          <div class="val-bg-num">03</div>
+          <div class="val-ico i-purple"><i class="fas fa-eye"></i></div>
+          <div class="val-name">Clarity in Complexity</div>
+          <div class="val-desc">Supply chains are complex. Our job is to make that complexity invisible — one number, one colour, one decision. No jargon, no noise.</div>
+        </div>
+        <div class="val-card">
+          <div class="val-bg-num">04</div>
+          <div class="val-ico i-amber"><i class="fas fa-seedling"></i></div>
+          <div class="val-name">Built to Grow</div>
+          <div class="val-desc">We shipped a full ML-powered platform in 48 hours. But we designed every component to scale — from hackathon MVP to enterprise API.</div>
+        </div>
+        <div class="val-card">
+          <div class="val-bg-num">05</div>
+          <div class="val-ico i-teal"><i class="fas fa-handshake"></i></div>
+          <div class="val-name">Real Impact</div>
+          <div class="val-desc">We measure success in shipments protected, not features shipped. Every line of code exists to prevent a real logistics failure for a real business.</div>
+        </div>
+        <div class="val-card">
+          <div class="val-bg-num">06</div>
+          <div class="val-ico i-rose"><i class="fas fa-microscope"></i></div>
+          <div class="val-name">Data-Driven Always</div>
+          <div class="val-desc">Gut feelings don't run supply chains — data does. Our model is trained on real traffic patterns, real weather events, and real delay outcomes.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEAM -->
+    <div class="sec-wrap reveal">
+      <div class="sec-head">
+        <div class="sec-icon"><i class="fas fa-users"></i></div>
+        <div>
+          <div class="sec-title">Meet the Team</div>
+          <div class="sec-sub">The people who built ChainSight in 48 hours</div>
+        </div>
+      </div>
+      <div class="team-grid">
+        <div class="team-card">
+          <div class="team-av av1"><div class="av-ring"></div>D</div>
+          <div class="team-name">Dhruv Garg</div>
+          <div class="team-role">ML Engineer · Backend · Research</div>
+          <div class="team-bio">Designed and trained the XGBoost delay model. Built the Flask API, calibration pipeline, and route-aware 3-point weather logic that powers every prediction.</div>
+          <div class="team-tags"><span class="ttag">XGBoost</span><span class="ttag">Flask</span><span class="ttag">scikit-learn</span><span class="ttag">Python</span></div>
+        </div>
+        <div class="team-card">
+          <div class="team-av av2"><div class="av-ring"></div>S</div>
+          <div class="team-name">Shreya Ambasta</div>
+          <div class="team-role">Frontend · UX Lead</div>
+          <div class="team-bio">Architected the full multi-step shipment UI, animated dashboard, and all interactive map overlays. Obsessed with making complex logistics data feel effortless.</div>
+          <div class="team-tags"><span class="ttag">HTML/CSS</span><span class="ttag">JavaScript</span><span class="ttag">Leaflet</span><span class="ttag">UX Design</span></div>
+        </div>
+        <div class="team-card">
+          <div class="team-av av3"><div class="av-ring"></div>A</div>
+          <div class="team-name">Anjali Singh</div>
+          <div class="team-role">Product · Research</div>
+          <div class="team-bio">Led product strategy, user research, and market positioning. Defined the feature set and ensured every capability addresses a real logistics pain point.</div>
+          <div class="team-tags"><span class="ttag">Product Strategy</span><span class="ttag">Research</span><span class="ttag">Logistics</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROADMAP -->
+    <div class="sec-wrap reveal">
+      <div class="sec-head">
+        <div class="sec-icon"><i class="fas fa-map-signs"></i></div>
+        <div>
+          <div class="sec-title">What's Next</div>
+          <div class="sec-sub">Our roadmap beyond the hackathon</div>
+        </div>
+      </div>
+      <div class="card tl-wrap">
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-dot done"></div>
+            <div class="tl-phase">Completed · Hackathon 2025</div>
+            <div class="tl-title">Core MVP — Predict, Map, Save</div>
+            <div class="tl-desc">4-step shipment wizard, live API integration across all 4 free services, XGBoost ML backend, alternative route suggestions, and a full shipment dashboard with risk scoring.</div>
+            <div class="tl-chips">
+              <span class="tl-chip tc-done">✓ 4-step wizard</span>
+              <span class="tl-chip tc-done">✓ ML prediction</span>
+              <span class="tl-chip tc-done">✓ Live maps</span>
+              <span class="tl-chip tc-done">✓ Dashboard</span>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot active"></div>
+            <div class="tl-phase">In Progress · Q3 2025</div>
+            <div class="tl-title">Multi-carrier Tracking & Smart Alerts</div>
+            <div class="tl-desc">Real-time SMS and email alerts when a shipment's risk crosses a user-defined threshold. Support for FedEx, DHL, and BlueDart tracking codes via carrier APIs.</div>
+            <div class="tl-chips">
+              <span class="tl-chip tc-soon">~ SMS alerts</span>
+              <span class="tl-chip tc-soon">~ Email alerts</span>
+              <span class="tl-chip tc-soon">~ Carrier APIs</span>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot soon"></div>
+            <div class="tl-phase">Planned · Q4 2025</div>
+            <div class="tl-title">Historical Analytics & Model Retraining</div>
+            <div class="tl-desc">Per-route delay trend reports, carrier performance benchmarking, and automated monthly model retraining on collected shipment outcomes to keep accuracy improving.</div>
+            <div class="tl-chips">
+              <span class="tl-chip tc-soon">~ Analytics</span>
+              <span class="tl-chip tc-soon">~ Auto-retrain</span>
+            </div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot future"></div>
+            <div class="tl-phase">Future · 2026</div>
+            <div class="tl-title">Enterprise API & Multi-modal Routing</div>
+            <div class="tl-desc">Public REST API for third-party integrations, true intermodal routing combining road, rail, and sea in a single prediction, plus B2B dashboards with team accounts.</div>
+            <div class="tl-chips">
+              <span class="tl-chip tc-future">Enterprise API</span>
+              <span class="tl-chip tc-future">Intermodal</span>
+              <span class="tl-chip tc-future">Team accounts</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HACKATHON CARD -->
+    <div class="sec-wrap reveal">
+      <div class="hack-card">
+        <div class="hack-orb"></div>
+        <div class="hack-inner">
+          <div class="hack-trophy">🏆</div>
+          <div class="hack-txt">
+            <h2>Built at Hackathon 2025</h2>
+            <p>ChainSight was conceived, designed, and shipped in a single 48-hour hackathon sprint. Every line of code, every API call, and every ML feature was written from scratch — with zero paid services, zero proprietary APIs, and zero compromise on quality.</p>
+            <div class="hack-chips">
+              <span class="hchip">100% Free APIs</span>
+              <span class="hchip">No Credit Card</span>
+              <span class="hchip">Built in 48 Hours</span>
+              <span class="hchip">Open Source Spirit</span>
+              <span class="hchip">ML-Powered</span>
+              <span class="hchip">Real-Time Data</span>
+              <span class="hchip">6-Person Team</span>
+            </div>
+            <a href="/shipment" class="hack-cta"><i class="fas fa-rocket"></i> Try ChainSight Free</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<footer>
+  <div class="fi">
+    <div class="fl">Chain<em>Sight</em></div>
+    <div class="flinks">
+      <a href="/">Home</a>
+      <a href="/about">About</a>
+      <a href="/contact">Contact</a>
+      <a href="/shipment">New Shipment</a>
+    </div>
+    <div class="fc2">© 2025 ChainSight · Hackathon 2025 · 100% Free APIs · ML-Powered</div>
+  </div>
+</footer>
+
+<script>
+/* ── Mobile sidebar ── */
+function toggleSb(){
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('sbOverlay');
+  sb.classList.toggle('open');
+  ov.classList.toggle('open');
+  document.body.style.overflow = sb.classList.contains('open') ? 'hidden' : '';
+}
+function closeSb(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sbOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeSb(); });
+
+/* ── Notification badge: read from localStorage (same key as dashboard) ── */
+(function(){
+  try {
+    const shipments = JSON.parse(localStorage.getItem('chainsight_shipments') || '[]');
+    const alertCount = shipments.filter(s => s.risk === 'High' || s.risk === 'Moderate').length;
+    document.getElementById('notifBadge').textContent = alertCount;
+  } catch(e) {
+    document.getElementById('notifBadge').textContent = '0';
+  }
+})();
+
+/* ── Hero particle canvas ── */
+(function(){
+  const cv = document.getElementById('heroCanvas');
+  if(!cv) return;
+  const hero = cv.closest('.hero');
+  function resize(){ cv.width=hero.offsetWidth; cv.height=hero.offsetHeight; }
+  resize();
+  window.addEventListener('resize', resize);
+  const ctx = cv.getContext('2d');
+  const pts = Array.from({length:24},()=>({
+    x:Math.random()*cv.width, y:Math.random()*cv.height,
+    vx:(Math.random()-.5)*.28, vy:(Math.random()-.5)*.28,
+    r:Math.random()*2+.5, a:Math.random()*.32+.08
+  }));
+  function draw(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    pts.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0||p.x>cv.width) p.vx*=-1;
+      if(p.y<0||p.y>cv.height) p.vy*=-1;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(255,255,255,${p.a})`; ctx.fill();
+    });
+    for(let i=0;i<pts.length;i++) for(let j=i+1;j<pts.length;j++){
+      const dx=pts[i].x-pts[j].x, dy=pts[i].y-pts[j].y;
+      const d=Math.sqrt(dx*dx+dy*dy);
+      if(d<120){
+        ctx.beginPath(); ctx.moveTo(pts[i].x,pts[i].y); ctx.lineTo(pts[j].x,pts[j].y);
+        ctx.strokeStyle=`rgba(79,124,255,${(1-d/120)*.14})`; ctx.lineWidth=.8; ctx.stroke();
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ── Counter animation ── */
+function animCount(el, target, suffix, dur){
+  const start = performance.now();
+  function step(now){
+    const p = Math.min((now-start)/dur, 1);
+    const ease = 1-Math.pow(1-p,4);
+    el.innerHTML = Math.round(ease*target) + '<em>' + suffix + '</em>';
+    if(p<1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+let countersRan = false;
+const cObs = new IntersectionObserver(entries=>{
+  if(entries[0].isIntersecting && !countersRan){
+    countersRan = true;
+    animCount(document.getElementById('cnt1'), 92, '%', 1500);
+    animCount(document.getElementById('cnt2'), 48, 'h', 1200);
+    animCount(document.getElementById('cnt3'), 60, '+', 1300);
+    cObs.disconnect();
+  }
+},{threshold:.3});
+const statsEl = document.querySelector('.hero-stats-grid');
+if(statsEl) cObs.observe(statsEl);
+
+/* ── Scroll reveal ── */
+const revObs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('on'); revObs.unobserve(e.target); } });
+},{threshold:.07});
+document.querySelectorAll('.reveal').forEach(el=>revObs.observe(el));
+/* ── ChainSight Auth Header — paste this anywhere in your page <script> ── */
+(function applyAuthHeader() {
+  var s = null;
+  try { s = JSON.parse(localStorage.getItem('cs_session') || 'null'); } catch(e) {}
+  var btn = document.querySelector('a.signin');
+  if (!btn || !s || !s.firstName) return;
+  var first = s.firstName;
+  var initials = (first[0] + (s.lastName ? s.lastName[0] : '')).toUpperCase();
+  btn.style.cssText = [
+    'display:flex;align-items:center;gap:8px;padding:5px 14px 5px 6px;',
+    'background:linear-gradient(135deg,#1a56ff,#4f7cff);border:none;border-radius:24px;',
+    'font-family:"Plus Jakarta Sans",sans-serif;font-size:13px;font-weight:700;color:#fff;',
+    'cursor:pointer;text-decoration:none;box-shadow:0 4px 18px rgba(26,86,255,.38);',
+    'transition:all .3s;position:relative;'
+  ].join('');
+  btn.innerHTML =
+    '<div style="width:26px;height:26px;background:rgba(255,255,255,.25);border-radius:50%;' +
+    'display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;">' +
+    initials + '</div>Hi,\u00a0' + first;
+  btn.removeAttribute('href');
+  btn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    var m = document.getElementById('cs-user-menu');
+    if (m) { m.remove(); return; }
+    m = document.createElement('div');
+    m.id = 'cs-user-menu';
+    m.style.cssText = [
+      'position:absolute;top:calc(100% + 8px);right:0;background:#fff;',
+      'border:1.5px solid #e5eaf5;border-radius:14px;',
+      'box-shadow:0 12px 40px rgba(26,86,255,.14);',
+      'min-width:190px;z-index:9999;overflow:hidden;',
+      'font-family:"Plus Jakarta Sans",sans-serif;'
+    ].join('');
+    m.innerHTML =
+      '<div style="padding:12px 16px;border-bottom:1px solid #f0f3fb;">' +
+        '<div style="font-size:13px;font-weight:700;color:#0c0c1e;">' + s.firstName + ' ' + (s.lastName || '') + '</div>' +
+        '<div style="font-size:11px;color:#7e8ca0;margin-top:2px;">' + s.email + '</div>' +
+      '</div>' +
+      '<a href="index.html" style="display:flex;align-items:center;gap:10px;padding:10px 16px;' +
+      'font-size:13px;font-weight:600;color:#555;text-decoration:none;" ' +
+      'onmouseover="this.style.background=\'#f0f3fb\'" onmouseout="this.style.background=\'transparent\'">' +
+        '<i class="fas fa-home" style="width:14px;color:#1a56ff;font-size:12px;"></i>&nbsp;Dashboard</a>' +
+      '<div id="cs-so" style="display:flex;align-items:center;gap:10px;padding:10px 16px;' +
+      'font-size:13px;font-weight:600;color:#dc2626;cursor:pointer;" ' +
+      'onmouseover="this.style.background=\'#fff1f2\'" onmouseout="this.style.background=\'transparent\'">' +
+        '<i class="fas fa-sign-out-alt" style="width:14px;font-size:12px;"></i>&nbsp;Sign Out</div>';
+    btn.appendChild(m);
+    document.getElementById('cs-so').addEventListener('click', function() {
+      localStorage.removeItem('cs_session');
+      window.location.href = 'login.html';
+    });
+  });
+  document.addEventListener('click', function() {
+    var m = document.getElementById('cs-user-menu'); if (m) m.remove();
+  });
+})();
+</script>
+</body>
+</html>

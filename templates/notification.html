@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ChainSight – Notifications</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+  <style>
+    :root{
+      --blue:#1a56ff; --blue-soft:#4f7cff; --blue-dim:#eef2ff; --blue-dim2:#e4ecff;
+      --dark:#060612; --text:#0c0c1e; --muted:#7e8ca0;
+      --border:#e5eaf5; --surface:#fff; --bg:#f0f3fb;
+      --green:#16a34a; --amber:#d97706; --red:#dc2626;
+      --hdr:62px; --sidebar-w:252px;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;}
+    ::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:#c5cfea;border-radius:99px;}
+
+    /* ── HEADER ── */
+    .hdr{display:flex;justify-content:space-between;align-items:center;padding:0 26px;height:var(--hdr);background:rgba(255,255,255,.92);backdrop-filter:blur(22px);position:fixed;top:0;left:0;right:0;z-index:1000;border-bottom:1px solid var(--border);box-shadow:0 4px 24px rgba(26,86,255,.06);}
+    .logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+    .logo-box{width:38px;height:38px;background:linear-gradient(135deg,#1a56ff,#4f7cff);border-radius:11px;display:flex;align-items:center;justify-content:center;transition:transform .4s cubic-bezier(.34,1.56,.64,1);}
+    .logo-box:hover{transform:rotate(-11deg) scale(1.12);}
+    .logo-box svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+    .logo-txt{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--dark);letter-spacing:-.6px;}
+    .logo-txt em{color:var(--blue);font-style:normal;}
+    .nav{display:flex;align-items:center;gap:2px;}
+    .nav a{text-decoration:none;color:#555;font-size:14px;font-weight:600;padding:6px 14px;border-radius:8px;transition:all .2s;}
+    .nav a:hover{color:var(--blue);background:var(--blue-dim);}
+    .nav a.on{color:var(--blue);}
+    .hdr-r{display:flex;align-items:center;gap:10px;}
+    .notif{position:relative;width:38px;height:38px;background:#fff;border:1.5px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .28s;}
+    .notif i{color:var(--blue);font-size:15px;transition:transform .35s cubic-bezier(.34,1.56,.64,1);}
+    .notif:hover{background:var(--blue-dim);border-color:var(--blue);}
+    .notif:hover i{transform:rotate(18deg) scale(1.15);}
+    .notif.on{background:var(--blue-dim);border-color:var(--blue);}
+    .nbadge{position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;font-size:9px;font-weight:800;width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2.5px solid var(--bg);}
+    .signin{display:flex;align-items:center;gap:8px;padding:7px 16px 7px 7px;background:linear-gradient(135deg,#1a56ff,#4f7cff);border:none;border-radius:24px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;text-decoration:none;transition:all .3s cubic-bezier(.34,1.56,.64,1);}
+    .signin:hover{transform:translateY(-2px) scale(1.04);}
+    .s-av{width:26px;height:26px;background:rgba(255,255,255,.22);border-radius:50%;display:flex;align-items:center;justify-content:center;}
+    .sep{position:fixed;top:var(--hdr);left:0;right:0;height:3px;z-index:999;background:linear-gradient(90deg,transparent,var(--blue),var(--blue-soft),var(--blue),transparent);background-size:200% 100%;animation:sep-a 3s linear infinite;}
+    @keyframes sep-a{0%{background-position:100% 0}100%{background-position:-100% 0}}
+    .mob-tog{display:none;width:38px;height:38px;border:1.5px solid var(--border);border-radius:10px;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:var(--muted);background:var(--surface);}
+
+    /* ── SIDEBAR ── */
+    .app{display:flex;margin-top:calc(var(--hdr)+3px);min-height:calc(100vh - var(--hdr) - 3px);}
+    .sb{width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);position:fixed;top:calc(var(--hdr)+3px);left:0;bottom:0;z-index:800;display:flex;flex-direction:column;overflow:hidden;transition:transform .38s cubic-bezier(.4,0,.2,1);}
+    .sb-top{padding:22px 14px 16px;}
+    .sb-sec{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:12px;}
+    .sbtn{display:flex;align-items:center;gap:11px;width:100%;padding:12px 13px;border-radius:13px;border:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;margin-bottom:9px;transition:all .3s cubic-bezier(.34,1.56,.64,1);}
+    .sbtn-ico{width:34px;height:34px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;}
+    .sbtn-new{background:linear-gradient(135deg,#1a56ff,#4f7cff);color:#fff;box-shadow:0 6px 22px rgba(26,86,255,.35);}
+    .sbtn-new .sbtn-ico{background:rgba(255,255,255,.2);color:#fff;}
+    .sbtn-new:hover{transform:translateY(-2px);}
+    .sb-div{height:1px;background:var(--border);margin:4px 14px 14px;}
+    .sb-nav{padding:0 8px;flex:1;}
+    .sbnl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:700;padding:0 6px;margin-bottom:8px;}
+    .sbl{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;font-size:14px;color:#555;text-decoration:none;margin-bottom:3px;font-weight:600;transition:all .2s;}
+    .sbl-i{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);}
+    .sbl:hover,.sbl.on{background:var(--blue-dim);color:var(--blue);}
+    .sbl.on .sbl-i,.sbl:hover .sbl-i{color:var(--blue);}
+    .sb-foot{padding:14px;border-top:1px solid var(--border);}
+    .sys-ok{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:11px;background:#f7fff9;border:1px solid #bbf7d0;}
+    .sdot{width:8px;height:8px;background:var(--green);border-radius:50%;flex-shrink:0;animation:sdot 2.2s ease-in-out infinite;}
+    @keyframes sdot{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.45)}50%{box-shadow:0 0 0 6px rgba(34,197,94,0)}}
+    .sys-txt{font-size:12px;color:#16a34a;font-weight:700;}
+    .sys-sub{font-size:10px;color:#4ade80;margin-top:1px;}
+    .sb-overlay{display:none;position:fixed;inset:0;background:rgba(4,4,16,.5);backdrop-filter:blur(6px);z-index:799;}
+
+    /* ── MAIN ── */
+    .main{margin-left:var(--sidebar-w);flex:1;padding:28px 32px 80px;}
+
+    /* ── PAGE HERO ── */
+    .page-hero{background:linear-gradient(135deg,#040410 0%,#0c0c28 40%,#0a1540 70%,#07091e 100%);border-radius:22px;padding:40px 48px;margin-bottom:26px;position:relative;overflow:hidden;animation:fadeUp .7s cubic-bezier(.22,1,.36,1) both;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+    .ph-grid{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(79,124,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(79,124,255,.07) 1px,transparent 1px);background-size:44px 44px;animation:grid-drift 28s linear infinite;}
+    @keyframes grid-drift{0%{background-position:0 0}100%{background-position:44px 44px}}
+    .ph-orb{position:absolute;width:420px;height:420px;border-radius:50%;background:radial-gradient(circle,rgba(26,86,255,.2),transparent 65%);top:-140px;right:-80px;pointer-events:none;animation:float1 10s ease-in-out infinite;}
+    @keyframes float1{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}
+    .ph-inner{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+    .ph-left{}
+    .ph-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(26,86,255,.18);border:1px solid rgba(79,124,255,.32);border-radius:100px;padding:5px 14px 5px 7px;font-size:11px;font-weight:700;color:#a5b4fc;letter-spacing:1.3px;text-transform:uppercase;margin-bottom:16px;}
+    .ph-badge-dot{width:22px;height:22px;background:rgba(96,165,250,.18);border-radius:50%;display:flex;align-items:center;justify-content:center;}
+    .ph-badge-dot::after{content:'';width:8px;height:8px;background:#60a5fa;border-radius:50%;animation:pulse-dot 1.8s ease-in-out infinite;}
+    @keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(1.6)}}
+    .ph-title{font-family:'Syne',sans-serif;font-size:clamp(24px,3vw,38px);font-weight:800;color:#fff;letter-spacing:-1.5px;line-height:1.1;margin-bottom:10px;}
+    .ph-title em{font-style:normal;background:linear-gradient(90deg,#60a5fa,#818cf8,#a78bfa,#60a5fa);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:grad-shift 5s linear infinite;}
+    @keyframes grad-shift{0%{background-position:0 0}100%{background-position:300% 0}}
+    .ph-desc{font-size:14px;color:rgba(255,255,255,.48);line-height:1.75;max-width:460px;}
+    .ph-stats{display:flex;gap:14px;flex-wrap:wrap;}
+    .ph-stat{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:14px 18px;text-align:center;min-width:90px;}
+    .ph-stat-num{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:#fff;line-height:1;}
+    .ph-stat-lbl{font-size:10px;color:rgba(255,255,255,.38);font-weight:700;margin-top:5px;letter-spacing:.8px;text-transform:uppercase;}
+
+    /* ── FILTERS BAR ── */
+    .filters-bar{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap;}
+    .filter-btn{display:flex;align-items:center;gap:7px;padding:8px 16px;border-radius:100px;border:1.5px solid var(--border);background:var(--surface);font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;transition:all .22s;}
+    .filter-btn:hover{border-color:#cdd8ff;color:var(--blue);}
+    .filter-btn.active{background:var(--blue-dim);border-color:var(--blue);color:var(--blue);}
+    .filter-btn .fb-dot{width:8px;height:8px;border-radius:50%;}
+    .filter-spacer{flex:1;}
+    .mark-read-btn{display:flex;align-items:center;gap:7px;padding:8px 16px;border-radius:100px;border:1.5px solid var(--border);background:var(--surface);font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;transition:all .22s;}
+    .mark-read-btn:hover{border-color:var(--green);color:var(--green);}
+    .clear-all-btn{display:flex;align-items:center;gap:7px;padding:8px 16px;border-radius:100px;border:1.5px solid var(--border);background:var(--surface);font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;transition:all .22s;}
+    .clear-all-btn:hover{border-color:#fca5a5;color:var(--red);}
+
+    /* ── NOTIFICATION LIST ── */
+    .notif-panel{background:var(--surface);border-radius:20px;border:1.5px solid var(--border);box-shadow:0 2px 16px rgba(26,86,255,.05);overflow:hidden;animation:fadeUp .6s cubic-bezier(.22,1,.36,1) both .1s;}
+    .notif-panel-head{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,#fafbff,#fff);}
+    .nph-left{display:flex;align-items:center;gap:12px;}
+    .nph-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;}
+    .nph-count{font-size:11px;font-weight:700;padding:3px 11px;border-radius:100px;background:#f1f5ff;color:var(--blue);}
+    .nph-unread{font-size:11px;font-weight:700;padding:3px 11px;border-radius:100px;background:#fff1f2;color:var(--red);}
+
+    /* individual notification item */
+    .notif-item{display:flex;align-items:flex-start;gap:16px;padding:18px 24px;border-bottom:1px solid var(--border);transition:background .18s;position:relative;cursor:default;animation:fadeUp .4s cubic-bezier(.22,1,.36,1) both;}
+    .notif-item:last-child{border-bottom:none;}
+    .notif-item:hover{background:#f8faff;}
+    .notif-item.unread{background:linear-gradient(90deg,#f0f4ff,#fff);}
+    .notif-item.unread::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:0 3px 3px 0;background:linear-gradient(180deg,var(--blue),var(--blue-soft));}
+
+    .ni-ico-wrap{width:44px;height:44px;border-radius:13px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
+    .notif-item:hover .ni-ico-wrap{transform:scale(1.08) rotate(-4deg);}
+    .ni-ico-added{background:#dcfce7;}
+    .ni-ico-deleted{background:#fff1f2;}
+    .ni-ico-high{background:#ffe4e6;}
+    .ni-ico-moderate{background:#fef3c7;}
+    .ni-ico-system{background:var(--blue-dim);}
+
+    .ni-body{flex:1;min-width:0;}
+    .ni-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:4px;}
+    .ni-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--text);}
+    .ni-time{font-size:11px;color:var(--muted);font-weight:600;flex-shrink:0;white-space:nowrap;}
+    .ni-desc{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:8px;}
+    .ni-desc strong{color:var(--text);font-weight:700;}
+    .ni-tags{display:flex;flex-wrap:wrap;gap:6px;}
+    .ni-tag{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:100px;font-size:10px;font-weight:800;letter-spacing:.3px;}
+    .nt-added{background:#dcfce7;color:#15803d;}
+    .nt-deleted{background:#ffe4e6;color:#9f1239;}
+    .nt-high{background:#ffe4e6;color:#9f1239;}
+    .nt-moderate{background:#fef3c7;color:#92400e;}
+    .nt-route{background:var(--blue-dim);color:var(--blue);}
+    .nt-info{background:#f1f5f9;color:#475569;}
+
+    .ni-actions{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+    .ni-act-btn{width:28px;height:28px;border-radius:8px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .2s;}
+    .na-dismiss{background:#f1f5f9;color:var(--muted);}
+    .na-dismiss:hover{background:#e2e8f0;color:#475569;}
+    .na-read{background:var(--blue-dim);color:var(--blue);}
+    .na-read:hover{background:#cdd8ff;}
+
+    /* unread dot */
+    .ni-unread-dot{width:9px;height:9px;border-radius:50%;background:var(--blue);flex-shrink:0;margin-top:4px;box-shadow:0 0 0 3px rgba(26,86,255,.15);}
+
+    /* ── EMPTY STATE ── */
+    .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 40px;text-align:center;}
+    .es-ring{position:relative;width:110px;height:110px;margin-bottom:28px;}
+    .es-ring-c{position:absolute;inset:0;border-radius:50%;border:2.5px solid var(--border);animation:ring-in .5s cubic-bezier(.34,1.56,.64,1) both;}
+    .es-ring-c2{inset:12px;animation-delay:.1s;}
+    .es-ring-c3{inset:24px;animation-delay:.2s;}
+    @keyframes ring-in{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
+    .es-ring-core{position:absolute;inset:32px;background:var(--blue-dim);border-radius:50%;display:flex;align-items:center;justify-content:center;animation:ring-in .5s both .3s;}
+    .es-ring-core i{color:var(--blue);font-size:22px;animation:bell-wiggle 3s ease-in-out infinite 1s;}
+    @keyframes bell-wiggle{0%,100%{transform:rotate(0)}10%{transform:rotate(-12deg)}20%{transform:rotate(12deg)}30%{transform:rotate(-8deg)}40%{transform:rotate(8deg)}50%{transform:rotate(0)}}
+    .empty-state h3{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--dark);margin-bottom:9px;}
+    .empty-state p{font-size:14px;color:var(--muted);max-width:320px;line-height:1.75;margin-bottom:24px;}
+    .es-cta{display:inline-flex;align-items:center;gap:9px;background:linear-gradient(135deg,#1a56ff,#4f7cff);color:#fff;padding:12px 24px;border-radius:12px;font-size:14px;font-weight:800;text-decoration:none;box-shadow:0 6px 20px rgba(26,86,255,.35);transition:all .3s cubic-bezier(.34,1.56,.64,1);}
+    .es-cta:hover{transform:translateY(-2px) scale(1.04);}
+
+    /* ── MOBILE ── */
+    @media(max-width:768px){
+      .sb{transform:translateX(-100%);width:260px;z-index:900;}
+      .sb.open{transform:translateX(0);}
+      .sb-overlay.open{display:block;}
+      .nav{display:none;}
+      .mob-tog{display:flex;}
+      .main{margin-left:0;padding:14px 14px 64px;}
+      .page-hero{padding:26px 20px;}
+      .ph-inner{flex-direction:column;}
+      .ph-stats{width:100%;}
+      .filters-bar{gap:6px;}
+      .filter-btn,.mark-read-btn,.clear-all-btn{font-size:11px;padding:7px 12px;}
+      .notif-item{padding:14px 16px;gap:12px;}
+      .ni-ico-wrap{width:38px;height:38px;font-size:17px;}
+    }
+    @media(max-width:480px){
+      .ph-stats{flex-direction:row;flex-wrap:wrap;}
+      .ph-stat{flex:1;min-width:70px;}
+      .ni-top{flex-direction:column;gap:4px;}
+    }
+  </style>
+</head>
+<body>
+
+<div class="sb-overlay" id="sbOverlay" onclick="closeSb()"></div>
+
+<header class="hdr">
+  <div style="display:flex;align-items:center;gap:12px;">
+    <div class="mob-tog" onclick="toggleSb()"><i class="fas fa-bars"></i></div>
+    <a href="/" class="logo">
+      <div class="logo-box"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+      <span class="logo-txt">Chain<em>Sight</em></span>
+    </a>
+  </div>
+  <nav class="nav">
+    <a href="/">Home</a>
+    <a href="/about">About Us</a>
+    <a href="/contact">Contact</a>
+    <a href="/shipment">New Shipment</a>
+  </nav>
+  <div class="hdr-r">
+    <div class="notif on" title="Notifications" onclick="location.href='/notifications'">
+      <i class="fas fa-bell"></i>
+      <span class="nbadge" id="notifBadge">0</span>
+    </div>
+    <a href="/login" class="signin"><div class="s-av"><i class="fas fa-user"></i></div>Sign In</a>
+  </div>
+</header>
+<div class="sep"></div>
+
+<div class="app">
+  <aside class="sb" id="sidebar">
+    <div class="sb-top">
+      <div class="sb-sec">Quick Actions</div>
+      <a href="/shipment" class="sbtn sbtn-new"><div class="sbtn-ico"><i class="fas fa-plus"></i></div>New Shipment</a>
+    </div>
+    <div class="sb-div"></div>
+    <div class="sb-nav">
+      <div class="sbnl">Navigate</div>
+      <a href="/" class="sbl"><div class="sbl-i"><i class="fas fa-home"></i></div>Dashboard</a>
+      <a href="/shipment" class="sbl"><div class="sbl-i"><i class="fas fa-truck"></i></div>New Shipment</a>
+      <a href="/notifications" class="sbl on"><div class="sbl-i"><i class="fas fa-bell"></i></div>Notifications</a>
+      <a href="/about" class="sbl"><div class="sbl-i"><i class="fas fa-info-circle"></i></div>About Us</a>
+      <a href="/contact" class="sbl"><div class="sbl-i"><i class="fas fa-envelope"></i></div>Contact</a>
+    </div>
+    <div class="sb-foot">
+      <div class="sys-ok">
+        <div class="sdot"></div>
+        <div>
+          <div class="sys-txt">All Systems Online</div>
+          <div class="sys-sub">ML Model · Weather APIs</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- PAGE HERO -->
+    <div class="page-hero">
+      <div class="ph-grid"></div>
+      <div class="ph-orb"></div>
+      <div class="ph-inner">
+        <div class="ph-left">
+          <div class="ph-badge"><div class="ph-badge-dot"></div>Live Activity Log</div>
+          <h1 class="ph-title">Your <em>Notifications</em></h1>
+          <p class="ph-desc">Track every shipment event — additions, deletions, and ML-flagged risk alerts — all in one feed.</p>
+        </div>
+        <div class="ph-stats">
+          <div class="ph-stat"><div class="ph-stat-num" id="statTotal">0</div><div class="ph-stat-lbl">Total</div></div>
+          <div class="ph-stat"><div class="ph-stat-num" id="statUnread" style="color:#60a5fa;">0</div><div class="ph-stat-lbl">Unread</div></div>
+          <div class="ph-stat"><div class="ph-stat-num" id="statAlerts" style="color:#f87171;">0</div><div class="ph-stat-lbl">Risk Alerts</div></div>
+          <div class="ph-stat"><div class="ph-stat-num" id="statAdded" style="color:#4ade80;">0</div><div class="ph-stat-lbl">Added</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filters-bar">
+      <button class="filter-btn active" data-filter="all" onclick="setFilter('all',this)">
+        <i class="fas fa-layer-group" style="font-size:11px;"></i> All
+      </button>
+      <button class="filter-btn" data-filter="unread" onclick="setFilter('unread',this)">
+        <span class="fb-dot" style="background:var(--blue);"></span> Unread
+      </button>
+      <button class="filter-btn" data-filter="risk" onclick="setFilter('risk',this)">
+        <span class="fb-dot" style="background:var(--red);"></span> Risk Alerts
+      </button>
+      <button class="filter-btn" data-filter="added" onclick="setFilter('added',this)">
+        <span class="fb-dot" style="background:var(--green);"></span> Added
+      </button>
+      <button class="filter-btn" data-filter="deleted" onclick="setFilter('deleted',this)">
+        <span class="fb-dot" style="background:var(--red);"></span> Deleted
+      </button>
+      <div class="filter-spacer"></div>
+      <button class="mark-read-btn" onclick="markAllRead()"><i class="fas fa-check-double" style="font-size:11px;"></i> Mark all read</button>
+      <button class="clear-all-btn" onclick="clearAll()"><i class="fas fa-trash" style="font-size:11px;"></i> Clear all</button>
+    </div>
+
+    <!-- NOTIFICATION PANEL -->
+    <div class="notif-panel">
+      <div class="notif-panel-head">
+        <div class="nph-left">
+          <span class="nph-title">Activity Feed</span>
+          <span class="nph-count" id="panelCount">0 items</span>
+          <span class="nph-unread" id="panelUnread" style="display:none;">0 unread</span>
+        </div>
+      </div>
+      <div id="notifList"></div>
+    </div>
+
+  </main>
+</div>
+
+<footer style="margin-left:var(--sidebar-w);background:var(--dark);padding:28px 38px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;border-top:1px solid rgba(255,255,255,.07);padding-top:20px;">
+    <span style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#fff;">Chain<em style="color:#4f7cff;font-style:normal;">Sight</em></span>
+    <span style="font-size:12px;color:rgba(255,255,255,.2);">© 2025 ChainSight · Hackathon 2025 · 100% Free APIs · ML-Powered</span>
+  </div>
+</footer>
+
+<script>
+/* ─────────────────────────────────────────────
+   STORAGE KEYS
+───────────────────────────────────────────── */
+const NOTIF_KEY = 'chainsight_notifications';
+const SHIP_KEY  = 'chainsight_shipments';
+
+/* ─────────────────────────────────────────────
+   NOTIFICATION HELPERS  (used by ALL pages)
+   Copy this block into index.html & shipment.html
+   via the instructions at the bottom of this file
+───────────────────────────────────────────── */
+function loadNotifs() {
+  try { return JSON.parse(localStorage.getItem(NOTIF_KEY) || '[]'); } catch { return []; }
+}
+function saveNotifs(list) {
+  localStorage.setItem(NOTIF_KEY, JSON.stringify(list));
+}
+window.pushNotification = function(notif) {
+  /* notif = { type, title, desc, route, risk, prob, cargo, transport } */
+  const list = loadNotifs();
+  list.unshift({
+    id:        'N-' + Date.now() + '-' + Math.random().toString(36).slice(2,6),
+    type:      notif.type,        // 'added' | 'deleted' | 'risk_high' | 'risk_moderate'
+    title:     notif.title,
+    desc:      notif.desc,
+    route:     notif.route || null,
+    risk:      notif.risk  || null,
+    prob:      notif.prob  || null,
+    cargo:     notif.cargo || null,
+    transport: notif.transport || null,
+    ts:        new Date().toISOString(),
+    read:      false,
+  });
+  // keep max 120 notifications
+  if (list.length > 120) list.splice(120);
+  saveNotifs(list);
+};
+
+/* ─────────────────────────────────────────────
+   LIVE BADGE (notification bell count)
+───────────────────────────────────────────── */
+function refreshBadge() {
+  const unread = loadNotifs().filter(n => !n.read).length;
+  const el = document.getElementById('notifBadge');
+  if (el) el.textContent = unread > 0 ? unread : '0';
+}
+
+/* ─────────────────────────────────────────────
+   FILTER STATE
+───────────────────────────────────────────── */
+let activeFilter = 'all';
+function setFilter(f, btn) {
+  activeFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderList();
+}
+
+/* ─────────────────────────────────────────────
+   RENDER
+───────────────────────────────────────────── */
+const META = {
+  added:          { ico: '✅', wrapCls: 'ni-ico-added',    tagCls: 'nt-added',    tagLbl: 'Shipment Added' },
+  deleted:        { ico: '🗑️', wrapCls: 'ni-ico-deleted',  tagCls: 'nt-deleted',  tagLbl: 'Shipment Removed' },
+  risk_high:      { ico: '🚨', wrapCls: 'ni-ico-high',     tagCls: 'nt-high',     tagLbl: 'High Risk' },
+  risk_moderate:  { ico: '⚠️', wrapCls: 'ni-ico-moderate', tagCls: 'nt-moderate', tagLbl: 'Moderate Risk' },
+  system:         { ico: 'ℹ️', wrapCls: 'ni-ico-system',   tagCls: 'nt-info',     tagLbl: 'System' },
+};
+
+function fmtTime(iso) {
+  const now  = new Date();
+  const then = new Date(iso);
+  const diffMs = now - then;
+  const diffMin = Math.floor(diffMs / 60000);
+  if (diffMin < 1)   return 'Just now';
+  if (diffMin < 60)  return `${diffMin}m ago`;
+  const diffHr = Math.floor(diffMin / 60);
+  if (diffHr < 24)   return `${diffHr}h ago`;
+  const diffDay = Math.floor(diffHr / 24);
+  if (diffDay < 7)   return `${diffDay}d ago`;
+  return then.toLocaleDateString('en-IN', { day:'2-digit', month:'short' });
+}
+
+function renderList() {
+  let list = loadNotifs();
+
+  // Stats
+  const unread   = list.filter(n => !n.read).length;
+  const alerts   = list.filter(n => n.type === 'risk_high' || n.type === 'risk_moderate').length;
+  const added    = list.filter(n => n.type === 'added').length;
+  document.getElementById('statTotal').textContent  = list.length;
+  document.getElementById('statUnread').textContent = unread;
+  document.getElementById('statAlerts').textContent = alerts;
+  document.getElementById('statAdded').textContent  = added;
+  document.getElementById('panelCount').textContent  = list.length + ' item' + (list.length !== 1 ? 's' : '');
+  const unreadEl = document.getElementById('panelUnread');
+  if (unread > 0) { unreadEl.style.display = 'flex'; unreadEl.textContent = unread + ' unread'; }
+  else             { unreadEl.style.display = 'none'; }
+
+  // Update bell badge
+  refreshBadge();
+
+  // Apply filter
+  if (activeFilter === 'unread')  list = list.filter(n => !n.read);
+  if (activeFilter === 'risk')    list = list.filter(n => n.type === 'risk_high' || n.type === 'risk_moderate');
+  if (activeFilter === 'added')   list = list.filter(n => n.type === 'added');
+  if (activeFilter === 'deleted') list = list.filter(n => n.type === 'deleted');
+
+  const container = document.getElementById('notifList');
+
+  if (list.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="es-ring">
+          <div class="es-ring-c es-ring-c"></div>
+          <div class="es-ring-c es-ring-c2"></div>
+          <div class="es-ring-c es-ring-c3"></div>
+          <div class="es-ring-core"><i class="fas fa-bell"></i></div>
+        </div>
+        <h3>${activeFilter === 'all' ? 'No Notifications Yet' : 'Nothing Here'}</h3>
+        <p>${activeFilter === 'all'
+          ? 'Notifications appear here when you add or delete shipments, or when the ML model flags a risk.'
+          : 'No notifications match this filter. Try a different category.'}</p>
+        ${activeFilter === 'all' ? `<a class="es-cta" href="/shipment"><i class="fas fa-plus"></i> Create First Shipment</a>` : ''}
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = list.map((n, i) => {
+    const m   = META[n.type] || META.system;
+    const del = `animation-delay:${i * 40}ms`;
+    const tags = [];
+    tags.push(`<span class="ni-tag ${m.tagCls}">${m.tagLbl}</span>`);
+    if (n.route)     tags.push(`<span class="ni-tag nt-route"><i class="fas fa-map-marker-alt" style="font-size:9px;"></i> ${n.route}</span>`);
+    if (n.prob != null) tags.push(`<span class="ni-tag ${n.type==='risk_high'?'nt-high':'nt-moderate'}">Prob: ${n.prob}%</span>`);
+    if (n.cargo)     tags.push(`<span class="ni-tag nt-info">${n.cargo}</span>`);
+    if (n.transport) tags.push(`<span class="ni-tag nt-info">${n.transport.toUpperCase()}</span>`);
+    return `
+      <div class="notif-item ${n.read ? '' : 'unread'}" id="ni-${n.id}" style="${del}">
+        ${!n.read ? '<div class="ni-unread-dot"></div>' : '<div style="width:9px;flex-shrink:0;"></div>'}
+        <div class="ni-ico-wrap ${m.wrapCls}">${m.ico}</div>
+        <div class="ni-body">
+          <div class="ni-top">
+            <div class="ni-title">${n.title}</div>
+            <div class="ni-time">${fmtTime(n.ts)}</div>
+          </div>
+          <div class="ni-desc">${n.desc}</div>
+          <div class="ni-tags">${tags.join('')}</div>
+        </div>
+        <div class="ni-actions">
+          ${!n.read ? `<button class="ni-act-btn na-read" onclick="markRead('${n.id}')" title="Mark as read"><i class="fas fa-check"></i></button>` : ''}
+          <button class="ni-act-btn na-dismiss" onclick="dismiss('${n.id}')" title="Dismiss"><i class="fas fa-times"></i></button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+/* ─────────────────────────────────────────────
+   ACTIONS
+───────────────────────────────────────────── */
+function markRead(id) {
+  const list = loadNotifs().map(n => n.id === id ? { ...n, read: true } : n);
+  saveNotifs(list);
+  renderList();
+}
+function dismiss(id) {
+  const el = document.getElementById('ni-' + id);
+  if (el) { el.style.opacity='0'; el.style.transform='translateX(30px)'; el.style.transition='all .3s'; }
+  setTimeout(() => {
+    saveNotifs(loadNotifs().filter(n => n.id !== id));
+    renderList();
+  }, 280);
+}
+function markAllRead() {
+  saveNotifs(loadNotifs().map(n => ({ ...n, read: true })));
+  renderList();
+}
+function clearAll() {
+  if (!confirm('Clear all notifications? This cannot be undone.')) return;
+  localStorage.removeItem(NOTIF_KEY);
+  renderList();
+}
+
+/* ─────────────────────────────────────────────
+   SIDEBAR
+───────────────────────────────────────────── */
+function toggleSb() {
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('sbOverlay');
+  sb.classList.toggle('open');
+  ov.classList.toggle('open');
+  document.body.style.overflow = sb.classList.contains('open') ? 'hidden' : '';
+}
+function closeSb() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sbOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSb(); });
+
+/* ─────────────────────────────────────────────
+   DEMO SEED  — if localStorage is empty, inject
+   a few sample notifications so the page isn't blank
+───────────────────────────────────────────── */
+function seedDemoIfEmpty() {
+  const list = loadNotifs();
+  if (list.length > 0) return;
+  const demos = [
+    {
+      type:'risk_high', title:'🚨 High Delay Risk Detected',
+      desc:'ML model flagged <strong>Mumbai → Delhi</strong> with a 78% delay probability due to adverse weather and heavy traffic.',
+      route:'Mumbai → Delhi', risk:'High', prob:78, cargo:'Electronics', transport:'road'
+    },
+    {
+      type:'added', title:'Shipment Added to Dashboard',
+      desc:'<strong>Pune → Hyderabad</strong> road shipment was successfully saved. Risk level: Low (22% delay probability).',
+      route:'Pune → Hyderabad', risk:'Low', prob:22, cargo:'General', transport:'road'
+    },
+    {
+      type:'risk_moderate', title:'⚠️ Moderate Risk — Monitor Closely',
+      desc:'<strong>Chennai → Bengaluru</strong> route shows 47% delay probability. Moderate traffic and humidity detected.',
+      route:'Chennai → Bengaluru', risk:'Moderate', prob:47, cargo:'Perishable / Food', transport:'road'
+    },
+    {
+      type:'deleted', title:'Shipment Removed',
+      desc:'<strong>Kolkata → Bhubaneswar</strong> shipment was deleted from the dashboard.',
+      route:'Kolkata → Bhubaneswar', risk:null, prob:null, cargo:'Bulk', transport:'rail'
+    },
+  ];
+  const now = Date.now();
+  demos.forEach((d, i) => {
+    const n = {
+      id: 'N-demo-' + i,
+      type: d.type, title: d.title, desc: d.desc,
+      route: d.route, risk: d.risk, prob: d.prob,
+      cargo: d.cargo, transport: d.transport,
+      ts: new Date(now - (i * 3600000 + Math.random() * 1800000)).toISOString(),
+      read: i > 1,  // first two unread
+    };
+    list.push(n);
+  });
+  saveNotifs(list);
+}
+
+seedDemoIfEmpty();
+renderList();
+</script>
+
+<!--
+  ═══════════════════════════════════════════════════════════════════
+  HOW TO WIRE UP THE OTHER PAGES
+  ═══════════════════════════════════════════════════════════════════
+
+  ① DASHBOARD (index.html)
+  ─────────────────────────
+  Add this helper to your <script> block (near the top, after STORAGE_KEY):
+
+    const NOTIF_KEY = 'chainsight_notifications';
+    function pushNotification(n) {
+      try {
+        let list = JSON.parse(localStorage.getItem(NOTIF_KEY)||'[]');
+        list.unshift({ id:'N-'+Date.now()+'-'+Math.random().toString(36).slice(2,6),
+          type:n.type, title:n.title, desc:n.desc, route:n.route||null,
+          risk:n.risk||null, prob:n.prob||null, cargo:n.cargo||null,
+          transport:n.transport||null, ts:new Date().toISOString(), read:false });
+        if(list.length>120) list.splice(120);
+        localStorage.setItem(NOTIF_KEY, JSON.stringify(list));
+      } catch(e){}
+    }
+
+  Then inside `deleteShipment()`, BEFORE filtering and saving, add:
+
+    const toDelete = loadShipments().find(s => s.id === id);
+    if (toDelete) {
+      pushNotification({
+        type: 'deleted',
+        title: 'Shipment Removed',
+        desc: `<strong>${toDelete.origin} → ${toDelete.destination}</strong> shipment was deleted from the dashboard.`,
+        route: `${toDelete.origin} → ${toDelete.destination}`,
+        cargo: toDelete.cargo, transport: toDelete.transport,
+      });
+    }
+
+  Update the notification badge to use unread count instead of risk count:
+  In renderDashboard(), change:
+    notifEl.textContent = highRisk + modRisk;
+  to:
+    try {
+      const notifs = JSON.parse(localStorage.getItem('chainsight_notifications')||'[]');
+      notifEl.textContent = notifs.filter(n=>!n.read).length || 0;
+    } catch(e){ notifEl.textContent = 0; }
+
+  Also make the bell clickable → notifications page:
+    <div class="notif" title="Notifications" onclick="location.href='/notifications'">
+
+
+  ② SHIPMENT PAGE (shipment.html)
+  ─────────────────────────────────
+  Add the same pushNotification helper above.
+
+  Then at the end of `saveShipment()`, BEFORE the redirect, add:
+
+    const riskType = risk === 'High' ? 'risk_high' : risk === 'Moderate' ? 'risk_moderate' : null;
+
+    // Always fire "added"
+    pushNotification({
+      type: 'added',
+      title: 'Shipment Added to Dashboard',
+      desc: `<strong>${origin} → ${dest}</strong> ${selectedType} shipment saved. Risk: ${risk} (${prob}% delay probability).`,
+      route: `${origin} → ${dest}`,
+      risk, prob, cargo, transport: selectedType,
+    });
+
+    // Additionally fire a risk alert for Moderate / High
+    if (riskType) {
+      pushNotification({
+        type: riskType,
+        title: risk === 'High' ? '🚨 High Delay Risk Detected' : '⚠️ Moderate Risk — Monitor Closely',
+        desc: `ML model flagged <strong>${origin} → ${dest}</strong> with a ${prob}% delay probability.${
+          liveData.anyBadWeather ? ' Adverse weather on corridor.' : ''
+        }${liveData.trafficStatus >= 2 ? ' Heavy traffic detected.' : ''}`,
+        route: `${origin} → ${dest}`,
+        risk, prob, cargo, transport: selectedType,
+      });
+    }
+
+  Make the bell icon link to notifications:
+    <div class="notif" onclick="location.href='/notifications'">
+
+  ═══════════════════════════════════════════════════════════════════
+-->
+</body>
+</html>

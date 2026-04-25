@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ChainSight – Smart Shipment</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    :root {
+      --blue:#1a56ff; --blue-soft:#4f7cff; --blue-dim:#eef2ff;
+      --dark:#060612; --text:#0c0c1e; --muted:#7e8ca0;
+      --border:#e5eaf5; --surface:#fff; --bg:#f0f3fb;
+      --green:#16a34a; --amber:#d97706; --red:#dc2626;
+      --hdr:62px; --sidebar-w:252px;
+      --shadow-sm:0 2px 12px rgba(26,86,255,0.07);
+      --shadow-md:0 8px 32px rgba(26,86,255,0.13);
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;}
+    ::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:#c5cfea;border-radius:99px;}
+    .hdr{display:flex;justify-content:space-between;align-items:center;padding:0 26px;height:var(--hdr);background:rgba(255,255,255,.9);backdrop-filter:blur(22px);position:fixed;top:0;left:0;right:0;z-index:1000;border-bottom:1px solid var(--border);box-shadow:0 4px 24px rgba(26,86,255,.06);}
+    .hdr-l{display:flex;align-items:center;gap:14px;}
+    .logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+    .logo-box{width:38px;height:38px;background:linear-gradient(135deg,#1a56ff,#4f7cff);border-radius:11px;display:flex;align-items:center;justify-content:center;}
+    .logo-box svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+    .logo-txt{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--dark);letter-spacing:-.6px;}
+    .logo-txt em{color:var(--blue);font-style:normal;}
+    .nav{display:flex;align-items:center;gap:2px;}
+    .nav a{text-decoration:none;color:#555;font-size:14px;font-weight:600;padding:6px 14px;border-radius:8px;margin-left:2px;transition:all .2s;position:relative;}
+    .nav a::after{content:'';position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:0;height:2px;background:var(--blue);border-radius:2px;transition:width .25s;}
+    .nav a:hover{color:var(--blue);background:var(--blue-dim);}
+    .nav a:hover::after,.nav a.on::after{width:calc(100% - 22px);}
+    .nav a.on{color:var(--blue);}
+    .hdr-r{display:flex;align-items:center;gap:10px;}
+    .notif{position:relative;width:38px;height:38px;background:#fff;border:1.5px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .28s;}
+    .notif i{color:var(--blue);font-size:15px;transition:transform .35s cubic-bezier(.34,1.56,.64,1);}
+    .notif:hover{background:var(--blue-dim);border-color:var(--blue);}
+    .notif:hover i{transform:rotate(18deg) scale(1.15);}
+    .nbadge{position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;font-size:9px;font-weight:800;width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2.5px solid var(--bg);animation:pop .5s cubic-bezier(.34,1.56,.64,1) both 1s;}
+    @keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+    .signin{display:flex;align-items:center;gap:8px;padding:7px 16px 7px 7px;background:linear-gradient(135deg,#1a56ff,#4f7cff);border:none;border-radius:24px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;color:#fff;cursor:pointer;text-decoration:none;box-shadow:0 4px 18px rgba(26,86,255,.38);transition:all .3s cubic-bezier(.34,1.56,.64,1);}
+    .s-av{width:26px;height:26px;background:rgba(255,255,255,.22);border-radius:50%;display:flex;align-items:center;justify-content:center;}
+    .s-av i{font-size:11px;}
+    .signin:hover{transform:translateY(-2px) scale(1.05);}
+    .sep{position:fixed;top:var(--hdr);left:0;right:0;height:3px;z-index:999;background:linear-gradient(90deg,transparent,var(--blue),var(--blue-soft),var(--blue),transparent);background-size:200% 100%;animation:sep-a 3s linear infinite;}
+    @keyframes sep-a{0%{background-position:100% 0}100%{background-position:-100% 0}}
+    .app{display:flex;margin-top:calc(var(--hdr)+3px);min-height:calc(100vh - var(--hdr) - 3px);}
+    .sb{width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);position:fixed;top:calc(var(--hdr)+3px);left:0;bottom:0;z-index:800;display:flex;flex-direction:column;overflow:hidden;}
+    .sb-top{padding:22px 14px 16px;}
+    .sb-sec{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:12px;}
+    .sbtn{display:flex;align-items:center;gap:11px;width:100%;padding:12px 13px;border-radius:13px;border:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;margin-bottom:9px;}
+    .sbtn-ico{width:34px;height:34px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;}
+    .sbtn-new{background:linear-gradient(135deg,#1a56ff,#4f7cff);color:#fff;}
+    .sbtn-new .sbtn-ico{background:rgba(255,255,255,.2);color:#fff;}
+    .sb-div{height:1px;background:var(--border);margin:4px 14px 14px;}
+    .sb-nav{padding:0 8px;flex:1;}
+    .sbnl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:700;padding:0 6px;margin-bottom:8px;}
+    .sbl{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;font-size:14px;color:#555;text-decoration:none;margin-bottom:3px;font-weight:600;}
+    .sbl-i{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);}
+    .sbl:hover{background:var(--blue-dim);color:var(--blue);}
+    .sbl.on{background:var(--blue-dim);color:var(--blue);}
+    .sbl.on .sbl-i,.sbl:hover .sbl-i{background:#d8e4ff;color:var(--blue);}
+    .sb-foot{padding:14px;border-top:1px solid var(--border);}
+    .sys-ok{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:11px;}
+    .sdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;animation:sdot 2.2s ease-in-out infinite;}
+    @keyframes sdot{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.45)}50%{box-shadow:0 0 0 6px rgba(34,197,94,0)}}
+    .sys-txt{font-size:12px;font-weight:700;}
+    .sys-sub{font-size:10px;margin-top:1px;}
+    .main{margin-left:var(--sidebar-w);flex:1;padding:28px 28px 48px;}
+    .page-hero{background:linear-gradient(135deg,#040410,#0c0c28,#0a1540);border-radius:20px;padding:36px 44px;margin-bottom:24px;position:relative;overflow:hidden;}
+    .ph-grid{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(79,124,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(79,124,255,.06) 1px,transparent 1px);background-size:42px 42px;}
+    .ph-orb{position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(26,86,255,.18),transparent 65%);top:-130px;right:-80px;pointer-events:none;}
+    .ph-content{position:relative;z-index:2;}
+    .ph-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(22,163,74,.18);border:1px solid rgba(34,197,94,.3);border-radius:100px;padding:4px 13px 4px 7px;font-size:11px;font-weight:700;color:#4ade80;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:14px;}
+    .ph-bd{width:20px;height:20px;background:rgba(74,222,128,.18);border-radius:50%;display:flex;align-items:center;justify-content:center;}
+    .ph-bd::after{content:'';width:7px;height:7px;background:#4ade80;border-radius:50%;animation:pulse 1.8s infinite;}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.6)}}
+    .ph-content h1{font-family:'Syne',sans-serif;font-size:clamp(22px,2.8vw,34px);font-weight:800;color:#fff;letter-spacing:-1.5px;line-height:1.15;margin-bottom:8px;}
+    .ph-content h1 em{font-style:normal;color:transparent;background:linear-gradient(90deg,#4ade80,#60a5fa,#4ade80);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;animation:gs 4s linear infinite;}
+    @keyframes gs{0%{background-position:0 0}100%{background-position:200% 0}}
+    .ph-content p{font-size:14px;color:rgba(255,255,255,.5);max-width:540px;line-height:1.7;}
+    .ph-apis{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+    .ph-api{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:5px 12px;font-size:11px;font-weight:700;color:rgba(255,255,255,.55);}
+    .ph-api .dot{width:6px;height:6px;border-radius:50%;background:#4ade80;}
+    .stepper{display:flex;align-items:center;margin-bottom:24px;background:var(--surface);border-radius:16px;border:1.5px solid var(--border);padding:20px 28px;box-shadow:var(--shadow-sm);}
+    .step-item{display:flex;align-items:center;gap:10px;flex:1;}
+    .step-num{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;flex-shrink:0;transition:all .3s;}
+    .step-num.done{background:var(--green);color:#fff;}
+    .step-num.active{background:linear-gradient(135deg,#1a56ff,#4f7cff);color:#fff;}
+    .step-num.pending{background:var(--border);color:var(--muted);}
+    .step-lbl{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.5px;text-transform:uppercase;}
+    .step-title{font-size:13px;font-weight:700;}
+    .step-title.active{color:var(--blue);} .step-title.pending{color:var(--muted);}
+    .step-connector{width:40px;height:2px;background:var(--border);margin:0 8px;flex-shrink:0;position:relative;overflow:hidden;}
+    .step-connector.done::after{content:'';position:absolute;inset:0;background:var(--green);}
+    .form-card{background:var(--surface);border-radius:20px;border:1.5px solid var(--border);box-shadow:var(--shadow-md);padding:32px 36px;margin-bottom:20px;position:relative;overflow:hidden;animation:fadeUp .5s ease both;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+    .form-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue),var(--blue-soft),var(--blue));background-size:200% 100%;animation:sep-a 3s linear infinite;}
+    .fc-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;display:flex;align-items:center;gap:10px;margin-bottom:4px;}
+    .fc-title i{color:var(--blue);}
+    .fc-sub{font-size:13px;color:var(--muted);margin-bottom:24px;}
+    .type-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+    .type-card{border:2px solid var(--border);border-radius:16px;padding:20px 16px;text-align:center;cursor:pointer;transition:all .3s;position:relative;background:#fff;}
+    .type-card:hover{border-color:#cdd8ff;transform:translateY(-3px);box-shadow:0 10px 28px rgba(26,86,255,.12);}
+    .type-card.selected{border-color:var(--blue);background:var(--blue-dim);}
+    .type-card.selected .tc-ico{background:var(--blue);}
+    .type-card.selected .tc-name{color:var(--blue);}
+    .tc-ico{width:52px;height:52px;border-radius:14px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 12px;transition:all .3s;}
+    .tc-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;margin-bottom:4px;}
+    .tc-sub{font-size:11px;color:var(--muted);}
+    .tc-check{position:absolute;top:10px;right:10px;width:20px;height:20px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;opacity:0;transition:opacity .2s;}
+    .type-card.selected .tc-check{opacity:1;}
+    .route-row{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:end;margin-bottom:20px;}
+    .route-arrow{width:44px;height:44px;background:var(--blue-dim);border:2px solid var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--blue);flex-shrink:0;margin-bottom:4px;}
+    .field{display:flex;flex-direction:column;gap:6px;}
+    .field label{font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.6px;text-transform:uppercase;display:flex;align-items:center;gap:6px;}
+    .field label i{font-size:11px;color:var(--blue);}
+    .field input,.field select{border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:600;background:#fff;color:var(--text);outline:none;transition:all .28s;}
+    .field input::placeholder{color:#bcc5d6;font-weight:400;}
+    .field input:focus,.field select:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(26,86,255,.1);}
+    #leaflet-map{width:100%;height:340px;border-radius:14px;border:1.5px solid var(--border);overflow:hidden;margin-bottom:18px;}
+    .auto-panel{border-radius:14px;padding:16px 20px;margin-bottom:14px;}
+    .auto-panel.wx{background:linear-gradient(135deg,#f0f9ff,#e0f2fe);border:1.5px solid #bae6fd;}
+    .auto-panel.tr{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1.5px solid #86efac;}
+    .ap-head{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+    .ap-ico{width:38px;height:38px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;}
+    .ap-title{font-size:14px;font-weight:700;}
+    .ap-title.wx{color:#0369a1;} .ap-title.tr{color:#15803d;}
+    .ap-sub{font-size:12px;margin-top:2px;}
+    .ap-sub.wx{color:#0891b2;} .ap-sub.tr{color:#16a34a;}
+    .chips{display:flex;flex-wrap:wrap;gap:8px;}
+    .chip{background:#fff;border-radius:9px;padding:6px 13px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:5px;}
+    .chip.wx{border:1.5px solid #bae6fd;color:#0369a1;}
+    .chip.tr{border:1.5px solid #86efac;color:#15803d;}
+    .chip.warn{border:1.5px solid #fcd34d;color:#92400e;}
+    .chip.bad{border:1.5px solid #fca5a5;color:#dc2626;}
+    .data-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+    .data-card{background:var(--bg);border:1.5px solid var(--border);border-radius:14px;padding:16px 18px;}
+    .dc-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:5px;}
+    .dc-val{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--text);}
+    .dc-unit{font-size:12px;color:var(--muted);font-weight:600;margin-left:3px;}
+    .dc-status{margin-top:4px;font-size:11px;font-weight:700;}
+    .dc-status.good{color:var(--green);} .dc-status.warn{color:var(--amber);} .dc-status.bad{color:var(--red);}
+    .predict-card{background:linear-gradient(135deg,#040410,#0d0d28);border-radius:20px;border:1px solid rgba(255,255,255,.06);padding:32px 36px;position:relative;overflow:hidden;}
+    .predict-card::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(79,124,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(79,124,255,.06) 1px,transparent 1px);background-size:42px 42px;pointer-events:none;}
+    .predict-inner{position:relative;z-index:2;display:flex;align-items:center;gap:32px;}
+    .predict-txt h2{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#fff;letter-spacing:-1px;margin-bottom:6px;}
+    .predict-txt p{font-size:13px;color:rgba(255,255,255,.5);max-width:400px;line-height:1.6;}
+    .predict-features{position:relative;z-index:2;margin-top:18px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+    .pf-item{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 12px;}
+    .pf-label{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.3);font-weight:700;margin-bottom:3px;}
+    .pf-val{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:rgba(255,255,255,.85);}
+    .predict-btn{display:flex;align-items:center;gap:10px;padding:15px 32px;background:linear-gradient(135deg,#1a56ff,#4f7cff);border:none;border-radius:14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:800;color:#fff;cursor:pointer;box-shadow:0 8px 28px rgba(26,86,255,.5);transition:all .35s;flex-shrink:0;}
+    .predict-btn:hover{transform:translateY(-3px) scale(1.04);}
+    .predict-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+    .btn-ico{width:30px;height:30px;background:rgba(255,255,255,.2);border-radius:9px;display:flex;align-items:center;justify-content:center;}
+    .result-card{border-radius:20px;padding:28px 32px;display:flex;align-items:flex-start;gap:24px;border:2px solid;margin-top:20px;animation:fadeUp .5s ease both;}
+    .result-card.safe{background:#f0fdf4;border-color:#86efac;}
+    .result-card.warning{background:#fffbeb;border-color:#fcd34d;}
+    .result-card.delayed{background:#fff1f2;border-color:#fca5a5;}
+    .result-ico{width:64px;height:64px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;}
+    .result-ico.safe{background:#dcfce7;} .result-ico.warning{background:#fef3c7;} .result-ico.delayed{background:#ffe4e6;}
+    .result-body{flex:1;}
+    .result-body h2{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:6px;}
+    .result-body h2.safe{color:#16a34a;} .result-body h2.warning{color:var(--amber);} .result-body h2.delayed{color:var(--red);}
+    .result-body p{font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:12px;}
+    .result-stats{text-align:center;flex-shrink:0;}
+    .prob-ring{width:84px;height:84px;position:relative;}
+    .prob-ring svg{transform:rotate(-90deg);}
+    .prob-ring circle{fill:none;stroke-width:8;stroke-linecap:round;}
+    .prob-ring .track{stroke:#e5eaf5;}
+    .prob-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:16px;font-weight:800;}
+    .prob-lbl{font-size:11px;color:var(--muted);font-weight:700;margin-top:4px;letter-spacing:.5px;}
+    .route-suggestion{background:linear-gradient(135deg,#fffbeb,#fef9c3);border:2px solid #fcd34d;border-radius:16px;padding:20px 24px;margin-top:16px;animation:fadeUp .5s ease both;}
+    .rs-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+    .rs-ico{width:36px;height:36px;background:#fef3c7;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+    .rs-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:#92400e;}
+    .alt-route{background:#fff;border:1.5px solid #fcd34d;border-radius:11px;padding:13px 16px;display:flex;align-items:center;gap:12px;margin-bottom:8px;}
+    .ar-num{width:26px;height:26px;background:#fef3c7;border:2px solid #fcd34d;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#92400e;flex-shrink:0;}
+    .ar-txt{flex:1;}
+    .ar-name{font-size:13px;font-weight:700;color:var(--text);}
+    .ar-note{font-size:11px;color:var(--muted);margin-top:2px;}
+    .ar-badge{padding:4px 11px;border-radius:20px;font-size:11px;font-weight:700;flex-shrink:0;}
+    .ar-badge.faster{background:#dcfce7;color:#16a34a;} .ar-badge.safer{background:#dbeafe;color:#1d4ed8;} .ar-badge.alt{background:#fce7f3;color:#be185d;}
+    .nav-row{display:flex;justify-content:space-between;margin-top:24px;}
+    .back-btn{display:flex;align-items:center;gap:8px;padding:11px 22px;background:var(--bg);color:var(--text);border:1.5px solid var(--border);border-radius:11px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;}
+    .next-btn{display:flex;align-items:center;gap:8px;padding:11px 24px;background:linear-gradient(135deg,#1a56ff,#4f7cff);color:#fff;border:none;border-radius:11px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(26,86,255,.35);transition:all .2s;}
+    .next-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(26,86,255,.5);}
+    .save-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:15px;background:linear-gradient(135deg,#16a34a,#22c55e);border:none;border-radius:13px;font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:800;color:#fff;cursor:pointer;margin-top:16px;transition:all .3s;}
+    .save-btn:hover{transform:translateY(-2px);}
+    .spin{animation:spin .8s linear infinite;}
+    @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+    .loading-overlay{display:none;position:fixed;inset:0;background:rgba(4,4,16,.78);backdrop-filter:blur(10px);z-index:2000;align-items:center;justify-content:center;flex-direction:column;gap:18px;}
+    .loading-overlay.show{display:flex;}
+    .lo-spinner{width:56px;height:56px;border:4px solid rgba(79,124,255,.2);border-top-color:#4f7cff;border-radius:50%;animation:spin .9s linear infinite;}
+    .lo-txt{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:#fff;}
+    .lo-sub{font-size:13px;color:rgba(255,255,255,.4);}
+    .lo-steps{margin-top:6px;display:flex;flex-direction:column;gap:7px;}
+    .lo-step{font-size:12px;color:rgba(255,255,255,.3);display:flex;align-items:center;gap:8px;transition:color .3s;}
+    .lo-step.done{color:#4ade80;} .lo-step.active{color:#60a5fa;}
+    .payload-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(79,124,255,.12);border:1px solid rgba(79,124,255,.25);border-radius:8px;padding:4px 10px;font-size:10px;font-weight:700;color:#4f7cff;letter-spacing:.5px;margin-top:10px;}
+    .view-map-btn{display:flex;align-items:center;justify-content:center;gap:10px;padding:13px 28px;background:linear-gradient(135deg,#d97706,#f59e0b);border:none;border-radius:13px;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:800;color:#fff;cursor:pointer;box-shadow:0 6px 20px rgba(217,119,6,.4);transition:all .3s;margin-top:12px;width:100%;}
+    .view-map-btn:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(217,119,6,.55);}
+    .view-map-btn.high{background:linear-gradient(135deg,#dc2626,#ef4444);box-shadow:0 6px 20px rgba(220,38,38,.4);}
+    .view-map-btn.high:hover{box-shadow:0 10px 28px rgba(220,38,38,.55);}
+    .alt-map-overlay{display:none;position:fixed;inset:0;background:rgba(4,4,16,.82);backdrop-filter:blur(14px);z-index:3000;align-items:center;justify-content:center;padding:20px;}
+    .alt-map-overlay.show{display:flex;}
+    .alt-map-modal{background:var(--surface);border-radius:24px;border:1.5px solid var(--border);box-shadow:0 24px 80px rgba(26,86,255,.22);width:100%;max-width:860px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;animation:fadeUp .35s ease both;}
+    .amm-header{display:flex;align-items:center;justify-content:space-between;padding:20px 26px;border-bottom:1.5px solid var(--border);background:linear-gradient(135deg,#040410,#0c0c28);}
+    .amm-title-wrap{display:flex;align-items:center;gap:12px;}
+    .amm-icon{width:42px;height:42px;background:rgba(245,158,11,.2);border:1px solid rgba(245,158,11,.35);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+    .amm-icon.high{background:rgba(239,68,68,.2);border-color:rgba(239,68,68,.35);}
+    .amm-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#fff;letter-spacing:-.5px;}
+    .amm-sub{font-size:12px;color:rgba(255,255,255,.4);margin-top:2px;}
+    .amm-close{width:36px;height:36px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:rgba(255,255,255,.6);font-size:16px;transition:all .2s;}
+    .amm-close:hover{background:rgba(255,255,255,.15);color:#fff;}
+    .amm-body{display:flex;flex:1;overflow:hidden;min-height:0;}
+    #altRouteMap{flex:1;min-height:420px;}
+    .amm-sidebar{width:290px;flex-shrink:0;border-left:1.5px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;}
+    .amm-sb-head{padding:16px 18px 12px;border-bottom:1px solid var(--border);}
+    .amm-sb-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:800;color:var(--muted);margin-bottom:4px;}
+    .amm-sb-route{font-size:13px;font-weight:700;color:var(--text);}
+    .amm-alt-list{padding:12px 14px;flex:1;}
+    .amm-alt-item{border-radius:12px;border:1.5px solid var(--border);padding:12px 14px;margin-bottom:10px;cursor:pointer;transition:all .25s;position:relative;background:#fff;}
+    .amm-alt-item:hover{border-color:#cdd8ff;box-shadow:0 4px 16px rgba(26,86,255,.1);}
+    .amm-alt-item.active{border-color:var(--blue);background:var(--blue-dim);}
+    .amm-alt-item.active-warn{border-color:#f59e0b;background:#fffbeb;}
+    .amm-alt-item.active-danger{border-color:#ef4444;background:#fff1f2;}
+    .amm-alt-num{width:22px;height:22px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--muted);float:right;margin-left:8px;margin-top:1px;}
+    .amm-alt-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px;padding-right:28px;}
+    .amm-alt-note{font-size:11px;color:var(--muted);line-height:1.4;}
+    .amm-alt-badge{display:inline-flex;align-items:center;gap:4px;margin-top:7px;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:800;}
+    .amm-alt-badge.faster{background:#dcfce7;color:#15803d;}
+    .amm-alt-badge.safer{background:#dbeafe;color:#1d4ed8;}
+    .amm-alt-badge.alt{background:#fce7f3;color:#be185d;}
+    .amm-risk-banner{margin:0 14px 10px;padding:10px 14px;border-radius:10px;font-size:11px;font-weight:700;display:flex;align-items:center;gap:8px;}
+    .amm-risk-banner.warn{background:#fef3c7;border:1px solid #fcd34d;color:#92400e;}
+    .amm-risk-banner.danger{background:#ffe4e6;border:1px solid #fca5a5;color:#991b1b;}
+    .amm-footer{padding:12px 14px;border-top:1px solid var(--border);}
+    .amm-osm-link{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;color:#0369a1;text-decoration:none;}
+    .amm-osm-link:hover{color:var(--blue);}
+    .amm-legend{padding:10px 14px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:6px;}
+    .amm-legend-row{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);font-weight:600;}
+    .legend-line{width:28px;height:4px;border-radius:4px;}
+    footer{margin-left:var(--sidebar-w);background:var(--dark);padding:26px 38px;}
+    .fi{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;border-top:1px solid rgba(255,255,255,.07);padding-top:20px;}
+    .fl{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#fff;}
+    .fl em{color:#4f7cff;font-style:normal;}
+    .fc2{font-size:12px;color:rgba(255,255,255,.2);width:100%;margin-top:8px;text-align:center;}
+    @media(max-width:768px){
+      .sb{display:none}.main{margin-left:0;padding:14px}
+      .type-grid{grid-template-columns:1fr 1fr}.data-grid{grid-template-columns:1fr 1fr}
+      .route-row{grid-template-columns:1fr}.route-arrow{display:none}
+      .predict-inner{flex-direction:column}.predict-btn{width:100%}
+      .predict-features{grid-template-columns:repeat(2,1fr)}
+      footer{margin-left:0}
+      .amm-body{flex-direction:column;}
+      #altRouteMap{min-height:260px;}
+      .amm-sidebar{width:100%;border-left:none;border-top:1.5px solid var(--border);max-height:220px;}
+    }
+  </style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="lo-spinner"></div>
+  <div style="text-align:center;"><div class="lo-txt">Analyzing Route…</div><div class="lo-sub">Using 100% free APIs — no credit card needed</div></div>
+  <div class="lo-steps">
+    <div class="lo-step" id="ls1"><i class="fas fa-circle-notch spin"></i>&nbsp; Locating cities (Nominatim/OSM)…</div>
+    <div class="lo-step" id="ls2"><i class="fas fa-clock"></i>&nbsp; Fetching route & distance (OpenRouteService)…</div>
+    <div class="lo-step" id="ls3"><i class="fas fa-clock"></i>&nbsp; Fetching weather at origin, midpoint & destination…</div>
+    <div class="lo-step" id="ls4"><i class="fas fa-clock"></i>&nbsp; Running ML prediction…</div>
+  </div>
+</div>
+
+<!-- Alt Route Map Modal -->
+<div class="alt-map-overlay" id="altMapOverlay" onclick="closeAltMap(event)">
+  <div class="alt-map-modal" id="altMapModal">
+    <div class="amm-header">
+      <div class="amm-title-wrap">
+        <div class="amm-icon" id="ammIcon">🗺️</div>
+        <div>
+          <div class="amm-title" id="ammTitle">Alternative Routes on Map</div>
+          <div class="amm-sub" id="ammSub">Click a route below to highlight it</div>
+        </div>
+      </div>
+      <div class="amm-close" onclick="closeAltMapDirect()"><i class="fas fa-times"></i></div>
+    </div>
+    <div class="amm-body">
+      <div id="altRouteMap"></div>
+      <div class="amm-sidebar">
+        <div class="amm-sb-head">
+          <div class="amm-sb-label">Route Corridor</div>
+          <div class="amm-sb-route" id="ammRouteLabel">—</div>
+        </div>
+        <div class="amm-risk-banner" id="ammRiskBanner">
+          <i class="fas fa-triangle-exclamation"></i>
+          <span id="ammRiskText">—</span>
+        </div>
+        <div class="amm-alt-list" id="ammAltList"></div>
+        <div class="amm-legend">
+          <div style="font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:4px;">Map Legend</div>
+          <div class="amm-legend-row"><div class="legend-line" style="background:#dc2626;"></div>Original route (High risk)</div>
+          <div class="amm-legend-row"><div class="legend-line" style="background:#d97706;"></div>Original route (Moderate)</div>
+          <div class="amm-legend-row"><div class="legend-line" style="background:#16a34a;"></div>Alternative routes</div>
+          <div class="amm-legend-row"><div class="legend-line" style="background:#1a56ff;"></div>Selected alternative</div>
+        </div>
+        <div class="amm-footer">
+          <a class="amm-osm-link" id="ammOsmLink" href="#" target="_blank">
+            <i class="fas fa-external-link-alt"></i> Open in OpenStreetMap
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<header class="hdr" id="hdr">
+  <div class="hdr-l">
+    <a href="/" class="logo">
+      <div class="logo-box"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+      <span class="logo-txt">Chain<em>Sight</em></span>
+    </a>
+  </div>
+  <nav class="nav">
+    <a href="/">Home</a>
+    <a href="/about">About Us</a>
+    <a href="/contact">Contact</a>
+    <a href="/shipment" class="on">New Shipment</a>
+  </nav>
+  <!-- ✅ PATCHED: bell → /notifications, badge = unread count -->
+  <div class="hdr-r">
+    <div class="notif" title="Notifications" onclick="location.href='/notifications'" style="cursor:pointer;">
+      <i class="fas fa-bell"></i>
+      <span class="nbadge" id="notifBadge">0</span>
+    </div>
+    <a href="/login" class="signin">
+      <div class="s-av"><i class="fas fa-user"></i></div>Sign In
+    </a>
+  </div>
+</header>
+<div class="sep"></div>
+
+<div class="app">
+  <aside class="sb">
+    <div class="sb-top">
+      <div class="sb-sec">Quick Actions</div>
+      <a href="/shipment" class="sbtn sbtn-new"><div class="sbtn-ico"><i class="fas fa-plus"></i></div>New Shipment</a>
+    </div>
+    <div class="sb-div"></div>
+    <div class="sb-nav">
+      <div class="sbnl">Navigate</div>
+      <a href="/" class="sbl"><div class="sbl-i"><i class="fas fa-home"></i></div>Dashboard</a>
+      <a href="/shipment" class="sbl on"><div class="sbl-i"><i class="fas fa-truck"></i></div>New Shipment</a>
+      <a href="/about" class="sbl"><div class="sbl-i"><i class="fas fa-info-circle"></i></div>About Us</a>
+      <a href="/contact" class="sbl"><div class="sbl-i"><i class="fas fa-envelope"></i></div>Contact</a>
+      <a href="/notifications" class="sbl"><div class="sbl-i"><i class="fas fa-bell"></i></div>Notifications</a>
+    </div>
+    <div class="sb-foot">
+      <div class="sys-ok" id="apiStatusBox" style="background:#f7fff9;border:1px solid #bbf7d0;">
+        <div class="sdot" id="apiDot" style="background:#16a34a;"></div>
+        <div><div class="sys-txt" id="apiStatusTxt" style="color:#16a34a;">Checking API…</div><div class="sys-sub" id="apiStatusSub" style="color:#4ade80;">localhost:5000</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page-hero">
+      <div class="ph-grid"></div><div class="ph-orb"></div>
+      <div class="ph-content">
+        <div class="ph-badge"><div class="ph-bd"></div>100% Free APIs · No Credit Card Ever</div>
+        <h1>Smart <em>Shipment Predictor</em></h1>
+        <p>Pick transport type + enter route. Live traffic, weather & distance are auto-fetched using completely free APIs. ML model predicts delays and suggests alternatives.</p>
+        <div class="ph-apis">
+          <div class="ph-api"><span class="dot"></span> Nominatim (Geocoding)</div>
+          <div class="ph-api"><span class="dot"></span> OpenRouteService (Routes)</div>
+          <div class="ph-api"><span class="dot"></span> OpenWeatherMap (Weather)</div>
+          <div class="ph-api"><span class="dot"></span> Leaflet + OSM (Map)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stepper">
+      <div class="step-item"><div class="step-num active" id="sn1">1</div><div><div class="step-lbl">Step 1</div><div class="step-title active" id="st1">Transport</div></div></div>
+      <div class="step-connector" id="sc1"></div>
+      <div class="step-item"><div class="step-num pending" id="sn2">2</div><div><div class="step-lbl">Step 2</div><div class="step-title pending" id="st2">Route</div></div></div>
+      <div class="step-connector" id="sc2"></div>
+      <div class="step-item"><div class="step-num pending" id="sn3">3</div><div><div class="step-lbl">Step 3</div><div class="step-title pending" id="st3">Live Analysis</div></div></div>
+      <div class="step-connector" id="sc3"></div>
+      <div class="step-item"><div class="step-num pending" id="sn4">4</div><div><div class="step-lbl">Step 4</div><div class="step-title pending" id="st4">ML Prediction</div></div></div>
+    </div>
+
+    <!-- STEP 1 -->
+    <div class="form-card" id="step1">
+      <div class="fc-title"><i class="fas fa-route"></i> Transport Type</div>
+      <div class="fc-sub">Select how this shipment will be transported</div>
+      <div class="type-grid">
+        <div class="type-card" onclick="selectType('road',this)"><div class="tc-check"><i class="fas fa-check"></i></div><div class="tc-ico">🚛</div><div class="tc-name">Road</div><div class="tc-sub">Truck / Van / LTL</div></div>
+        <div class="type-card" onclick="selectType('sea',this)"><div class="tc-check"><i class="fas fa-check"></i></div><div class="tc-ico">🚢</div><div class="tc-name">Sea</div><div class="tc-sub">Container / Bulk</div></div>
+        <div class="type-card" onclick="selectType('air',this)"><div class="tc-check"><i class="fas fa-check"></i></div><div class="tc-ico">✈️</div><div class="tc-name">Air</div><div class="tc-sub">Cargo / Express</div></div>
+        <div class="type-card" onclick="selectType('rail',this)"><div class="tc-check"><i class="fas fa-check"></i></div><div class="tc-ico">🚂</div><div class="tc-name">Rail</div><div class="tc-sub">Freight / Intermodal</div></div>
+      </div>
+      <div class="nav-row"><div></div><button class="next-btn" onclick="goStep(2)">Next <i class="fas fa-arrow-right"></i></button></div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="form-card" id="step2" style="display:none;">
+      <div class="fc-title"><i class="fas fa-map-marked-alt"></i> Origin & Destination</div>
+      <div class="fc-sub">Enter city names — everything else is fetched automatically for free</div>
+      <div class="route-row">
+        <div class="field"><label><i class="fas fa-map-marker-alt"></i> Origin City</label><input type="text" id="originCity" placeholder="e.g. Mumbai, Delhi, Kolkata"/></div>
+        <div class="route-arrow">→</div>
+        <div class="field"><label><i class="fas fa-location-dot"></i> Destination City</label><input type="text" id="destCity" placeholder="e.g. Chennai, Pune, Hyderabad"/></div>
+      </div>
+      <div class="field" style="max-width:320px;margin-bottom:4px;">
+        <label><i class="fas fa-box"></i> Cargo Type</label>
+        <select id="cargoType">
+          <option value="general">General Merchandise</option>
+          <option value="perishable">Perishable / Food</option>
+          <option value="electronics">Electronics</option>
+          <option value="hazmat">Hazardous Materials</option>
+          <option value="pharma">Pharmaceuticals</option>
+          <option value="bulk">Bulk / Raw Materials</option>
+        </select>
+      </div>
+      <div class="nav-row">
+        <button class="back-btn" onclick="goStep(1)"><i class="fas fa-arrow-left"></i> Back</button>
+        <button class="next-btn" onclick="fetchAllData()"><i class="fas fa-satellite-dish"></i> Fetch Live Data</button>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="form-card" id="step3" style="display:none;">
+      <div class="fc-title"><i class="fas fa-chart-line"></i> Live Route Analysis</div>
+      <div class="fc-sub">Auto-fetched · Nominatim · OpenRouteService · OpenWeatherMap · Leaflet/OSM</div>
+      <div id="leaflet-map"></div>
+      <div class="auto-panel wx">
+        <div class="ap-head"><div class="ap-ico">📍</div><div><div class="ap-title wx">Weather at Origin</div><div class="ap-sub wx" id="weatherCityO">—</div></div></div>
+        <div class="chips" id="weatherChipsO"><div class="chip wx">⏳ Fetching…</div></div>
+      </div>
+      <div class="auto-panel wx" style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);border-color:#c4b5fd;">
+        <div class="ap-head"><div class="ap-ico" style="background:#f5f3ff;">🛣️</div><div><div class="ap-title wx" style="color:#6d28d9;">Weather en Route (Midpoint)</div><div class="ap-sub wx" style="color:#7c3aed;" id="weatherCityM">—</div></div></div>
+        <div class="chips" id="weatherChipsM"><div class="chip wx" style="border-color:#c4b5fd;color:#6d28d9;">⏳ Fetching…</div></div>
+      </div>
+      <div class="auto-panel wx" style="background:linear-gradient(135deg,#fff7ed,#ffedd5);border-color:#fed7aa;">
+        <div class="ap-head"><div class="ap-ico" style="background:#fff7ed;">🏁</div><div><div class="ap-title wx" style="color:#c2410c;">Weather at Destination</div><div class="ap-sub wx" style="color:#ea580c;" id="weatherCityD">—</div></div></div>
+        <div class="chips" id="weatherChipsD"><div class="chip wx" style="border-color:#fed7aa;color:#c2410c;">⏳ Fetching…</div></div>
+      </div>
+      <div class="auto-panel tr">
+        <div class="ap-head"><div class="ap-ico" style="background:#dcfce7;">🚦</div><div><div class="ap-title tr">Route & Traffic Estimate</div><div class="ap-sub tr" id="trafficRoute">—</div></div></div>
+        <div class="chips" id="trafficChips"><div class="chip tr">⏳ Fetching…</div></div>
+      </div>
+      <div class="data-grid">
+        <div class="data-card"><div class="dc-label"><i class="fas fa-thermometer-half" style="color:var(--blue)"></i> Temp (worst)</div><div><span class="dc-val" id="dc-temp">—</span><span class="dc-unit">°C</span></div><div class="dc-status" id="dc-temp-s">—</div></div>
+        <div class="data-card"><div class="dc-label"><i class="fas fa-droplet" style="color:var(--blue)"></i> Humidity (avg)</div><div><span class="dc-val" id="dc-hum">—</span><span class="dc-unit">%</span></div><div class="dc-status" id="dc-hum-s">—</div></div>
+        <div class="data-card"><div class="dc-label"><i class="fas fa-wind" style="color:var(--blue)"></i> Wind (worst)</div><div><span class="dc-val" id="dc-wind">—</span><span class="dc-unit">m/s</span></div><div class="dc-status" id="dc-wind-s">—</div></div>
+        <div class="data-card"><div class="dc-label"><i class="fas fa-road" style="color:var(--blue)"></i> Distance</div><div><span class="dc-val" id="dc-dist">—</span><span class="dc-unit">km</span></div><div class="dc-status good">Route distance</div></div>
+        <div class="data-card"><div class="dc-label"><i class="fas fa-clock" style="color:var(--blue)"></i> Travel Time</div><div><span class="dc-val" id="dc-time">—</span><span class="dc-unit">hrs</span></div><div class="dc-status" id="dc-time-s">—</div></div>
+        <div class="data-card"><div class="dc-label"><i class="fas fa-gauge" style="color:var(--blue)"></i> Traffic Level</div><div><span class="dc-val" id="dc-traffic">—</span></div><div class="dc-status" id="dc-traffic-s">—</div></div>
+      </div>
+      <div class="nav-row">
+        <button class="back-btn" onclick="goStep(2)"><i class="fas fa-arrow-left"></i> Back</button>
+        <button class="next-btn" onclick="goStep(4)">Run ML Prediction <i class="fas fa-brain"></i></button>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div id="step4" style="display:none;">
+      <div class="predict-card">
+        <div class="predict-inner">
+          <div class="predict-txt">
+            <h2>Run ML Delay Prediction</h2>
+            <p>XGBoost model trained on real traffic, weather & logistics data. Inputs are auto-filled from live APIs and sent to your Flask backend at <code style="color:#60a5fa;font-size:12px;">localhost:5000/predict</code>.</p>
+          </div>
+          <button class="predict-btn" id="predictBtn" onclick="runPrediction()">
+            <div class="btn-ico"><i class="fas fa-brain"></i></div>Predict Now
+          </button>
+        </div>
+        <div class="predict-features" id="predictFeatures" style="display:none;">
+          <div class="pf-item"><div class="pf-label">Latitude</div><div class="pf-val" id="pf-lat">—</div></div>
+          <div class="pf-item"><div class="pf-label">Longitude</div><div class="pf-val" id="pf-lon">—</div></div>
+          <div class="pf-item"><div class="pf-label">Temperature</div><div class="pf-val" id="pf-temp">—</div></div>
+          <div class="pf-item"><div class="pf-label">Traffic Status</div><div class="pf-val" id="pf-traffic">—</div></div>
+          <div class="pf-item"><div class="pf-label">Inventory Lvl</div><div class="pf-val" id="pf-inv">250</div></div>
+          <div class="pf-item"><div class="pf-label">Demand Forecast</div><div class="pf-val" id="pf-demand">200</div></div>
+          <div class="pf-item"><div class="pf-label">Delay Reason</div><div class="pf-val" id="pf-delay">—</div></div>
+          <div class="pf-item"><div class="pf-label">Logistics Delay</div><div class="pf-val" id="pf-logdelay">—</div></div>
+        </div>
+        <div class="payload-badge" id="payloadBadge" style="display:none;"><i class="fas fa-code"></i> 11-feature payload ready for /predict</div>
+      </div>
+      <div id="resultWrap"></div>
+      <div style="margin-top:16px;display:flex;gap:12px;align-items:center;">
+        <button class="back-btn" onclick="goStep(3)"><i class="fas fa-arrow-left"></i> Back</button>
+        <a href="/" style="display:flex;align-items:center;gap:8px;padding:11px 22px;background:var(--bg);color:var(--blue);border:1.5px solid var(--blue);border-radius:11px;font-size:14px;font-weight:700;text-decoration:none;">
+          <i class="fas fa-home"></i> Dashboard
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
+
+<footer>
+  <div class="fi">
+    <div class="fl">Chain<em>Sight</em></div>
+    <div class="fc2">© 2025 ChainSight · 100% Free APIs · No Credit Card · ML Powered · Hackathon 2025</div>
+  </div>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/* ════════════════════════════════════
+   ✅ NOTIFICATION HELPER — added for wiring
+════════════════════════════════════ */
+const NOTIF_KEY = 'chainsight_notifications';
+
+function pushNotification(n) {
+  try {
+    let list = JSON.parse(localStorage.getItem(NOTIF_KEY) || '[]');
+    list.unshift({
+      id:        'N-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+      type:      n.type,
+      title:     n.title,
+      desc:      n.desc,
+      route:     n.route     || null,
+      risk:      n.risk      || null,
+      prob:      n.prob      || null,
+      cargo:     n.cargo     || null,
+      transport: n.transport || null,
+      ts:        new Date().toISOString(),
+      read:      false,
+    });
+    if (list.length > 120) list.splice(120);
+    localStorage.setItem(NOTIF_KEY, JSON.stringify(list));
+  } catch(e) {}
+}
+
+function getUnreadNotifCount() {
+  try {
+    return JSON.parse(localStorage.getItem(NOTIF_KEY) || '[]').filter(n => !n.read).length;
+  } catch { return 0; }
+}
+
+const OWM_KEY = 'f57645bee7acc23db35f614231429574';
+const ORS_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjBiYmQwZmM0NmQ4ZjQzNmZiNWFhYmYxZTBjZWEzMWJiIiwiaCI6Im11cm11cjY0In0=';
+const ML_API  = 'http://localhost:5000/predict';
+
+let selectedType = null, liveData = {}, leafletMap = null, altRouteMap = null, apiOnline = false;
+let altMapLayers = [], currentAltIdx = -1;
+
+/* ✅ PATCHED: Show unread count instead of risk count */
+(function syncNotifBadge() {
+  try {
+    const el = document.getElementById('notifBadge');
+    if (el) el.textContent = getUnreadNotifCount();
+  } catch(e) {}
+})();
+
+function selectType(type, el) {
+  document.querySelectorAll('.type-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedType = type;
+}
+
+function goStep(n) {
+  if (n === 2 && !selectedType) { alert('Please select a transport type first.'); return; }
+  [1,2,3,4].forEach(i => {
+    const el = document.getElementById('step'+i);
+    if (el) el.style.display = (i === n ? 'block' : 'none');
+    document.getElementById('sn'+i).className = 'step-num ' + (i < n ? 'done' : i === n ? 'active' : 'pending');
+    document.getElementById('st'+i).className = 'step-title ' + (i < n ? '' : i === n ? 'active' : 'pending');
+    const sc = document.getElementById('sc'+i); if (sc) sc.className = 'step-connector ' + (i < n ? 'done' : '');
+  });
+  if (n === 4) populateFeaturePreview();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+async function fetchAllData() {
+  const origin = document.getElementById('originCity').value.trim();
+  const dest   = document.getElementById('destCity').value.trim();
+  if (!origin || !dest) { alert('Please enter both origin and destination.'); return; }
+  showLoading(true);
+  try {
+    await setLoadStep(1);
+    const [oC, dC] = await Promise.all([nominatim(origin), nominatim(dest)]);
+    liveData.originCoords = oC; liveData.destCoords = dC;
+    await setLoadStep(2);
+    liveData.route = await orsRoute(oC, dC, ORS_KEY);
+    await setLoadStep(3);
+    const midLat = (oC.lat + dC.lat) / 2, midLon = (oC.lon + dC.lon) / 2;
+    const [wxOrigin, wxMid, wxDest] = await Promise.all([owmWeather(oC.lat, oC.lon), owmWeather(midLat, midLon), owmWeather(dC.lat, dC.lon)]);
+    liveData.weather = wxOrigin; liveData.weatherOrigin = wxOrigin; liveData.weatherMid = wxMid; liveData.weatherDest = wxDest;
+    deriveRisk(); showLoading(false); goStep(3); renderStep3(origin, dest);
+  } catch(e) {
+    showLoading(false);
+    console.warn('Fetch error → demo mode:', e.message);
+    liveData = demoData(origin, dest); deriveRisk(); goStep(3); renderStep3(origin, dest);
+  }
+}
+
+async function nominatim(city) {
+  const r = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(city)}&format=json&limit=1`, { headers: { 'Accept-Language': 'en', 'User-Agent': 'ChainSight/1.0' } }).then(r => r.json());
+  if (!r.length) throw new Error('City not found: ' + city);
+  return { lat: parseFloat(r[0].lat), lon: parseFloat(r[0].lon), name: r[0].display_name.split(',')[0] };
+}
+
+async function orsRoute(o, d, key) {
+  const url = `https://api.openrouteservice.org/v2/directions/driving-car?api_key=${key}&start=${o.lon},${o.lat}&end=${d.lon},${d.lat}`;
+  const r = await fetch(url).then(r => r.json());
+  if (r.error) throw new Error('ORS: ' + r.error.message);
+  const seg = r.features[0].properties.segments[0];
+  const distKm = seg.distance / 1000, durHrs = seg.duration / 3600;
+  const h = new Date().getHours(), peak = (h >= 8 && h <= 10) || (h >= 17 && h <= 20);
+  const mul = peak ? (1.3 + Math.random() * 0.3) : (1.05 + Math.random() * 0.15);
+  return { distanceKm: Math.round(distKm), durationHrs: parseFloat(durHrs.toFixed(1)), durationWithTrafficHrs: parseFloat((durHrs * mul).toFixed(1)), trafficRatio: mul, coords: r.features[0].geometry.coordinates, source: 'OpenRouteService' };
+}
+
+async function owmWeather(lat, lon) {
+  const r = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${OWM_KEY}&units=metric`).then(r => r.json());
+  if (r.cod !== 200) throw new Error('OWM: ' + r.message);
+  return { temp: r.main.temp, feelsLike: r.main.feels_like, humidity: r.main.humidity, windSpeed: r.wind.speed, description: r.weather[0].description, main: r.weather[0].main, cityName: r.name, country: r.sys.country };
+}
+
+function demoData(origin, dest) {
+  const dist = 300 + Math.random() * 700, mul = 1.1 + Math.random() * 0.7;
+  const makeWx = (city, country, offset=0) => ({ temp: 24 + offset + Math.random() * 10, feelsLike: 26 + offset, humidity: 55 + Math.random() * 35, windSpeed: 2 + Math.random() * 10, description: 'partly cloudy', main: 'Clouds', cityName: city, country });
+  const wxO = makeWx(origin.split(',')[0], 'IN'), wxM = makeWx('En Route', 'IN', -3), wxD = makeWx(dest.split(',')[0], 'IN', 5);
+  return { originCoords: { lat: 19.076, lon: 72.877, name: origin.split(',')[0] }, destCoords: { lat: 28.679, lon: 77.213, name: dest.split(',')[0] }, route: { distanceKm: Math.round(dist), durationHrs: parseFloat((dist/55).toFixed(1)), durationWithTrafficHrs: parseFloat((dist/55*mul).toFixed(1)), trafficRatio: mul, coords: null, source: 'Demo mode' }, weather: wxO, weatherOrigin: wxO, weatherMid: wxM, weatherDest: wxD };
+}
+
+function deriveRisk() {
+  const { route, weatherOrigin, weatherMid, weatherDest } = liveData;
+  const allWx = [weatherOrigin, weatherMid, weatherDest].filter(Boolean);
+  liveData.worstTemp = Math.min(...allWx.map(w => w.temp));
+  liveData.avgHumidity = allWx.reduce((s, w) => s + w.humidity, 0) / allWx.length;
+  liveData.worstWind = Math.max(...allWx.map(w => w.windSpeed));
+  const badMains = ['Rain','Thunderstorm','Snow','Drizzle'];
+  liveData.anyBadWeather = allWx.some(w => badMains.includes(w.main) || w.windSpeed > 10);
+  liveData.trafficStatus = route.trafficRatio < 1.15 ? 0 : route.trafficRatio < 1.4 ? 1 : 2;
+  liveData.delayReason = liveData.anyBadWeather ? 1 : liveData.trafficStatus >= 2 ? 2 : 0;
+  liveData.logisticsDelay = liveData.trafficStatus > 1 ? 1 : 0;
+  liveData.weather = allWx.reduce((a, b) => (b.windSpeed > a.windSpeed ? b : a), allWx[0]);
+}
+
+function renderStep3(origin, dest) {
+  const { weatherOrigin, weatherMid, weatherDest, route, originCoords, destCoords } = liveData;
+  if (leafletMap) { leafletMap.remove(); leafletMap = null; }
+  const midLat = (originCoords.lat + destCoords.lat) / 2, midLon = (originCoords.lon + destCoords.lon) / 2;
+  leafletMap = L.map('leaflet-map').setView([midLat, midLon], 6);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© <a href="https://openstreetmap.org">OpenStreetMap</a>' }).addTo(leafletMap);
+  L.marker([originCoords.lat, originCoords.lon], { icon: L.divIcon({ html: '📍', iconSize: [28,28], className: '' }) }).addTo(leafletMap).bindPopup(`<b>Origin:</b> ${originCoords.name}`).openPopup();
+  L.marker([destCoords.lat, destCoords.lon], { icon: L.divIcon({ html: '🏁', iconSize: [28,28], className: '' }) }).addTo(leafletMap).bindPopup(`<b>Destination:</b> ${destCoords.name}`);
+  L.marker([midLat, midLon], { icon: L.divIcon({ html: '🌤️', iconSize: [24,24], className: '' }) }).addTo(leafletMap).bindPopup(`<b>Midpoint:</b> ${weatherMid?.cityName||'En Route'} — ${weatherMid?.description||'—'}`);
+  if (route.coords && route.coords.length > 0) {
+    const lls = route.coords.map(c => [c[1], c[0]]);
+    const col = liveData.trafficStatus === 0 ? '#16a34a' : liveData.trafficStatus === 1 ? '#d97706' : '#dc2626';
+    const pl = L.polyline(lls, { color: col, weight: 5, opacity: .85 }).addTo(leafletMap);
+    leafletMap.fitBounds(pl.getBounds(), { padding: [40,40] });
+  } else {
+    const pl = L.polyline([[originCoords.lat, originCoords.lon],[destCoords.lat, destCoords.lon]], { color: '#1a56ff', weight: 3, dashArray: '8,10', opacity: .6 }).addTo(leafletMap);
+    leafletMap.fitBounds(pl.getBounds(), { padding: [60,60] });
+  }
+  function wxChips(wx, chipClass, warnClass) {
+    if (!wx) return `<div class="chip ${chipClass}">—</div>`;
+    const e = wx.main==='Rain'?'🌧️':wx.main==='Snow'?'❄️':wx.main==='Thunderstorm'?'⛈️':wx.main==='Clear'?'☀️':'🌤️';
+    const bad = wx.windSpeed>10||['Rain','Thunderstorm','Snow'].includes(wx.main);
+    return [{ t:`${e} ${wx.description}`, c: bad ? warnClass : chipClass },{ t:`🌡️ ${wx.temp.toFixed(1)}°C`, c: chipClass },{ t:`💧 ${wx.humidity.toFixed(0)}%`, c: wx.humidity>85?warnClass:chipClass },{ t:`💨 ${wx.windSpeed.toFixed(1)} m/s`, c: wx.windSpeed>10?warnClass:chipClass }].map(x=>`<div class="chip ${x.c}">${x.t}</div>`).join('');
+  }
+  document.getElementById('weatherCityO').textContent = `${weatherOrigin.cityName}, ${weatherOrigin.country} — ${weatherOrigin.description}`;
+  document.getElementById('weatherChipsO').innerHTML = wxChips(weatherOrigin, 'wx', 'warn');
+  document.getElementById('weatherCityM').textContent = weatherMid ? `${weatherMid.cityName}, ${weatherMid.country} — ${weatherMid.description}` : '—';
+  document.getElementById('weatherChipsM').innerHTML = wxChips(weatherMid, 'wx', 'warn').replace(/class="chip wx"/g, 'class="chip" style="border:1.5px solid #c4b5fd;color:#6d28d9;background:#fff;"').replace(/class="chip warn"/g, 'class="chip warn"');
+  document.getElementById('weatherCityD').textContent = weatherDest ? `${weatherDest.cityName}, ${weatherDest.country} — ${weatherDest.description}` : '—';
+  document.getElementById('weatherChipsD').innerHTML = wxChips(weatherDest, 'wx', 'warn').replace(/class="chip wx"/g, 'class="chip" style="border:1.5px solid #fed7aa;color:#c2410c;background:#fff;"').replace(/class="chip warn"/g, 'class="chip warn"');
+  const dMin = Math.round((route.durationWithTrafficHrs - route.durationHrs) * 60);
+  document.getElementById('trafficRoute').textContent = `${originCoords.name} → ${destCoords.name}`;
+  document.getElementById('trafficChips').innerHTML = [{ t: `📏 ${route.distanceKm} km`, c: 'tr' },{ t: `⏱️ ${route.durationHrs}h base`, c: 'tr' },{ t: `🚦 ${route.durationWithTrafficHrs}h with traffic`, c: liveData.trafficStatus > 0 ? 'warn' : 'tr' },{ t: dMin > 0 ? `⚠️ +${dMin} min delay` : '✅ On time expected', c: dMin > 0 ? 'warn' : 'tr' },{ t: `📡 ${route.source}`, c: 'tr' },...(liveData.anyBadWeather ? [{ t: `⚠️ Bad weather on corridor`, c: 'warn' }] : []),...(liveData.delayReason > 0 ? [{ t: `⚠️ Risk: ${['','Weather','Traffic'][liveData.delayReason]}`, c: 'warn' }] : [])].map(x => `<div class="chip ${x.c}">${x.t}</div>`).join('');
+  const wT = liveData.worstTemp, wH = liveData.avgHumidity, wW = liveData.worstWind;
+  const set = (id, v, sid, s, c) => { document.getElementById(id).textContent = v; if (sid) { const el = document.getElementById(sid); if(el){ el.textContent = s; el.className = 'dc-status ' + c; } } };
+  set('dc-temp', wT.toFixed(1), 'dc-temp-s', wT > 38 ? '⚠️ Extreme heat on route' : wT < 5 ? '⚠️ Freezing on route' : '✅ Normal across route', wT > 38 || wT < 5 ? 'warn' : 'good');
+  set('dc-hum',  wH.toFixed(0), 'dc-hum-s',  wH > 85 ? '⚠️ Very humid (avg)' : '✅ Acceptable (avg)', wH > 85 ? 'warn' : 'good');
+  set('dc-wind', wW.toFixed(1), 'dc-wind-s', wW > 12 ? '⚠️ Strong winds on route' : wW > 7 ? '⚡ Moderate gusts' : '✅ Calm across route', wW > 12 ? 'bad' : wW > 7 ? 'warn' : 'good');
+  set('dc-dist',    route.distanceKm, null, '', '');
+  set('dc-time',    route.durationWithTrafficHrs, 'dc-time-s', route.coords ? 'Via road (ORS)' : 'Straight-line estimate', '');
+  set('dc-traffic', ['Low','Moderate','High'][liveData.trafficStatus], 'dc-traffic-s', ['✅ Clear roads','⚠️ Some slowdowns','🚨 Heavy congestion'][liveData.trafficStatus], ['good','warn','bad'][liveData.trafficStatus]);
+}
+
+function populateFeaturePreview() {
+  const { originCoords } = liveData;
+  if (!originCoords) return;
+  const temp = liveData.worstTemp !== undefined ? liveData.worstTemp : liveData.weather.temp;
+  document.getElementById('pf-lat').textContent     = originCoords.lat.toFixed(4);
+  document.getElementById('pf-lon').textContent     = originCoords.lon.toFixed(4);
+  document.getElementById('pf-temp').textContent    = temp.toFixed(1) + '°C (worst)';
+  document.getElementById('pf-traffic').textContent = ['Low (0)','Moderate (1)','High (2)'][liveData.trafficStatus];
+  document.getElementById('pf-delay').textContent   = liveData.delayReason + ' (' + ['None','Weather','Traffic'][liveData.delayReason] + ')';
+  document.getElementById('pf-logdelay').textContent = liveData.logisticsDelay;
+  document.getElementById('predictFeatures').style.display = 'grid';
+  document.getElementById('payloadBadge').style.display = 'inline-flex';
+}
+
+function buildPayload() {
+  const { originCoords, weatherOrigin, weatherMid, weatherDest } = liveData;
+  const originTemp = weatherOrigin ? parseFloat(weatherOrigin.temp.toFixed(2)) : parseFloat(liveData.worstTemp.toFixed(2));
+  const midTemp    = weatherMid    ? parseFloat(weatherMid.temp.toFixed(2))    : originTemp;
+  const destTemp   = weatherDest   ? parseFloat(weatherDest.temp.toFixed(2))   : originTemp;
+  const temperature = liveData.worstTemp !== undefined ? parseFloat(liveData.worstTemp.toFixed(2)) : originTemp;
+  return { latitude: parseFloat(originCoords.lat.toFixed(6)), longitude: parseFloat(originCoords.lon.toFixed(6)), inventory_level: 250, temperature, origin_temp: originTemp, mid_temp: midTemp, dest_temp: destTemp, traffic_status: liveData.trafficStatus, transaction_amount: 300, purchase_frequency: 5, delay_reason: liveData.delayReason, asset_utilization: 80.0, demand_forecast: 200, logistics_delay: liveData.logisticsDelay };
+}
+
+async function runPrediction() {
+  const btn = document.getElementById('predictBtn');
+  btn.innerHTML = `<div class="btn-ico"><i class="fas fa-circle-notch spin"></i></div> Predicting…`;
+  btn.disabled = true;
+  const payload = buildPayload();
+  let result;
+  try {
+    const resp = await fetch(ML_API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal: AbortSignal.timeout(6000) });
+    if (!resp.ok) { const err = await resp.json().catch(() => ({})); throw new Error(err.error || `HTTP ${resp.status}`); }
+    result = await resp.json();
+  } catch(e) {
+    const p = simulateModel(payload);
+    result = { delayed: p > 0.5 ? 1 : 0, delay_probability: Math.round(p * 100), on_time_probability: Math.round((1 - p) * 100), source: 'client-sim' };
+  }
+  showResult(result);
+  btn.innerHTML = `<div class="btn-ico"><i class="fas fa-brain"></i></div> Predict Again`;
+  btn.disabled = false;
+}
+
+function simulateModel(p) {
+  const trafficW  = (p.traffic_status / 2) * 0.30;
+  const weatherW  = (p.temperature / 50)   * 0.20;
+  const corridorW = liveData.anyBadWeather  ? 0.10 : 0;
+  const delayW    = p.delay_reason          * 0.18;
+  const logW      = p.logistics_delay       * 0.12;
+  const demandW   = (p.demand_forecast / (p.inventory_level + 1)) * 0.10;
+  const raw = trafficW + weatherW + corridorW + delayW + logW + demandW;
+  return Math.min(0.97, Math.max(0.03, raw + (Math.random() - 0.5) * 0.12));
+}
+
+function showResult(result) {
+  const wrap = document.getElementById('resultWrap');
+  const prob = result.delay_probability;
+  const isSimulated = result.source === 'client-sim';
+  const isHighRisk = prob >= 60, isModerateRisk = prob >= 35 && prob < 60;
+  let cls, ico, title, desc;
+  if (prob < 35) { cls = 'safe'; ico = '✅'; title = 'On Time — Low Risk'; desc = `Delay probability is <strong>${prob}%</strong>. Route looks clear. No major risk factors detected.`; }
+  else if (prob < 60) { cls = 'warning'; ico = '⚠️'; title = 'Monitor — Moderate Risk'; desc = `Delay probability is <strong>${prob}%</strong>. Some risk factors present. Keep this shipment on watch.`; }
+  else { cls = 'delayed'; ico = '🚨'; title = 'High Delay Risk — Take Action'; desc = `Delay probability is <strong>${prob}%</strong>. ML model flags significant risk. See alternative routes below.`; }
+  const r = 32, circ = 2 * Math.PI * r;
+  const fill = prob < 35 ? '#22c55e' : prob < 60 ? '#f59e0b' : '#ef4444';
+  const origin = document.getElementById('originCity').value;
+  const dest   = document.getElementById('destCity').value;
+  let viewMapBtnHtml = '';
+  if (isHighRisk || isModerateRisk) {
+    const btnClass = isHighRisk ? 'view-map-btn high' : 'view-map-btn';
+    const btnLabel = isHighRisk ? '<i class="fas fa-map-location-dot"></i> View Alternative Routes on Map' : '<i class="fas fa-map-location-dot"></i> Explore Alternative Routes on Map';
+    viewMapBtnHtml = `<button class="${btnClass}" onclick="openAltMap()">${btnLabel}</button>`;
+  }
+  wrap.innerHTML = `
+    <div class="result-card ${cls}">
+      <div class="result-ico ${cls}">${ico}</div>
+      <div class="result-body">
+        <h2 class="${cls}">${title}</h2>
+        <p>${desc}</p>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          <div class="chip wx">${(selectedType||'?').toUpperCase()} · ${document.getElementById('cargoType').value}</div>
+          <div class="chip wx">${origin} → ${dest}</div>
+          <div class="chip wx">${liveData.route?.distanceKm}km · ${liveData.route?.durationWithTrafficHrs}h</div>
+          <div class="chip ${['tr','warn','bad'][liveData.trafficStatus]}">Traffic: ${['Low','Moderate','High'][liveData.trafficStatus]}</div>
+          ${liveData.delayReason > 0 ? `<div class="chip warn">⚠️ ${['','Weather','Traffic'][liveData.delayReason]} risk</div>` : ''}
+          ${isSimulated ? '<div class="chip warn">⚡ Demo ML (backend offline)</div>' : '<div class="chip tr">✅ Live ML · localhost:5000</div>'}
+        </div>
+        ${viewMapBtnHtml}
+      </div>
+      <div class="result-stats">
+        <div class="prob-ring">
+          <svg width="84" height="84" viewBox="0 0 84 84">
+            <circle class="track" cx="42" cy="42" r="${r}" stroke-dasharray="${circ}"/>
+            <circle cx="42" cy="42" r="${r}" fill="none" stroke-width="8" stroke-linecap="round" stroke="${fill}" stroke-dasharray="${circ}" stroke-dashoffset="${circ - (prob/100)*circ}" style="transition:stroke-dashoffset 1.2s cubic-bezier(.22,1,.36,1)"/>
+          </svg>
+          <div class="prob-num" style="color:${fill}">${prob}%</div>
+        </div>
+        <div class="prob-lbl">DELAY PROB</div>
+      </div>
+    </div>
+    ${prob >= 45 ? buildAltRoutes(origin, dest) : ''}
+    <button class="save-btn" id="saveBtnEl" onclick="saveShipment()">
+      <i class="fas fa-plus-circle"></i> Save Shipment to Dashboard
+    </button>`;
+  liveData._lastProb = prob; liveData._lastOrigin = origin; liveData._lastDest = dest;
+  wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function getAltRoutes() {
+  const alts = {
+    road:  [{ name: 'Bypass city centre via ring road', note: 'Avoids peak-hour urban congestion', badge: 'faster', bl: '~20% faster', offsetLat: 0.08, offsetLon: 0.12 },{ name: 'Depart overnight (10 PM – 6 AM)', note: 'Off-peak traffic, smoother flow', badge: 'safer', bl: 'Low traffic', offsetLat: -0.06, offsetLon: -0.08 },{ name: 'Switch to Rail for main corridor', note: 'Freight train + last-mile truck', badge: 'alt', bl: 'Weather-proof', offsetLat: 0.14, offsetLon: -0.05 }],
+    sea:   [{ name: 'Use feeder port to bypass main terminal', note: 'Avoid congested primary port', badge: 'safer', bl: 'Fewer delays', offsetLat: -0.10, offsetLon: 0.15 },{ name: 'Pre-clear customs 48h before arrival', note: 'Reduces port dwell time by 1–2 days', badge: 'faster', bl: 'Saves days', offsetLat: 0.07, offsetLon: -0.12 },{ name: 'Coastal road + short sea combo', note: 'Split cargo to reduce bottleneck', badge: 'alt', bl: 'Flexible', offsetLat: 0.12, offsetLon: 0.08 }],
+    air:   [{ name: 'Re-route via alternate hub airport', note: 'Check weather-free connecting airports', badge: 'safer', bl: 'Less delay', offsetLat: 0.09, offsetLon: 0.11 },{ name: 'Priority freight booking', note: 'Move to priority cargo queue', badge: 'faster', bl: 'Priority slot', offsetLat: -0.05, offsetLon: -0.09 },{ name: 'Overnight road freight if <400 km', note: 'Truck may beat delayed air schedules', badge: 'alt', bl: 'Check distance', offsetLat: 0.13, offsetLon: -0.06 }],
+    rail:  [{ name: 'Express freight service slot', note: 'Book priority slot on express corridor', badge: 'faster', bl: 'Express track', offsetLat: 0.06, offsetLon: 0.10 },{ name: 'Intermodal: rail + road combination', note: 'Use road for congested rail sections', badge: 'alt', bl: 'Flexible route', offsetLat: -0.08, offsetLon: -0.07 }],
+  };
+  return alts[selectedType] || alts.road;
+}
+
+function openAltMap() {
+  const overlay = document.getElementById('altMapOverlay');
+  const origin  = liveData._lastOrigin || document.getElementById('originCity').value;
+  const dest    = liveData._lastDest   || document.getElementById('destCity').value;
+  const prob    = liveData._lastProb   || 50;
+  const isHigh  = prob >= 60;
+  const { originCoords, destCoords, route } = liveData;
+  const ammIcon = document.getElementById('ammIcon');
+  ammIcon.textContent = isHigh ? '🚨' : '⚠️';
+  ammIcon.className   = 'amm-icon' + (isHigh ? ' high' : '');
+  document.getElementById('ammTitle').textContent = isHigh ? 'High Risk — Alternative Routes' : 'Moderate Risk — Alternative Routes';
+  document.getElementById('ammSub').textContent = `${prob}% delay probability · Click a route to highlight it`;
+  document.getElementById('ammRouteLabel').textContent = `${origin} → ${dest}`;
+  const riskFactors = [];
+  if (liveData.anyBadWeather) riskFactors.push('adverse weather on corridor');
+  if (liveData.trafficStatus >= 2) riskFactors.push('heavy traffic');
+  else if (liveData.trafficStatus === 1) riskFactors.push('moderate traffic');
+  document.getElementById('ammRiskBanner').className = 'amm-risk-banner ' + (isHigh ? 'danger' : 'warn');
+  document.getElementById('ammRiskText').textContent = riskFactors.length ? `Risk factors: ${riskFactors.join(' & ')}` : `Delay probability: ${prob}%`;
+  document.getElementById('ammOsmLink').href = `https://www.openstreetmap.org/directions?from=${encodeURIComponent(origin)}&to=${encodeURIComponent(dest)}`;
+  overlay.classList.add('show');
+  setTimeout(() => {
+    if (altRouteMap) { altRouteMap.remove(); altRouteMap = null; }
+    altMapLayers = []; currentAltIdx = -1;
+    const midLat = (originCoords.lat + destCoords.lat) / 2, midLon = (originCoords.lon + destCoords.lon) / 2;
+    altRouteMap = L.map('altRouteMap').setView([midLat, midLon], 6);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© <a href="https://openstreetmap.org">OpenStreetMap</a>' }).addTo(altRouteMap);
+    const origColor = isHigh ? '#dc2626' : '#d97706';
+    let origLayer;
+    if (route.coords && route.coords.length > 0) {
+      const lls = route.coords.map(c => [c[1], c[0]]);
+      origLayer = L.polyline(lls, { color: origColor, weight: 4, dashArray: '10,8', opacity: 0.7 }).addTo(altRouteMap).bindPopup(`<b>Original Route</b><br>${route.distanceKm}km · ${route.durationWithTrafficHrs}h (with traffic)<br><span style="color:${origColor};font-weight:700;">${isHigh ? '🚨 High delay risk' : '⚠️ Moderate delay risk'}</span>`);
+      altRouteMap.fitBounds(origLayer.getBounds(), { padding: [40, 40] });
+    } else {
+      origLayer = L.polyline([[originCoords.lat, originCoords.lon],[destCoords.lat, destCoords.lon]], { color: origColor, weight: 4, dashArray: '10,8', opacity: 0.7 }).addTo(altRouteMap);
+      altRouteMap.fitBounds([[originCoords.lat, originCoords.lon],[destCoords.lat, destCoords.lon]], { padding: [60,60] });
+    }
+    L.marker([originCoords.lat, originCoords.lon], { icon: L.divIcon({ html: '📍', iconSize: [28,28], className: '' }) }).addTo(altRouteMap);
+    L.marker([destCoords.lat, destCoords.lon],   { icon: L.divIcon({ html: '🏁', iconSize: [28,28], className: '' }) }).addTo(altRouteMap);
+    const altList = getAltRoutes();
+    altList.forEach((alt, idx) => {
+      const wLat = midLat + (alt.offsetLat || 0.05 * (idx + 1)), wLon = midLon + (alt.offsetLon || 0.05 * (idx + 1));
+      const altCoords = [[originCoords.lat, originCoords.lon],[originCoords.lat * 0.6 + wLat * 0.4, originCoords.lon * 0.6 + wLon * 0.4],[wLat, wLon],[destCoords.lat * 0.6 + wLat * 0.4, destCoords.lon * 0.6 + wLon * 0.4],[destCoords.lat, destCoords.lon]];
+      const layer = L.polyline(altCoords, { color: '#16a34a', weight: 3, opacity: 0.55, dashArray: '6,5' }).addTo(altRouteMap).bindPopup(`<b>Alt ${idx+1}: ${alt.name}</b><br>${alt.note}<br><span style="color:#15803d;font-weight:700;">${alt.bl}</span>`);
+      altMapLayers.push(layer);
+    });
+    document.getElementById('ammAltList').innerHTML = altList.map((alt, idx) => `<div class="amm-alt-item" id="ammItem${idx}" onclick="selectAltRoute(${idx})"><div class="amm-alt-num">${idx+1}</div><div class="amm-alt-name">${alt.name}</div><div class="amm-alt-note">${alt.note}</div><span class="amm-alt-badge ${alt.badge}">${alt.bl}</span></div>`).join('');
+  }, 80);
+}
+
+function selectAltRoute(idx) {
+  altMapLayers.forEach(layer => layer.setStyle({ color: '#16a34a', weight: 3, opacity: 0.55, dashArray: '6,5' }));
+  document.querySelectorAll('.amm-alt-item').forEach(el => el.classList.remove('active', 'active-warn', 'active-danger'));
+  if (currentAltIdx === idx) { currentAltIdx = -1; return; }
+  currentAltIdx = idx;
+  altMapLayers[idx].setStyle({ color: '#1a56ff', weight: 5, opacity: 0.9, dashArray: '' });
+  altMapLayers[idx].openPopup();
+  const isHigh = liveData._lastProb >= 60;
+  const itemEl = document.getElementById('ammItem' + idx);
+  if (itemEl) itemEl.classList.add(isHigh ? 'active-danger' : 'active-warn');
+  altRouteMap.fitBounds(altMapLayers[idx].getBounds(), { padding: [50, 50] });
+}
+
+function closeAltMap(e) { if (e.target === document.getElementById('altMapOverlay')) closeAltMapDirect(); }
+function closeAltMapDirect() { document.getElementById('altMapOverlay').classList.remove('show'); }
+
+function buildAltRoutes(origin, dest) {
+  const list = getAltRoutes();
+  const osmLink = `https://www.openstreetmap.org/directions?from=${encodeURIComponent(origin)}&to=${encodeURIComponent(dest)}`;
+  return `<div class="route-suggestion"><div class="rs-head"><div class="rs-ico">🗺️</div><div class="rs-title">Suggested Alternative Routes & Actions</div></div>${list.map((a,i) => `<div class="alt-route"><div class="ar-num">${i+1}</div><div class="ar-txt"><div class="ar-name">${a.name}</div><div class="ar-note">${a.note}</div></div><div class="ar-badge ${a.badge}">${a.bl}</div></div>`).join('')}<div style="margin-top:12px;"><a href="${osmLink}" target="_blank" style="font-size:13px;font-weight:700;color:#0369a1;display:flex;align-items:center;gap:6px;"><i class="fas fa-external-link-alt"></i> Open in OpenStreetMap (free)</a></div></div>`;
+}
+
+async function setLoadStep(n) {
+  ['ls1','ls2','ls3','ls4'].forEach((id, i) => {
+    const el = document.getElementById(id); if (!el) return;
+    const ic = el.querySelector('i');
+    if (i+1 < n)       { el.className = 'lo-step done';   ic.className = 'fas fa-check-circle'; }
+    else if (i+1 === n){ el.className = 'lo-step active'; ic.className = 'fas fa-circle-notch spin'; }
+    else               { el.className = 'lo-step';        ic.className = 'fas fa-clock'; }
+  });
+  await new Promise(r => setTimeout(r, 500));
+}
+function showLoading(show) { document.getElementById('loadingOverlay').classList.toggle('show', show); }
+
+/* ════════════════════════════════════
+   ✅ PATCHED: saveShipment pushes notifications
+════════════════════════════════════ */
+function saveShipment() {
+  const origin = document.getElementById('originCity').value.trim();
+  const dest   = document.getElementById('destCity').value.trim();
+  const cargo  = document.getElementById('cargoType').value;
+  const prob   = liveData._lastProb;
+  const route  = liveData.route || {};
+  const wxO    = liveData.weatherOrigin || liveData.weather || {};
+  const wxD    = liveData.weatherDest   || liveData.weather || {};
+  if (!origin || !dest || prob === undefined) { alert('Please complete the prediction before saving.'); return; }
+
+  const risk = prob < 35 ? 'Low' : prob < 60 ? 'Moderate' : 'High';
+
+  const shipment = {
+    id: 'SHP-' + Date.now(), savedAt: new Date().toISOString(),
+    origin, destination: dest, transport: selectedType || 'road', cargo,
+    delayProbability: prob, risk,
+    distanceKm: route.distanceKm || null,
+    durationHrs: route.durationWithTrafficHrs || null,
+    trafficStatus: liveData.trafficStatus,
+    delayReason: liveData.delayReason,
+    anyBadWeather: liveData.anyBadWeather || false,
+    originWeather: { temp: wxO.temp, description: wxO.description, wind: wxO.windSpeed },
+    destWeather:   { temp: wxD.temp, description: wxD.description, wind: wxD.windSpeed },
+    worstTemp: liveData.worstTemp,
+    worstWind: liveData.worstWind,
+    avgHumidity: liveData.avgHumidity,
+  };
+
+  let saved = [];
+  try { saved = JSON.parse(localStorage.getItem('chainsight_shipments') || '[]'); } catch(e) {}
+  saved.unshift(shipment);
+  localStorage.setItem('chainsight_shipments', JSON.stringify(saved));
+
+  // ✅ Always push "Shipment Added" notification
+  pushNotification({
+    type:      'added',
+    title:     'Shipment Added to Dashboard',
+    desc:      '<strong>' + origin + ' → ' + dest + '</strong> ' + (selectedType || 'road') +
+               ' shipment saved. Risk: <strong>' + risk + '</strong> (' + prob + '% delay probability).',
+    route:     origin + ' → ' + dest,
+    risk,
+    prob,
+    cargo,
+    transport: selectedType || 'road',
+  });
+
+  // ✅ Push risk alert for Moderate or High
+  if (risk === 'High') {
+    pushNotification({
+      type:  'risk_high',
+      title: '🚨 High Delay Risk Detected',
+      desc:  'ML model flagged <strong>' + origin + ' → ' + dest + '</strong> with a <strong>' + prob + '%</strong> delay probability.' +
+             (liveData.anyBadWeather ? ' Adverse weather detected on corridor.' : '') +
+             (liveData.trafficStatus >= 2 ? ' Heavy traffic congestion.' : ''),
+      route: origin + ' → ' + dest,
+      risk, prob, cargo, transport: selectedType || 'road',
+    });
+  } else if (risk === 'Moderate') {
+    pushNotification({
+      type:  'risk_moderate',
+      title: '⚠️ Moderate Risk — Monitor Closely',
+      desc:  'ML model flagged <strong>' + origin + ' → ' + dest + '</strong> with a <strong>' + prob + '%</strong> delay probability.' +
+             (liveData.anyBadWeather ? ' Some adverse weather on corridor.' : '') +
+             (liveData.trafficStatus >= 1 ? ' Moderate traffic detected.' : ''),
+      route: origin + ' → ' + dest,
+      risk, prob, cargo, transport: selectedType || 'road',
+    });
+  }
+
+  // Update bell badge immediately
+  const notifBadge = document.getElementById('notifBadge');
+  if (notifBadge) notifBadge.textContent = getUnreadNotifCount();
+
+  const btn = document.getElementById('saveBtnEl');
+  if (btn) {
+    btn.innerHTML = '<i class="fas fa-check-circle"></i> Saved! Redirecting to Dashboard…';
+    btn.style.background = 'linear-gradient(135deg,#059669,#10b981)';
+    btn.disabled = true;
+  }
+  setTimeout(() => { location.href = '/?saved=1'; }, 900);
+}
+
+async function checkApiStatus() {
+  const box = document.getElementById('apiStatusBox'), dot = document.getElementById('apiDot'), txt = document.getElementById('apiStatusTxt'), sub = document.getElementById('apiStatusSub');
+  try {
+    const r = await fetch('http://localhost:5000/health', { signal: AbortSignal.timeout(2500) });
+    if (r.ok) { apiOnline = true; txt.textContent = 'ML API Online'; txt.style.color = '#16a34a'; sub.textContent = 'localhost:5000 · Ready'; box.style.background = '#f7fff9'; box.style.borderColor = '#bbf7d0'; dot.style.background = '#16a34a'; } else throw new Error();
+  } catch { apiOnline = false; txt.textContent = 'ML API Offline'; txt.style.color = '#d97706'; sub.textContent = 'Demo simulation mode active'; box.style.background = '#fffbeb'; box.style.borderColor = '#fcd34d'; dot.style.background = '#d97706'; }
+}
+
+checkApiStatus();
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAltMapDirect(); });
+
+/* ── ChainSight Auth Header ── */
+(function applyAuthHeader() {
+  var s = null;
+  try { s = JSON.parse(localStorage.getItem('cs_session') || 'null'); } catch(e) {}
+  var btn = document.querySelector('a.signin');
+  if (!btn || !s || !s.firstName) return;
+  var first = s.firstName;
+  var initials = (first[0] + (s.lastName ? s.lastName[0] : '')).toUpperCase();
+  btn.style.cssText = 'display:flex;align-items:center;gap:8px;padding:5px 14px 5px 6px;background:linear-gradient(135deg,#1a56ff,#4f7cff);border:none;border-radius:24px;font-family:"Plus Jakarta Sans",sans-serif;font-size:13px;font-weight:700;color:#fff;cursor:pointer;text-decoration:none;box-shadow:0 4px 18px rgba(26,86,255,.38);transition:all .3s;position:relative;';
+  btn.innerHTML = '<div style="width:26px;height:26px;background:rgba(255,255,255,.25);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;">' + initials + '</div>Hi,\u00a0' + first;
+  btn.removeAttribute('href');
+  btn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    var m = document.getElementById('cs-user-menu');
+    if (m) { m.remove(); return; }
+    m = document.createElement('div'); m.id = 'cs-user-menu';
+    m.style.cssText = 'position:absolute;top:calc(100% + 8px);right:0;background:#fff;border:1.5px solid #e5eaf5;border-radius:14px;box-shadow:0 12px 40px rgba(26,86,255,.14);min-width:190px;z-index:9999;overflow:hidden;font-family:"Plus Jakarta Sans",sans-serif;';
+    m.innerHTML = '<div style="padding:12px 16px;border-bottom:1px solid #f0f3fb;"><div style="font-size:13px;font-weight:700;color:#0c0c1e;">' + s.firstName + ' ' + (s.lastName || '') + '</div><div style="font-size:11px;color:#7e8ca0;margin-top:2px;">' + s.email + '</div></div><a href="/" style="display:flex;align-items:center;gap:10px;padding:10px 16px;font-size:13px;font-weight:600;color:#555;text-decoration:none;" onmouseover="this.style.background=\'#f0f3fb\'" onmouseout="this.style.background=\'transparent\'"><i class="fas fa-home" style="width:14px;color:#1a56ff;font-size:12px;"></i>&nbsp;Dashboard</a><div id="cs-so" style="display:flex;align-items:center;gap:10px;padding:10px 16px;font-size:13px;font-weight:600;color:#dc2626;cursor:pointer;" onmouseover="this.style.background=\'#fff1f2\'" onmouseout="this.style.background=\'transparent\'"><i class="fas fa-sign-out-alt" style="width:14px;font-size:12px;"></i>&nbsp;Sign Out</div>';
+    btn.appendChild(m);
+    document.getElementById('cs-so').addEventListener('click', function() { localStorage.removeItem('cs_session'); window.location.href = '/login'; });
+  });
+  document.addEventListener('click', function() { var m = document.getElementById('cs-user-menu'); if (m) m.remove(); });
+})();
+</script>
+</body>
+</html>

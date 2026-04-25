@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ChainSight – Sign In / Sign Up</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+  <style>
+    :root {
+      --blue:      #1848f5;
+      --blue-soft: #5577ff;
+      --blue-dim:  #eef2ff;
+      --blue-glow: rgba(24,72,245,.22);
+      --black:     #040410;
+      --ink:       #0e0e22;
+      --muted:     #6b7a99;
+      --border:    #dde3f5;
+      --bg:        #f4f6fd;
+      --green:     #16a34a;
+      --red:       #dc2626;
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html, body { height:100%; overflow:hidden; font-family:'DM Sans',sans-serif; background:#fff; color:var(--ink); }
+    .layout { display:flex; height:100vh; width:100vw; overflow:hidden; }
+    .left { width:50%; height:100vh; position:relative; display:flex; flex-direction:column; justify-content:space-between; padding:36px 48px; overflow:hidden; background:var(--black); flex-shrink:0; }
+    .left-bg { position:absolute; inset:0; background: radial-gradient(ellipse 70% 55% at 85% 15%, rgba(24,72,245,.26) 0%, transparent 60%), radial-gradient(ellipse 50% 45% at 10% 85%, rgba(85,119,255,.12) 0%, transparent 60%), linear-gradient(155deg, #040410 0%, #070720 55%, #050518 100%); }
+    .dot-grid { position:absolute; inset:0; background-image:radial-gradient(circle, rgba(255,255,255,.1) 1px, transparent 1px); background-size:34px 34px; mask-image:radial-gradient(ellipse 85% 85% at 50% 50%, black 25%, transparent 100%); animation:drift 28s linear infinite; }
+    @keyframes drift { from{background-position:0 0} to{background-position:34px 34px} }
+    .glow-lines { position:absolute; inset:0; pointer-events:none; }
+    .glow-lines::before { content:''; position:absolute; left:0; right:0; top:36%; height:1px; background:linear-gradient(90deg,transparent,rgba(24,72,245,.6) 45%,rgba(85,119,255,.9) 55%,transparent); filter:blur(1px); animation:scanH 9s ease-in-out infinite; }
+    @keyframes scanH { 0%,100%{opacity:.15;transform:translateY(0)} 50%{opacity:.6;transform:translateY(10px)} }
+    .orb { position:absolute; border-radius:50%; pointer-events:none; filter:blur(55px); }
+    .orb1 { width:360px;height:360px; background:rgba(24,72,245,.18); top:-90px; right:-70px; animation:float 12s ease-in-out infinite; }
+    .orb2 { width:200px;height:200px; background:rgba(85,119,255,.12); bottom:50px; left:40px; animation:float 15s ease-in-out infinite reverse; }
+    .orb3 { width:140px;height:140px; background:rgba(24,72,245,.1); top:42%; left:35%; animation:float 10s ease-in-out infinite 2s; }
+    @keyframes float { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-22px) scale(1.04)} }
+    .chart-deco { position:absolute; bottom:90px; right:40px; opacity:.15; }
+    .l-content { position:relative; z-index:2; flex:1; display:flex; flex-direction:column; justify-content:center; }
+    .l-footer { position:relative; z-index:2; flex-shrink:0; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:none} }
+    .logo { display:flex; align-items:center; gap:11px; text-decoration:none; margin-bottom:40px; animation:fadeUp .7s ease both; }
+    .logo-mark { width:40px; height:40px; background:linear-gradient(135deg,var(--blue),var(--blue-soft)); border-radius:11px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 24px var(--blue-glow); }
+    .logo-mark svg { width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round; }
+    .logo-text { font-family:'DM Serif Display',serif; font-size:22px; color:#fff; letter-spacing:-.3px; }
+    .logo-text em { color:#7c9fff; font-style:italic; }
+    .live-badge { display:inline-flex; align-items:center; gap:8px; background:rgba(24,72,245,.14); border:1px solid rgba(85,119,255,.28); border-radius:99px; padding:4px 12px 4px 7px; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:600; color:#93b4ff; letter-spacing:1.1px; text-transform:uppercase; margin-bottom:16px; animation:fadeUp .7s ease both .1s; width:fit-content; }
+    .live-dot { width:18px;height:18px; background:rgba(96,165,250,.15); border-radius:50%; display:flex;align-items:center;justify-content:center; }
+    .live-dot::after { content:''; width:6px;height:6px; background:#60a5fa; border-radius:50%; animation:pulse 1.8s ease infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.3;transform:scale(1.7)} }
+    .hero-title { font-family:'DM Serif Display',serif; font-size:clamp(28px,3vw,48px); line-height:1.1; letter-spacing:-1.5px; color:#fff; margin-bottom:12px; animation:fadeUp .7s ease both .15s; }
+    .hero-title em { font-style:italic; color:transparent; background:linear-gradient(105deg,#93c5fd,#818cf8,#c4b5fd); -webkit-background-clip:text; background-clip:text; }
+    .hero-sub { font-size:13.5px; line-height:1.75; color:rgba(255,255,255,.42); max-width:360px; margin-bottom:28px; animation:fadeUp .7s ease both .2s; }
+    .stats { display:flex; gap:10px; margin-bottom:24px; animation:fadeUp .7s ease both .25s; }
+    .stat-card { flex:1; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1); border-radius:14px; padding:12px 14px; transition:border-color .3s; }
+    .stat-card:hover { border-color:rgba(85,119,255,.4); }
+    .stat-val { font-family:'DM Serif Display',serif; font-size:24px; color:#fff; letter-spacing:-1px; }
+    .stat-val span { color:#7c9fff; }
+    .stat-lbl { font-size:10px; color:rgba(255,255,255,.32); font-weight:500; margin-top:1px; }
+    .features { display:flex; flex-direction:column; gap:8px; animation:fadeUp .7s ease both .3s; }
+    .feat { display:flex; align-items:center; gap:12px; padding:10px 13px; background:rgba(255,255,255,.025); border:1px solid rgba(255,255,255,.07); border-radius:12px; transition:all .3s; }
+    .feat:hover { background:rgba(24,72,245,.1); border-color:rgba(85,119,255,.28); transform:translateX(4px); }
+    .feat-icon { width:32px;height:32px; border-radius:9px; display:flex;align-items:center;justify-content:center; font-size:13px; flex-shrink:0; }
+    .fi-a { background:rgba(24,72,245,.2); color:#93c5fd; border:1px solid rgba(24,72,245,.35); }
+    .fi-b { background:rgba(34,197,94,.14); color:#86efac; border:1px solid rgba(34,197,94,.25); }
+    .fi-c { background:rgba(250,204,21,.12); color:#fde68a; border:1px solid rgba(250,204,21,.22); }
+    .feat-txt .ft-t { font-size:12.5px; font-weight:700; color:rgba(255,255,255,.82); }
+    .feat-txt .ft-s { font-size:10px; color:rgba(255,255,255,.3); font-family:'JetBrains Mono',monospace; }
+    .l-footer { font-size:10.5px; color:rgba(255,255,255,.22); font-family:'JetBrains Mono',monospace; letter-spacing:.3px; padding-top:16px; }
+    .right { flex:1; height:100vh; display:flex; align-items:flex-start; justify-content:center; overflow-y:auto; overflow-x:hidden; background:#fff; border-left:1px solid var(--border); position:relative; padding:0 36px; scrollbar-width:thin; scrollbar-color:#dde3f5 transparent; }
+    .right::-webkit-scrollbar { width:5px; }
+    .right::-webkit-scrollbar-track { background:transparent; }
+    .right::-webkit-scrollbar-thumb { background:#dde3f5; border-radius:99px; }
+    .right-inner { width:100%; max-width:400px; padding:40px 0 40px; }
+    .ring-deco { position:fixed; width:480px;height:480px; border-radius:50%; border:1px solid rgba(24,72,245,.05); top:50%; right:calc(25% - 240px); transform:translateY(-50%); pointer-events:none; z-index:0; }
+    .ring-deco::before { content:''; position:absolute; inset:65px; border-radius:50%; border:1px solid rgba(24,72,245,.03); }
+    .auth-card { position:relative; z-index:2; width:100%; }
+    .tab-row { display:flex; background:var(--bg); border:1.5px solid var(--border); border-radius:13px; padding:4px; margin-bottom:24px; }
+    .tab-btn { flex:1; padding:9px; border:none; border-radius:9px; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:600; cursor:pointer; transition:all .25s; background:transparent; color:var(--muted); }
+    .tab-btn.on { background:var(--black); color:#fff; box-shadow:0 4px 16px rgba(4,4,16,.22); }
+    .form-panel { display:none; animation:fadeUp .35s ease both; }
+    .form-panel.on { display:block; }
+    .auth-title { font-family:'DM Serif Display',serif; font-size:25px; color:var(--ink); letter-spacing:-.4px; margin-bottom:3px; }
+    .auth-sub { font-size:12.5px; color:var(--muted); margin-bottom:20px; }
+    .field { display:flex; flex-direction:column; gap:6px; margin-bottom:12px; }
+    .field label { font-size:10px; font-weight:700; color:var(--muted); letter-spacing:1.1px; text-transform:uppercase; font-family:'JetBrains Mono',monospace; }
+    .inp-wrap { position:relative; }
+    .inp-wrap i.icon { position:absolute; left:13px; top:50%; transform:translateY(-50%); font-size:13px; color:#b0bcd8; pointer-events:none; transition:color .2s; }
+    .inp-wrap input { width:100%; padding:11px 13px 11px 40px; background:#fff; border:1.5px solid var(--border); border-radius:11px; font-family:'DM Sans',sans-serif; font-size:13.5px; font-weight:500; color:var(--ink); outline:none; transition:border-color .25s, box-shadow .25s, background .25s; position:relative; }
+    .inp-wrap input::placeholder { color:#c2cce6; }
+    .inp-wrap input:focus { border-color:transparent; background:#fafbff; box-shadow: 0 0 0 1.5px var(--blue), 0 0 0 4px rgba(24,72,245,.1), 0 0 20px rgba(24,72,245,.08); }
+    .inp-wrap:focus-within i.icon { color:var(--blue); }
+    .inp-wrap::after { content:''; position:absolute; inset:-1px; border-radius:12px; background:linear-gradient(90deg, #1848f5, #818cf8, #c4b5fd, #1848f5); background-size:300% 100%; opacity:0; transition:opacity .3s; pointer-events:none; z-index:-1; animation:scolor-move 3s linear infinite; }
+    .inp-wrap:focus-within::after { opacity:1; }
+    @keyframes scolor-move { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+    .eye-btn { position:absolute; right:11px; top:50%; transform:translateY(-50%); background:none; border:none; color:#b0bcd8; cursor:pointer; font-size:12px; padding:4px; transition:color .2s; }
+    .eye-btn:hover { color:var(--blue); }
+    .forgot { display:flex; justify-content:flex-end; margin-top:-4px; margin-bottom:6px; }
+    .forgot a { font-size:11.5px; font-weight:600; color:var(--blue); text-decoration:none; }
+    .forgot a:hover { text-decoration:underline; }
+    .auth-btn { width:100%; padding:13px; border:none; border-radius:11px; font-family:'DM Sans',sans-serif; font-size:14.5px; font-weight:700; cursor:pointer; margin-top:4px; position:relative; overflow:hidden; transition:transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s; background-size:200% 100%; background-image:linear-gradient(135deg, #040410 0%, #0d0d28 30%, #1848f5 70%, #5577ff 100%); color:#fff; box-shadow:0 5px 22px rgba(4,4,16,.22); }
+    .auth-btn::before { content:''; position:absolute; inset:0; background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.18) 40%,rgba(196,181,253,.3) 50%,rgba(255,255,255,.18) 60%,transparent 100%); background-size:200% 100%; animation:btn-shimmer 2.6s ease infinite; opacity:0; transition:opacity .3s; }
+    .auth-btn:hover::before { opacity:1; }
+    @keyframes btn-shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+    .auth-btn:hover { transform:translateY(-2px) scale(1.01); box-shadow:0 12px 32px rgba(24,72,245,.32); }
+    .auth-btn:active { transform:scale(.97); }
+    .name-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+    .name-row .field { margin-bottom:0; }
+    .strength-bar { height:3px; background:var(--border); border-radius:99px; margin-top:5px; overflow:hidden; }
+    .strength-fill { height:100%; border-radius:99px; width:0; transition:width .4s,background .4s; }
+    .terms { font-size:11px; color:var(--muted); text-align:center; margin-top:16px; line-height:1.6; }
+    .terms a { color:var(--blue); text-decoration:none; font-weight:600; }
+    .terms a:hover { text-decoration:underline; }
+    .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(100px); background:var(--green); color:#fff; padding:12px 20px; border-radius:12px; font-size:13px; font-weight:700; z-index:9999; box-shadow:0 8px 28px rgba(22,163,74,.35); transition:transform .4s cubic-bezier(.34,1.56,.64,1); display:flex; align-items:center; gap:9px; font-family:'DM Sans',sans-serif; min-width:220px; justify-content:center; }
+    .toast.show { transform:translateX(-50%) translateY(0); }
+    .toast.error { background:var(--red); box-shadow:0 8px 28px rgba(220,38,38,.35); }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+    @media(max-width:800px) {
+      html,body{overflow:auto} .layout{flex-direction:column;height:auto}
+      .left{width:100%;height:auto;min-height:auto;padding:24px 20px 28px}
+      .right{height:auto;overflow-y:visible;padding:24px 20px 32px;border-left:none;border-top:1px solid var(--border)}
+      .right-inner{padding:0} .stats,.features,.hero-sub{display:none}
+      .hero-title{font-size:26px;margin-bottom:0} .logo{margin-bottom:20px}
+    }
+  </style>
+</head>
+<body>
+
+<div class="toast" id="toast">
+  <i class="fas fa-check-circle" id="toastIcon"></i>
+  <span id="toastMsg">Done!</span>
+</div>
+
+<div class="layout">
+  <div class="left">
+    <div class="left-bg"></div>
+    <div class="dot-grid"></div>
+    <div class="glow-lines"></div>
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+    <div class="chart-deco">
+      <svg width="170" height="80" viewBox="0 0 170 80" fill="none">
+        <polyline points="0,68 24,54 50,60 76,30 102,42 128,12 170,22" stroke="url(#cg)" stroke-width="1.8" fill="none"/>
+        <defs><linearGradient id="cg" x1="0" y1="0" x2="170" y2="0"><stop offset="0%" stop-color="#60a5fa"/><stop offset="100%" stop-color="#a78bfa"/></linearGradient></defs>
+        <circle cx="128" cy="12" r="3.5" fill="#60a5fa" opacity=".85"/>
+        <circle cx="76" cy="30" r="2.5" fill="#818cf8" opacity=".7"/>
+      </svg>
+    </div>
+    <div class="l-content">
+      <a href="/" class="logo">
+        <div class="logo-mark"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+        <span class="logo-text">Chain<em>Sight</em></span>
+      </a>
+      <div class="live-badge"><div class="live-dot"></div>ML-Powered · Real-Time</div>
+      <h1 class="hero-title">Predict delays.<br>Ship with<br><em>confidence.</em></h1>
+      <p class="hero-sub">Join logistics teams worldwide using ChainSight for 48-hour early warnings on shipment delays — powered by live weather data and AI.</p>
+      <div class="stats">
+        <div class="stat-card"><div class="stat-val">92<span>%</span></div><div class="stat-lbl">Prediction accuracy</div></div>
+        <div class="stat-card"><div class="stat-val">48<span>h</span></div><div class="stat-lbl">Early warning</div></div>
+        <div class="stat-card"><div class="stat-val">60<span>+</span></div><div class="stat-lbl">Weather sources</div></div>
+      </div>
+      <div class="features">
+        <div class="feat"><div class="feat-icon fi-a"><i class="fas fa-brain"></i></div><div class="feat-txt"><div class="ft-t">Gradient-Boosted ML Model</div><div class="ft-s">trained on 12M+ shipment records</div></div></div>
+        <div class="feat"><div class="feat-icon fi-b"><i class="fas fa-shield-halved"></i></div><div class="feat-txt"><div class="ft-t">Enterprise-Grade Security</div><div class="ft-s">end-to-end encrypted · SOC2 ready</div></div></div>
+        <div class="feat"><div class="feat-icon fi-c"><i class="fas fa-satellite-dish"></i></div><div class="feat-txt"><div class="ft-t">Real-Time Global Intelligence</div><div class="ft-s">live feeds · sub-minute refresh rate</div></div></div>
+      </div>
+    </div>
+    <div class="l-footer">© 2025 ChainSight &nbsp;·&nbsp; v2.4.1 &nbsp;·&nbsp; Status: <span style="color:#22c55e">● Operational</span></div>
+  </div>
+
+  <div class="right" id="rightPanel">
+    <div class="ring-deco"></div>
+    <div class="right-inner">
+      <div class="auth-card">
+        <div class="tab-row">
+          <button class="tab-btn on" onclick="switchTab('login')">Sign In</button>
+          <button class="tab-btn" onclick="switchTab('signup')">Create Account</button>
+        </div>
+
+        <!-- LOGIN -->
+        <div class="form-panel on" id="loginPanel">
+          <div class="auth-title">Welcome back 👋</div>
+          <div class="auth-sub">Sign in to access your shipment dashboard</div>
+          <div class="field">
+            <label>Email Address</label>
+            <div class="inp-wrap">
+              <i class="fas fa-envelope icon"></i>
+              <input type="email" id="loginEmail" placeholder="you@company.com" autocomplete="email"/>
+            </div>
+          </div>
+          <div class="field">
+            <label>Password</label>
+            <div class="inp-wrap">
+              <i class="fas fa-lock icon"></i>
+              <input type="password" id="loginPwd" placeholder="Enter your password" autocomplete="current-password"/>
+              <button class="eye-btn" type="button" onclick="togglePwd('loginPwd',this)"><i class="fas fa-eye"></i></button>
+            </div>
+          </div>
+          <div class="forgot"><a href="#">Forgot password?</a></div>
+          <button class="auth-btn" onclick="doLogin()"><i class="fas fa-arrow-right-to-bracket"></i>&nbsp; Sign In</button>
+          <div class="terms">Don't have an account? <a href="#" onclick="switchTab('signup');return false;">Sign up free →</a></div>
+        </div>
+
+        <!-- SIGNUP -->
+        <div class="form-panel" id="signupPanel">
+          <div class="auth-title">Get started free ✨</div>
+          <div class="auth-sub">Create your ChainSight account in seconds</div>
+          <div class="name-row">
+            <div class="field">
+              <label>First Name</label>
+              <div class="inp-wrap">
+                <i class="fas fa-user icon"></i>
+                <input type="text" id="firstName" placeholder="Rahul" autocomplete="given-name"/>
+              </div>
+            </div>
+            <div class="field">
+              <label>Last Name</label>
+              <div class="inp-wrap">
+                <i class="fas fa-user icon"></i>
+                <input type="text" id="lastName" placeholder="Sharma" autocomplete="family-name"/>
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Work Email</label>
+            <div class="inp-wrap">
+              <i class="fas fa-envelope icon"></i>
+              <input type="email" id="signupEmail" placeholder="you@company.com" autocomplete="email"/>
+            </div>
+          </div>
+          <div class="field">
+            <label>Company &nbsp;<span style="font-size:9px;opacity:.45;font-family:'DM Sans',sans-serif;text-transform:none;letter-spacing:0;font-weight:400">(Optional)</span></label>
+            <div class="inp-wrap">
+              <i class="fas fa-building icon"></i>
+              <input type="text" id="company" placeholder="Logistics Co." autocomplete="organization"/>
+            </div>
+          </div>
+          <div class="field">
+            <label>Password</label>
+            <div class="inp-wrap">
+              <i class="fas fa-lock icon"></i>
+              <input type="password" id="signupPwd" placeholder="Minimum 8 characters" autocomplete="new-password" oninput="checkStrength(this.value)"/>
+              <button class="eye-btn" type="button" onclick="togglePwd('signupPwd',this)"><i class="fas fa-eye"></i></button>
+            </div>
+            <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+          </div>
+          <button class="auth-btn" onclick="doSignup()"><i class="fas fa-user-plus"></i>&nbsp; Create Account</button>
+          <div class="terms">By signing up you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.<br>Already have an account? <a href="#" onclick="switchTab('login');return false;">Sign in →</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* ── Vertical centering ── */
+  function centerCard() {
+    const panel = document.getElementById('rightPanel');
+    const inner = panel.querySelector('.right-inner');
+    const pad = Math.max(40, (panel.clientHeight - inner.scrollHeight) / 2);
+    inner.style.paddingTop = pad + 'px';
+    inner.style.paddingBottom = pad + 'px';
+  }
+  centerCard();
+  window.addEventListener('resize', centerCard);
+
+  /* ══════════════════════════════════════════
+     ACCOUNT STORE
+  ══════════════════════════════════════════ */
+  function hashPwd(pwd) {
+    let h = 0x811c9dc5;
+    for (let i = 0; i < pwd.length; i++) { h ^= pwd.charCodeAt(i); h = (h * 0x01000193) >>> 0; }
+    return h.toString(16);
+  }
+  function getAccounts() { try { return JSON.parse(localStorage.getItem('cs_accounts') || '{}'); } catch { return {}; } }
+  function saveAccount(email, pwd, firstName, lastName) {
+    const accounts = getAccounts();
+    accounts[email.toLowerCase()] = { pwd: hashPwd(pwd), firstName, lastName };
+    localStorage.setItem('cs_accounts', JSON.stringify(accounts));
+  }
+  function accountExists(email) { return email.toLowerCase() in getAccounts(); }
+  function getAccountData(email) { return getAccounts()[email.toLowerCase()] || null; }
+  function passwordMatches(email, pwd) {
+    const acc = getAccountData(email);
+    if (!acc) return false;
+    /* Support old format (just a hash string) and new format (object) */
+    const stored = typeof acc === 'string' ? acc : acc.pwd;
+    return stored === hashPwd(pwd);
+  }
+
+  /* ── Save session (name + email) so other pages can greet the user ── */
+  function saveSession(email, firstName, lastName) {
+    localStorage.setItem('cs_session', JSON.stringify({ email: email.toLowerCase(), firstName, lastName, loggedInAt: Date.now() }));
+  }
+
+  /* ── Tab switch ── */
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('on', tab === 'login' ? i === 0 : i === 1));
+    document.getElementById('loginPanel').classList.toggle('on', tab === 'login');
+    document.getElementById('signupPanel').classList.toggle('on', tab === 'signup');
+    document.getElementById('rightPanel').scrollTop = 0;
+    setTimeout(centerCard, 50);
+  }
+
+  /* ── Password toggle ── */
+  function togglePwd(id, btn) {
+    const inp = document.getElementById(id);
+    const show = inp.type === 'password';
+    inp.type = show ? 'text' : 'password';
+    btn.querySelector('i').className = show ? 'fas fa-eye-slash' : 'fas fa-eye';
+  }
+
+  /* ── Strength ── */
+  function checkStrength(val) {
+    const fill = document.getElementById('strengthFill');
+    let score = 0;
+    if (val.length >= 8) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+    fill.style.width = (score * 25) + '%';
+    fill.style.background = ['#ef4444','#f59e0b','#3b82f6','#22c55e'][Math.max(0,score-1)] || 'transparent';
+  }
+
+  /* ── Toast ── */
+  function showToast(msg, ok = true) {
+    const t = document.getElementById('toast');
+    document.getElementById('toastIcon').className = ok ? 'fas fa-check-circle' : 'fas fa-triangle-exclamation';
+    document.getElementById('toastMsg').textContent = msg;
+    t.classList.toggle('error', !ok);
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3200);
+  }
+
+  /* ── Field shake ── */
+  function shakeField(inputId) {
+    const el = document.getElementById(inputId)?.closest('.inp-wrap');
+    if (!el) return;
+    el.style.animation = 'none';
+    el.offsetHeight;
+    el.style.animation = 'shake .4s ease';
+    setTimeout(() => el.style.animation = '', 400);
+  }
+
+  /* ── Login ── */
+  function doLogin() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const pwd   = document.getElementById('loginPwd').value;
+    if (!email || !pwd) { showToast('Please fill in all fields.', false); if (!email) shakeField('loginEmail'); if (!pwd) shakeField('loginPwd'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('Enter a valid email address.', false); shakeField('loginEmail'); return; }
+    if (!accountExists(email)) { showToast('No account found. Please sign up first.', false); shakeField('loginEmail'); return; }
+    if (!passwordMatches(email, pwd)) { showToast('Incorrect password. Please try again.', false); shakeField('loginPwd'); return; }
+
+    /* Get stored name and save session */
+    const acc = getAccountData(email);
+    const firstName = (typeof acc === 'object' && acc.firstName) ? acc.firstName : email.split('@')[0];
+    const lastName  = (typeof acc === 'object' && acc.lastName)  ? acc.lastName  : '';
+    saveSession(email, firstName, lastName);
+
+    showToast('Signing in… welcome back, ' + firstName + '!', true);
+    setTimeout(() => { window.location.href = '/'; }, 1200);
+  }
+
+  /* ── Signup ── */
+  function doSignup() {
+    const first = document.getElementById('firstName').value.trim();
+    const last  = document.getElementById('lastName').value.trim();
+    const email = document.getElementById('signupEmail').value.trim();
+    const pwd   = document.getElementById('signupPwd').value;
+
+    if (!first || !email || !pwd) { showToast('Please fill in all required fields.', false); if (!first) shakeField('firstName'); if (!email) shakeField('signupEmail'); if (!pwd) shakeField('signupPwd'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast('Enter a valid email address.', false); shakeField('signupEmail'); return; }
+    if (pwd.length < 8) { showToast('Password must be at least 8 characters.', false); shakeField('signupPwd'); return; }
+    if (accountExists(email)) {
+      showToast('Account already exists. Please sign in.', false);
+      shakeField('signupEmail');
+      setTimeout(() => { switchTab('login'); document.getElementById('loginEmail').value = email; }, 800);
+      return;
+    }
+
+    saveAccount(email, pwd, first, last);
+    saveSession(email, first, last);
+    showToast('Account created! Welcome, ' + first + '!', true);
+    setTimeout(() => { window.location.href = '/'; }, 1400);
+  }
+
+  /* ── Enter key ── */
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+    document.getElementById('loginPanel').classList.contains('on') ? doLogin() : doSignup();
+  });
+</script>
+</body>
+</html>

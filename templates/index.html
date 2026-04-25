@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ChainSight – Smart Supply Chain</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+  <style>
+    :root {
+      --blue:#1a56ff; --blue-soft:#4f7cff; --blue-glow:rgba(26,86,255,0.35);
+      --blue-dim:#eef2ff; --blue-dim2:#e4ecff;
+      --dark:#060612; --dark2:#0d0d20;
+      --surface:#ffffff; --bg:#f0f3fb;
+      --border:#e5eaf5; --border2:rgba(255,255,255,0.08);
+      --text:#0c0c1e; --muted:#7e8ca0;
+      --green:#22c55e; --amber:#f59e0b; --red:#ef4444;
+      --sidebar-w:252px; --hdr:62px;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;}
+    ::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:#c5cfea;border-radius:99px;}::-webkit-scrollbar-thumb:hover{background:var(--blue);}
+    .hdr{display:flex;justify-content:space-between;align-items:center;padding:0 26px;height:var(--hdr);background:rgba(255,255,255,0.85);backdrop-filter:blur(22px) saturate(200%);position:fixed;top:0;left:0;right:0;z-index:1000;border-bottom:1px solid var(--border);box-shadow:0 1px 0 var(--border),0 4px 24px rgba(26,86,255,0.06);transition:all .3s ease;}
+    .hdr.up{background:rgba(255,255,255,0.97);box-shadow:0 4px 36px rgba(26,86,255,0.1);}
+    .hdr-l{display:flex;align-items:center;gap:14px;}
+    .logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+    .logo-box{width:38px;height:38px;background:linear-gradient(135deg,#1a56ff 0%,#4f7cff 100%);border-radius:11px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(26,86,255,0.42);transition:transform .4s cubic-bezier(.34,1.56,.64,1),box-shadow .3s;}
+    .logo-box svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+    .logo:hover .logo-box{transform:rotate(-11deg) scale(1.12);}
+    .logo-txt{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--dark);letter-spacing:-.6px;}
+    .logo-txt em{color:var(--blue);font-style:normal;}
+    .nav{display:flex;align-items:center;gap:2px;}
+    .nav a{text-decoration:none;color:#555;font-size:14px;font-weight:600;padding:6px 14px;border-radius:8px;transition:all .2s;position:relative;}
+    .nav a::after{content:'';position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:0;height:2px;background:var(--blue);border-radius:2px;transition:width .25s;}
+    .nav a:hover{color:var(--blue);background:var(--blue-dim);}
+    .nav a:hover::after,.nav a.on::after{width:calc(100% - 22px);}
+    .nav a.on{color:var(--blue);}
+    .hdr-r{display:flex;align-items:center;gap:10px;}
+    .notif{position:relative;width:38px;height:38px;background:#fff;border:1.5px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .28s;}
+    .notif i{color:var(--blue);font-size:15px;transition:transform .35s cubic-bezier(.34,1.56,.64,1);}
+    .notif:hover{background:var(--blue-dim);border-color:var(--blue);}
+    .notif:hover i{transform:rotate(18deg) scale(1.15);}
+    .nbadge{position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;font-size:9px;font-weight:800;width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2.5px solid var(--bg);animation:pop .5s cubic-bezier(.34,1.56,.64,1) both 1s;}
+    @keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+    .signin{display:flex;align-items:center;gap:8px;padding:7px 16px 7px 7px;background:linear-gradient(135deg,#1a56ff,#4f7cff);border:none;border-radius:24px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;color:#fff;cursor:pointer;text-decoration:none;box-shadow:0 4px 18px rgba(26,86,255,0.38);transition:all .3s cubic-bezier(.34,1.56,.64,1);}
+    .s-av{width:26px;height:26px;background:rgba(255,255,255,.22);border-radius:50%;display:flex;align-items:center;justify-content:center;}
+    .s-av i{font-size:11px;}
+    .signin:hover{transform:translateY(-2px) scale(1.05);}
+    .sep{position:fixed;top:var(--hdr);left:0;right:0;height:3px;z-index:999;background:linear-gradient(90deg,transparent 0%,var(--blue) 20%,var(--blue-soft) 50%,var(--blue) 80%,transparent 100%);background-size:200% 100%;animation:sep-slide 3s linear infinite;}
+    @keyframes sep-slide{0%{background-position:100% 0}100%{background-position:-100% 0}}
+    .mtog{display:none;width:36px;height:36px;border-radius:8px;align-items:center;justify-content:center;cursor:pointer;font-size:19px;color:#555;transition:all .2s;}
+    .mtog:hover{color:var(--blue);background:var(--blue-dim);}
+    .app{display:flex;margin-top:calc(var(--hdr) + 3px);min-height:calc(100vh - var(--hdr) - 3px);}
+    .sb{width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);position:fixed;top:calc(var(--hdr)+3px);left:0;bottom:0;z-index:800;display:flex;flex-direction:column;transition:transform .42s cubic-bezier(.4,0,.2,1);overflow:hidden;}
+    .sb-top{padding:22px 14px 16px;}
+    .sb-sec{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+    .sb-sec::after{content:'';flex:1;height:1px;background:var(--border);}
+    .sbtn{display:flex;align-items:center;gap:11px;width:100%;padding:12px 13px;border-radius:13px;border:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .3s cubic-bezier(.34,1.56,.64,1);text-decoration:none;margin-bottom:9px;position:relative;overflow:hidden;}
+    .sbtn-ico{width:34px;height:34px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
+    .sbtn:hover .sbtn-ico{transform:rotate(-10deg) scale(1.15);}
+    .sbtn-new{background:linear-gradient(135deg,#1a56ff,#4f7cff);color:#fff;box-shadow:0 6px 22px rgba(26,86,255,0.38);}
+    .sbtn-new .sbtn-ico{background:rgba(255,255,255,.2);color:#fff;}
+    .sbtn-new:hover{transform:translateY(-2px) scale(1.01);}
+    .sb-div{height:1px;background:var(--border);margin:4px 14px 14px;}
+    .sb-nav{padding:0 8px;flex:1;}
+    .sbnl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:700;padding:0 6px;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+    .sbnl::after{content:'';flex:1;height:1px;background:var(--border);}
+    .sbl{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;font-size:14px;color:#555;text-decoration:none;transition:all .22s;margin-bottom:3px;font-weight:600;}
+    .sbl-i{width:28px;height:28px;border-radius:7px;background:transparent;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);transition:all .22s;}
+    .sbl:hover{background:var(--blue-dim);color:var(--blue);}
+    .sbl:hover .sbl-i,.sbl.on .sbl-i{background:#d8e4ff;color:var(--blue);}
+    .sbl.on{background:var(--blue-dim);color:var(--blue);font-weight:700;}
+    .sb-foot{padding:14px;border-top:1px solid var(--border);}
+    .sys-ok{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#f7fff9;border:1px solid #bbf7d0;border-radius:11px;}
+    .sdot{width:8px;height:8px;background:var(--green);border-radius:50%;flex-shrink:0;animation:sdot 2.2s ease-in-out infinite;}
+    @keyframes sdot{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.45)}50%{box-shadow:0 0 0 6px rgba(34,197,94,0)}}
+    .sys-txt{font-size:12px;color:#16a34a;font-weight:700;}
+    .sys-sub{font-size:10px;color:#4ade80;margin-top:1px;}
+    .main{margin-left:var(--sidebar-w);flex:1;padding:28px 26px 48px;min-height:100%;}
+    .hero{position:relative;border-radius:22px;overflow:hidden;padding:46px 50px;margin-bottom:22px;background:linear-gradient(135deg,#040410 0%,#0c0c28 30%,#0a1540 65%,#07091e 100%);box-shadow:0 28px 80px rgba(4,4,16,.4),0 0 0 1px rgba(255,255,255,.04);animation:fadeUp .9s cubic-bezier(.22,1,.36,1) both;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+    .h-grid{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(79,124,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(79,124,255,.06) 1px,transparent 1px);background-size:44px 44px;animation:grid-move 24s linear infinite;}
+    @keyframes grid-move{0%{background-position:0 0}100%{background-position:44px 44px}}
+    .h-orb1{position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(26,86,255,.22) 0%,transparent 65%);top:-150px;right:-120px;pointer-events:none;animation:orb1 9s ease-in-out infinite;}
+    .h-orb2{position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(79,124,255,.14) 0%,transparent 65%);bottom:-90px;left:28%;pointer-events:none;animation:orb1 11s ease-in-out infinite reverse;}
+    @keyframes orb1{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-20px) scale(1.06)}}
+    #pc{position:absolute;inset:0;pointer-events:none;opacity:.7;}
+    .h-live{position:absolute;top:20px;right:22px;z-index:3;display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:100px;padding:5px 14px;font-size:11px;color:rgba(255,255,255,.55);font-weight:600;letter-spacing:.5px;animation:fadeUp .9s both .4s;}
+    .live-d{width:7px;height:7px;background:#4ade80;border-radius:50%;animation:ldot 1.6s ease-in-out infinite;}
+    @keyframes ldot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.6)}}
+    .h-cont{position:relative;z-index:2;max-width:600px;}
+    .h-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(26,86,255,.18);border:1px solid rgba(79,124,255,.3);border-radius:100px;padding:5px 14px 5px 7px;font-size:11px;font-weight:700;color:#a5b4fc;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:18px;animation:fadeUp .9s both .1s;}
+    .bd{width:22px;height:22px;background:rgba(96,165,250,.18);border-radius:50%;display:flex;align-items:center;justify-content:center;}
+    .bd::after{content:'';width:7px;height:7px;background:#60a5fa;border-radius:50%;animation:ldot 1.8s infinite;}
+    .h-cont h1{font-family:'Syne',sans-serif;font-size:clamp(26px,3.2vw,44px);font-weight:800;color:#fff;letter-spacing:-1.8px;line-height:1.1;margin-bottom:13px;animation:fadeUp .9s both .18s;}
+    .h-cont h1 em{font-style:normal;color:transparent;background:linear-gradient(90deg,#60a5fa,#818cf8,#a78bfa,#60a5fa);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;animation:gshift 5s linear infinite;}
+    @keyframes gshift{0%{background-position:0 0}100%{background-position:300% 0}}
+    .h-cont p{font-size:15px;color:rgba(255,255,255,.5);line-height:1.8;max-width:450px;animation:fadeUp .9s both .26s;}
+    .h-cta{display:inline-flex;align-items:center;gap:9px;margin-top:20px;padding:13px 26px;background:linear-gradient(135deg,#1a56ff,#4f7cff);color:#fff;border-radius:13px;font-size:14px;font-weight:800;text-decoration:none;box-shadow:0 6px 24px rgba(26,86,255,.4);transition:all .35s cubic-bezier(.34,1.56,.64,1);animation:fadeUp .9s both .34s;}
+    .h-cta:hover{transform:translateY(-3px) scale(1.04);}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px;}
+    .sc{background:var(--surface);border-radius:16px;padding:20px 20px 16px;border:1.5px solid var(--border);box-shadow:0 2px 14px rgba(26,86,255,.04);position:relative;overflow:hidden;cursor:default;transition:transform .35s cubic-bezier(.34,1.56,.64,1),box-shadow .3s,border-color .3s;animation:fadeUp .7s cubic-bezier(.22,1,.36,1) both;}
+    .sc:nth-child(1){animation-delay:.1s}.sc:nth-child(2){animation-delay:.18s}.sc:nth-child(3){animation-delay:.26s}.sc:nth-child(4){animation-delay:.34s}
+    .sc::before{content:'';position:absolute;inset:0;border-radius:16px;background:linear-gradient(135deg,rgba(26,86,255,.04),transparent);opacity:0;transition:opacity .3s;}
+    .sc:hover{transform:translateY(-5px) scale(1.01);box-shadow:0 18px 52px rgba(26,86,255,.13);border-color:#cdd8ff;}
+    .sc:hover::before{opacity:1;}
+    .sc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;}
+    .sci{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;transition:transform .35s cubic-bezier(.34,1.56,.64,1);}
+    .sc:hover .sci{transform:rotate(-9deg) scale(1.14);}
+    .ib{background:#eff3ff;color:#3b5bdb}.ic{background:#e0f9ff;color:#0891b2}.ia{background:#fffbeb;color:#d97706}.ig{background:#f0fdf4;color:#16a34a}
+    .st{font-size:10px;font-weight:800;padding:3px 9px;border-radius:100px;}
+    .st-u{background:#f0fdf4;color:#16a34a}.st-n{background:#f8fafc;color:#64748b}.st-w{background:#fffbeb;color:#d97706}.st-d{background:#fff1f2;color:#dc2626}
+    .sc-num{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:var(--dark);letter-spacing:-1px;line-height:1;margin-bottom:4px;}
+    .sc-num em{color:var(--blue);font-style:normal;}
+    .sc-lbl{font-size:12px;color:var(--muted);font-weight:600;}
+    .sc-bar{height:3px;background:var(--border);border-radius:99px;margin-top:14px;overflow:hidden;}
+    .sc-fill{height:100%;border-radius:99px;width:0;transition:width 1.4s cubic-bezier(.22,1,.36,1);}
+    .fb{background:linear-gradient(90deg,#3b5bdb,#4f7cff)}.fc2c{background:linear-gradient(90deg,#0891b2,#22d3ee)}.fa{background:linear-gradient(90deg,#d97706,#fbbf24)}.fg{background:linear-gradient(90deg,#16a34a,#4ade80)}
+    .panel{background:var(--surface);border-radius:18px;border:1.5px solid var(--border);box-shadow:0 4px 22px rgba(26,86,255,.05);overflow:hidden;margin-bottom:22px;animation:fadeUp .7s cubic-bezier(.22,1,.36,1) both .42s;}
+    .ph{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid var(--border);}
+    .ph-l{display:flex;align-items:center;gap:12px;}
+    .ph-t{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;}
+    .ph-c{font-size:11px;font-weight:700;padding:3px 11px;border-radius:100px;background:#f1f5ff;color:var(--blue);}
+    .ph-a{font-size:13px;color:var(--blue);font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;text-decoration:none;padding:7px 13px;border-radius:9px;transition:all .2s;}
+    .ph-a:hover{background:var(--blue-dim);}
+    .ph-danger{font-size:13px;color:#dc2626;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;padding:7px 13px;border-radius:9px;transition:all .2s;border:none;background:none;font-family:'Plus Jakarta Sans',sans-serif;}
+    .ph-danger:hover{background:#fff1f2;}
+    .es{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:68px 40px;text-align:center;}
+    .es-vis{position:relative;width:108px;height:108px;margin-bottom:28px;}
+    .es-r{position:absolute;inset:0;border-radius:50%;border:2px solid transparent;animation:ring-in .5s cubic-bezier(.34,1.56,.64,1) both;}
+    .es-r1{border-color:#e5eaf5;animation-delay:.1s}.es-r2{inset:11px;border-color:#d8e4ff;animation-delay:.2s}.es-r3{inset:22px;border-color:#c4d3ff;animation-delay:.3s}
+    @keyframes ring-in{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
+    .es-core{position:absolute;inset:30px;background:var(--blue-dim);border-radius:50%;display:flex;align-items:center;justify-content:center;animation:ring-in .5s cubic-bezier(.34,1.56,.64,1) both .35s;}
+    .es-core i{color:var(--blue);font-size:22px;animation:tb 2.8s ease-in-out infinite 1.2s;}
+    @keyframes tb{0%,100%{transform:translateY(0) rotate(0)}40%{transform:translateY(-6px) rotate(-3deg)}70%{transform:translateY(-3px) rotate(2deg)}}
+    .es-orbit{position:absolute;inset:-8px;animation:spin 5s linear infinite;}
+    @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+    .es-od{position:absolute;width:8px;height:8px;background:var(--blue);border-radius:50%;box-shadow:0 0 8px rgba(26,86,255,.55);}
+    .es-od:nth-child(1){top:50%;left:-4px;transform:translateY(-50%)}.es-od:nth-child(2){top:-4px;right:26px}.es-od:nth-child(3){bottom:-4px;right:26px}
+    .es h3{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--dark);margin-bottom:9px;letter-spacing:-.5px;}
+    .es p{font-size:14px;color:var(--muted);max-width:300px;line-height:1.75;margin-bottom:28px;}
+    .es-btn{display:inline-flex;align-items:center;gap:9px;background:linear-gradient(135deg,#1a56ff,#4f7cff);color:#fff;padding:13px 26px;border-radius:13px;font-size:14px;font-weight:800;cursor:pointer;border:none;font-family:'Plus Jakarta Sans',sans-serif;box-shadow:0 6px 24px rgba(26,86,255,.4);transition:all .35s cubic-bezier(.34,1.56,.64,1);}
+    .es-btn:hover{transform:translateY(-3px) scale(1.05);}
+    .es-hint{display:flex;align-items:center;gap:6px;margin-top:14px;font-size:12px;color:var(--muted);}
+    .es-hint i{font-size:10px;color:#94a3b8;}
+    .shp-table{width:100%;border-collapse:collapse;}
+    .shp-table thead tr{border-bottom:1.5px solid var(--border);}
+    .shp-table thead th{padding:11px 16px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);text-align:left;white-space:nowrap;}
+    .shp-table tbody tr{border-bottom:1px solid var(--border);transition:background .18s;animation:fadeUp .4s cubic-bezier(.22,1,.36,1) both;}
+    .shp-table tbody tr:last-child{border-bottom:none;}
+    .shp-table tbody tr:hover{background:#f7f9ff;}
+    .shp-table td{padding:14px 16px;font-size:13px;vertical-align:middle;}
+    .td-id{font-family:'Syne',sans-serif;font-size:12px;font-weight:800;color:var(--muted);}
+    .td-route{display:flex;align-items:center;gap:8px;}
+    .td-route-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+    .ri-road{background:#eff3ff;}.ri-sea{background:#e0f9ff;}.ri-air{background:#f5f3ff;}.ri-rail{background:#f0fdf4;}
+    .td-route-main{font-size:13px;font-weight:700;color:var(--text);}
+    .td-route-sub{font-size:11px;color:var(--muted);margin-top:1px;}
+    .risk-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:100px;font-size:11px;font-weight:800;letter-spacing:.3px;}
+    .rb-low{background:#dcfce7;color:#15803d;}
+    .rb-moderate{background:#fef3c7;color:#92400e;}
+    .rb-high{background:#ffe4e6;color:#9f1239;}
+    .prob-cell{display:flex;align-items:center;gap:10px;min-width:120px;}
+    .prob-bar-wrap{flex:1;height:6px;background:var(--border);border-radius:99px;overflow:hidden;}
+    .prob-bar-fill{height:100%;border-radius:99px;transition:width 1s cubic-bezier(.22,1,.36,1);}
+    .pb-low{background:linear-gradient(90deg,#16a34a,#4ade80);}
+    .pb-moderate{background:linear-gradient(90deg,#d97706,#fbbf24);}
+    .pb-high{background:linear-gradient(90deg,#dc2626,#ef4444);}
+    .prob-num{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;min-width:36px;text-align:right;}
+    .pn-low{color:#16a34a;}.pn-moderate{color:#d97706;}.pn-high{color:#dc2626;}
+    .wx-chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:#0369a1;background:#e0f2fe;border-radius:7px;padding:3px 9px;}
+    .wx-chip.bad{background:#fef3c7;color:#92400e;}
+    .act-btn{width:30px;height:30px;border:none;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:12px;transition:all .2s;}
+    .act-del{background:#fff1f2;color:#dc2626;}
+    .act-del:hover{background:#fca5a5;transform:scale(1.1);}
+    .td-time{font-size:11px;color:var(--muted);}
+    .risk-ribbon{display:flex;gap:0;border-bottom:1px solid var(--border);background:var(--bg);}
+    .rr-item{flex:1;padding:13px 18px;display:flex;align-items:center;gap:10px;border-right:1px solid var(--border);}
+    .rr-item:last-child{border-right:none;}
+    .rr-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+    .rr-lbl{font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);}
+    .rr-num{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;line-height:1;}
+    .fg-wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px;}
+    .fc-card{background:var(--surface);border-radius:16px;padding:22px 20px;border:1.5px solid var(--border);box-shadow:0 2px 10px rgba(26,86,255,.03);position:relative;overflow:hidden;cursor:default;transition:all .35s cubic-bezier(.34,1.56,.64,1);animation:fadeUp .7s cubic-bezier(.22,1,.36,1) both;}
+    .fc-card:nth-child(1){animation-delay:.5s}.fc-card:nth-child(2){animation-delay:.58s}.fc-card:nth-child(3){animation-delay:.66s}.fc-card:nth-child(4){animation-delay:.74s}.fc-card:nth-child(5){animation-delay:.82s}.fc-card:nth-child(6){animation-delay:.9s}
+    .fc-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2.5px;background:linear-gradient(90deg,var(--blue),var(--blue-soft));transform:scaleX(0);transform-origin:left;transition:transform .4s cubic-bezier(.22,1,.36,1);}
+    .fc-card:hover{transform:translateY(-5px);box-shadow:0 20px 52px rgba(26,86,255,.12);border-color:#cdd8ff;}
+    .fc-card:hover::before{transform:scaleX(1);}
+    .fc-ico{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:17px;margin-bottom:14px;transition:transform .35s cubic-bezier(.34,1.56,.64,1);}
+    .fc-card:hover .fc-ico{transform:rotate(-9deg) scale(1.12);}
+    .i-bl{background:#eff3ff;color:#3b5bdb}.i-cy{background:#e0f9ff;color:#0891b2}.i-te{background:#f0fdfa;color:#0d9488}.i-am{background:#fffbeb;color:#d97706}.i-ro{background:#fff1f2;color:#e11d48}.i-gr{background:#f0fdf4;color:#16a34a}
+    .fc-t{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;margin-bottom:6px;}
+    .fc-d{font-size:13px;color:var(--muted);line-height:1.65;}
+    .detail-overlay{display:none;position:fixed;inset:0;background:rgba(4,4,16,.78);backdrop-filter:blur(12px);z-index:2000;align-items:center;justify-content:center;padding:20px;}
+    .detail-overlay.show{display:flex;}
+    .detail-modal{background:var(--surface);border-radius:22px;border:1.5px solid var(--border);box-shadow:0 28px 80px rgba(26,86,255,.2);width:100%;max-width:680px;max-height:88vh;overflow-y:auto;animation:fadeUp .35s ease both;}
+    .dm-header{padding:24px 28px 20px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;}
+    .dm-title{font-family:'Syne',sans-serif;font-size:19px;font-weight:800;letter-spacing:-.5px;}
+    .dm-sub{font-size:12px;color:var(--muted);margin-top:3px;}
+    .dm-close{width:34px;height:34px;border:1px solid var(--border);border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);transition:all .2s;background:var(--bg);font-size:15px;}
+    .dm-close:hover{border-color:#fca5a5;color:#dc2626;background:#fff1f2;}
+    .dm-body{padding:24px 28px;}
+    .dm-section{margin-bottom:22px;}
+    .dm-sec-title{font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+    .dm-sec-title::after{content:'';flex:1;height:1px;background:var(--border);}
+    .dm-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+    .dm-card{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:14px 16px;}
+    .dm-card-lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:5px;}
+    .dm-card-val{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--text);}
+    .dm-card-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+    .dm-big-risk{border-radius:16px;padding:20px 24px;display:flex;align-items:center;gap:16px;margin-bottom:16px;}
+    .dm-big-risk.low{background:#f0fdf4;border:2px solid #86efac;}
+    .dm-big-risk.moderate{background:#fffbeb;border:2px solid #fcd34d;}
+    .dm-big-risk.high{background:#fff1f2;border:2px solid #fca5a5;}
+    .dm-risk-ico{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+    .dm-big-risk.low .dm-risk-ico{background:#dcfce7;}
+    .dm-big-risk.moderate .dm-risk-ico{background:#fef3c7;}
+    .dm-big-risk.high .dm-risk-ico{background:#ffe4e6;}
+    .dm-risk-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;}
+    .dm-big-risk.low .dm-risk-title{color:#16a34a;}
+    .dm-big-risk.moderate .dm-risk-title{color:#d97706;}
+    .dm-big-risk.high .dm-risk-title{color:#dc2626;}
+    .dm-risk-prob{font-size:13px;color:var(--muted);margin-top:3px;}
+    .dm-prob-ring{width:72px;height:72px;position:relative;flex-shrink:0;margin-left:auto;}
+    .dm-prob-ring svg{transform:rotate(-90deg);}
+    .dm-prob-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:14px;font-weight:800;}
+    .dm-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px;}
+    .dm-tag{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;border-radius:100px;font-size:11px;font-weight:700;}
+    .dm-tag.info{background:#dbeafe;color:#1d4ed8;}
+    .dm-tag.warn{background:#fef3c7;color:#92400e;}
+    .dm-tag.good{background:#dcfce7;color:#15803d;}
+    .dm-tag.bad{background:#ffe4e6;color:#9f1239;}
+    .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#16a34a;color:#fff;padding:12px 22px;border-radius:12px;font-size:13px;font-weight:700;z-index:9999;box-shadow:0 8px 24px rgba(22,163,74,.4);transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .4s;opacity:0;pointer-events:none;}
+    .toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+    footer{margin-left:var(--sidebar-w);background:var(--dark);padding:26px 38px;}
+    .fi{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;border-top:1px solid rgba(255,255,255,.07);padding-top:20px;}
+    .fl{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#fff;}
+    .fl em{color:#4f7cff;font-style:normal;}
+    .flinks{display:flex;gap:18px;flex-wrap:wrap;}
+    .flinks a{font-size:13px;color:rgba(255,255,255,.34);text-decoration:none;transition:color .2s;}
+    .flinks a:hover{color:#4f7cff;}
+    .fc2{font-size:12px;color:rgba(255,255,255,.2);text-align:center;width:100%;margin-top:8px;}
+    .ov{position:fixed;inset:0;z-index:700;background:rgba(4,4,16,.5);backdrop-filter:blur(7px);opacity:0;visibility:hidden;transition:all .35s;}
+    .ov.show{opacity:1;visibility:visible;}
+    .rev{opacity:0;transform:translateY(22px);transition:opacity .6s,transform .6s cubic-bezier(.22,1,.36,1);}
+    .rev.on{opacity:1;transform:none;}
+    @media(max-width:1100px){.fg-wrap{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:860px){.stats{grid-template-columns:repeat(2,1fr)}.dm-grid{grid-template-columns:1fr}}
+    @media(max-width:768px){
+      .nav{display:none}.mtog{display:flex}
+      .sb{transform:translateX(-100%)}.sb.show{transform:translateX(0)}
+      .main{margin-left:0;padding:14px 13px 48px}
+      footer{margin-left:0;padding:22px 18px}
+      .hero{padding:28px 22px}.h-live{display:none}
+      .fg-wrap{grid-template-columns:1fr}
+      .shp-table .hide-sm{display:none}
+      .risk-ribbon{flex-wrap:wrap}
+      .rr-item{min-width:50%}
+    }
+    @media(max-width:480px){.stats{grid-template-columns:1fr 1fr;gap:11px}.sc-num{font-size:27px}.hero{padding:24px 18px}}
+
+    /* ── Gemini AI Chat Widget ─────────────────────────────────── */
+    #ai-fab {
+      position:fixed; bottom:28px; right:28px; z-index:3000;
+      width:54px; height:54px; border-radius:50%;
+      background:linear-gradient(135deg,#1a56ff,#4f7cff);
+      border:none; cursor:pointer;
+      box-shadow:0 6px 28px rgba(26,86,255,.5);
+      display:flex; align-items:center; justify-content:center;
+      transition:transform .35s cubic-bezier(.34,1.56,.64,1), box-shadow .3s;
+    }
+    #ai-fab:hover { transform:scale(1.12) rotate(-8deg); box-shadow:0 10px 36px rgba(26,86,255,.6); }
+    #ai-fab svg { width:22px; height:22px; fill:none; stroke:#fff; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round; }
+    #ai-fab .ai-pulse {
+      position:absolute; inset:-4px; border-radius:50%;
+      border:2px solid rgba(79,124,255,.45);
+      animation:ai-ring 2.4s ease-out infinite;
+      pointer-events:none;
+    }
+    @keyframes ai-ring { 0%{transform:scale(1);opacity:.7} 100%{transform:scale(1.75);opacity:0} }
+
+    #ai-panel {
+      position:fixed; bottom:96px; right:28px; z-index:3000;
+      width:370px; max-height:560px;
+      background:#fff; border:1.5px solid #e5eaf5; border-radius:20px;
+      box-shadow:0 24px 72px rgba(26,86,255,.18);
+      display:flex; flex-direction:column; overflow:hidden;
+      transform:scale(.88) translateY(16px); opacity:0; pointer-events:none;
+      transform-origin:bottom right;
+      transition:transform .35s cubic-bezier(.34,1.56,.64,1), opacity .28s;
+    }
+    #ai-panel.open { transform:scale(1) translateY(0); opacity:1; pointer-events:all; }
+
+    #ai-panel-hdr {
+      display:flex; align-items:center; gap:11px;
+      padding:14px 18px; border-bottom:1px solid #e5eaf5;
+      background:linear-gradient(135deg,#040410,#0c1240);
+      flex-shrink:0;
+    }
+    #ai-panel-hdr .ai-hdr-ico {
+      width:34px; height:34px; border-radius:10px;
+      background:rgba(255,255,255,.12);
+      display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    }
+    #ai-panel-hdr .ai-hdr-ico svg { width:16px; height:16px; fill:none; stroke:#fff; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+    #ai-panel-hdr .ai-hdr-info { flex:1; }
+    #ai-panel-hdr .ai-hdr-name { font-family:'Syne',sans-serif; font-size:13px; font-weight:800; color:#fff; }
+    #ai-panel-hdr .ai-hdr-sub { font-size:10px; color:rgba(255,255,255,.45); margin-top:1px; display:flex; align-items:center; gap:5px; }
+    #ai-panel-hdr .ai-online-dot { width:6px; height:6px; background:#4ade80; border-radius:50%; display:inline-block; animation:ldot 1.8s ease-in-out infinite; }
+    #ai-panel-close {
+      width:28px; height:28px; border-radius:8px; border:none; cursor:pointer;
+      background:rgba(255,255,255,.1); color:rgba(255,255,255,.7);
+      display:flex; align-items:center; justify-content:center;
+      font-size:13px; transition:all .2s; flex-shrink:0;
+    }
+    #ai-panel-close:hover { background:rgba(255,255,255,.2); color:#fff; }
+
+    #ai-msgs {
+      flex:1; overflow-y:auto; padding:16px 16px 8px;
+      display:flex; flex-direction:column; gap:12px;
+      scroll-behavior:smooth;
+    }
+    #ai-msgs::-webkit-scrollbar { width:4px; }
+    #ai-msgs::-webkit-scrollbar-thumb { background:#c5cfea; border-radius:99px; }
+
+    .ai-msg { display:flex; gap:9px; animation:fadeUp .3s ease both; }
+    .ai-msg.user { flex-direction:row-reverse; }
+    .ai-msg-av {
+      width:28px; height:28px; border-radius:50%; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center; font-size:11px;
+    }
+    .ai-msg.bot .ai-msg-av { background:linear-gradient(135deg,#1a56ff,#4f7cff); color:#fff; }
+    .ai-msg.user .ai-msg-av { background:#e5eaf5; color:#555; }
+    .ai-msg-bubble {
+      max-width:78%; padding:10px 13px; border-radius:14px;
+      font-size:13px; line-height:1.65;
+    }
+    .ai-msg.bot .ai-msg-bubble { background:#f0f3fb; color:#0c0c1e; border-bottom-left-radius:4px; }
+    .ai-msg.user .ai-msg-bubble { background:linear-gradient(135deg,#1a56ff,#4f7cff); color:#fff; border-bottom-right-radius:4px; }
+
+    .ai-typing { display:flex; gap:5px; align-items:center; padding:2px 0; }
+    .ai-typing span { width:7px; height:7px; background:#94a3b8; border-radius:50%; animation:ai-bounce .9s ease-in-out infinite; }
+    .ai-typing span:nth-child(2) { animation-delay:.18s; }
+    .ai-typing span:nth-child(3) { animation-delay:.36s; }
+    @keyframes ai-bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-7px)} }
+
+    #ai-suggestions { padding:0 12px 10px; display:flex; flex-wrap:wrap; gap:6px; flex-shrink:0; }
+    .ai-sugg {
+      font-size:11px; font-weight:600; color:#1a56ff;
+      background:#eef2ff; border:1px solid #c7d7ff; border-radius:20px;
+      padding:5px 11px; cursor:pointer; transition:all .2s;
+    }
+    .ai-sugg:hover { background:#1a56ff; color:#fff; border-color:#1a56ff; }
+
+    #ai-input-row {
+      display:flex; align-items:center; gap:8px;
+      padding:12px 14px; border-top:1px solid #e5eaf5; flex-shrink:0; background:#fff;
+    }
+    #ai-input {
+      flex:1; padding:9px 14px; border:1.5px solid #e5eaf5; border-radius:12px;
+      font-family:'Plus Jakarta Sans',sans-serif; font-size:13px; color:#0c0c1e;
+      outline:none; transition:border-color .2s; resize:none; height:40px; line-height:1.4;
+    }
+    #ai-input:focus { border-color:#4f7cff; box-shadow:0 0 0 3px rgba(26,86,255,.1); }
+    #ai-send {
+      width:38px; height:38px; border-radius:11px; border:none; cursor:pointer;
+      background:linear-gradient(135deg,#1a56ff,#4f7cff);
+      color:#fff; display:flex; align-items:center; justify-content:center;
+      font-size:14px; transition:all .3s cubic-bezier(.34,1.56,.64,1);
+      flex-shrink:0;
+    }
+    #ai-send:hover { transform:scale(1.1) rotate(-6deg); }
+    #ai-send:disabled { opacity:.45; cursor:default; transform:none; }
+
+    @media(max-width:480px) {
+      #ai-panel { width:calc(100vw - 24px); right:12px; bottom:88px; }
+      #ai-fab { bottom:20px; right:16px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="toast" id="toastEl"><i class="fas fa-check-circle"></i> Shipment saved to dashboard!</div>
+<div class="ov" id="ov" onclick="closeSb()"></div>
+
+<!-- Detail Modal -->
+<div class="detail-overlay" id="detailOverlay" onclick="closeDetailOverlay(event)">
+  <div class="detail-modal" id="detailModal">
+    <div class="dm-header">
+      <div>
+        <div class="dm-title" id="dmTitle">Shipment Details</div>
+        <div class="dm-sub" id="dmSub">—</div>
+      </div>
+      <div class="dm-close" onclick="closeDetail()"><i class="fas fa-times"></i></div>
+    </div>
+    <div class="dm-body" id="dmBody"></div>
+  </div>
+</div>
+
+<header class="hdr" id="hdr">
+  <div class="hdr-l">
+    <div class="mtog" id="mtog" onclick="toggleSb()"><i class="fas fa-bars"></i></div>
+    <a href="/" class="logo">
+      <div class="logo-box"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+      <span class="logo-txt">Chain<em>Sight</em></span>
+    </a>
+  </div>
+  <nav class="nav">
+    <a href="/" class="on">Home</a>
+    <a href="/about">About Us</a>
+    <a href="/contact">Contact Us</a>
+    <a href="/shipment">New Shipment</a>
+  </nav>
+  <div class="hdr-r">
+    <div class="notif" title="High/Moderate risk shipments">
+      <i class="fas fa-bell"></i>
+      <span class="nbadge" id="notifBadge">0</span>
+    </div>
+    <a href="/login" class="signin">
+      <div class="s-av"><i class="fas fa-user"></i></div>Sign In
+    </a>
+  </div>
+</header>
+<div class="sep"></div>
+
+<div class="app">
+  <aside class="sb" id="sb">
+    <div class="sb-top">
+      <div class="sb-sec">Quick Actions</div>
+      <a href="/shipment" class="sbtn sbtn-new">
+        <div class="sbtn-ico"><i class="fas fa-plus"></i></div>New Shipment
+      </a>
+    </div>
+    <div class="sb-div"></div>
+    <div class="sb-nav">
+      <div class="sbnl">Navigate</div>
+      <a href="/" class="sbl on"><div class="sbl-i"><i class="fas fa-home"></i></div>Dashboard</a>
+      <a href="/shipment" class="sbl"><div class="sbl-i"><i class="fas fa-truck"></i></div>New Shipment</a>
+      <a href="/about" class="sbl"><div class="sbl-i"><i class="fas fa-info-circle"></i></div>About Us</a>
+      <a href="/contact" class="sbl"><div class="sbl-i"><i class="fas fa-envelope"></i></div>Contact Us</a>
+    </div>
+    <div class="sb-foot">
+      <div class="sys-ok">
+        <div class="sdot"></div>
+        <div>
+          <div class="sys-txt">All Systems Online</div>
+          <div class="sys-sub">ML Model · Weather APIs</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="hero">
+      <div class="h-grid"></div><div class="h-orb1"></div><div class="h-orb2"></div>
+      <canvas id="pc"></canvas>
+      <div class="h-live"><div class="live-d"></div>Live Intelligence Active</div>
+      <div class="h-cont">
+        <div class="h-badge"><div class="bd"></div>ML-Powered · Real-Time</div>
+        <h1>Smart <em>Supply Chain</em><br>Prediction Platform</h1>
+        <p>Predict weather-related shipment delays up to 48 hours in advance. Add your first shipment and let our AI keep your logistics ahead of the storm.</p>
+        <a href="/shipment" class="h-cta"><i class="fas fa-plus"></i> Add New Shipment</a>
+      </div>
+    </div>
+
+    <div class="stats" id="statsRow">
+      <div class="sc">
+        <div class="sc-top"><div class="sci ib"><i class="fas fa-brain"></i></div><span class="st st-u">↑ 4.1%</span></div>
+        <div class="sc-num" data-n="92" data-s="%">0%</div>
+        <div class="sc-lbl">Prediction Accuracy</div>
+        <div class="sc-bar"><div class="sc-fill fb" data-w="92"></div></div>
+      </div>
+      <div class="sc">
+        <div class="sc-top"><div class="sci ic"><i class="fas fa-clock"></i></div><span class="st st-u">↑ Lead</span></div>
+        <div class="sc-num" data-n="48" data-s="h">0h</div>
+        <div class="sc-lbl">Early Warning Window</div>
+        <div class="sc-bar"><div class="sc-fill fc2c" data-w="80"></div></div>
+      </div>
+      <div class="sc">
+        <div class="sc-top"><div class="sci ia"><i class="fas fa-cloud-bolt"></i></div><span class="st st-u">↑ Live</span></div>
+        <div class="sc-num" data-n="60" data-s="+">0+</div>
+        <div class="sc-lbl">Weather Data Sources</div>
+        <div class="sc-bar"><div class="sc-fill fa" data-w="72"></div></div>
+      </div>
+      <div class="sc" id="activeShipStat">
+        <div class="sc-top"><div class="sci ig"><i class="fas fa-truck"></i></div><span class="st st-n" id="activeStatBadge">— New</span></div>
+        <div class="sc-num" id="activeStatNum">0</div>
+        <div class="sc-lbl">Active Shipments</div>
+        <div class="sc-bar"><div class="sc-fill fg" id="activeStatBar" data-w="0"></div></div>
+      </div>
+    </div>
+
+    <div class="panel rev" id="shipmentsPanel">
+      <div class="ph">
+        <div class="ph-l">
+          <span class="ph-t">Your Shipments</span>
+          <span class="ph-c" id="shipCountBadge">0 Active</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button class="ph-danger" id="clearAllBtn" onclick="clearAllShipments()" style="display:none;">
+            <i class="fas fa-trash"></i> Clear All
+          </button>
+          <a class="ph-a" href="/shipment"><i class="fas fa-plus"></i> Add Shipment</a>
+        </div>
+      </div>
+      <div id="shipPanelBody"></div>
+    </div>
+
+    <div class="fg-wrap">
+      <div class="fc-card"><div class="fc-ico i-bl"><i class="fas fa-brain"></i></div><div class="fc-t">ML Delay Prediction</div><div class="fc-d">Gradient-boosted model flags delays 48h ahead using weather, route, and carrier history.</div></div>
+      <div class="fc-card"><div class="fc-ico i-cy"><i class="fas fa-cloud-sun-rain"></i></div><div class="fc-t">Weather Intelligence</div><div class="fc-d">Live integration across 60+ global APIs covering maritime, air, and ground corridors.</div></div>
+      <div class="fc-card"><div class="fc-ico i-te"><i class="fas fa-map-marked-alt"></i></div><div class="fc-t">Real-Time Tracking</div><div class="fc-d">Live map view with dynamic ETA updates, rerouting suggestions, and anomaly detection.</div></div>
+      <div class="fc-card"><div class="fc-ico i-am"><i class="fas fa-bell"></i></div><div class="fc-t">Smart Alerts</div><div class="fc-d">Multi-channel alerts via SMS, email and webhook so your ops team always acts first.</div></div>
+      <div class="fc-card"><div class="fc-ico i-ro"><i class="fas fa-shield-alt"></i></div><div class="fc-t">Risk Scoring</div><div class="fc-d">Every shipment gets a live risk score (0–100) based on real-time weather exposure and congestion.</div></div>
+      <div class="fc-card"><div class="fc-ico i-gr"><i class="fas fa-chart-line"></i></div><div class="fc-t">Analytics Dashboard</div><div class="fc-d">Deep-dive reports on carrier performance, delay trends, cost impact and ML model accuracy.</div></div>
+    </div>
+  </main>
+</div>
+
+<footer>
+  <div class="fi">
+    <div class="fl">Chain<em>Sight</em></div>
+    <div class="flinks">
+      <a href="/about">About Us</a><a href="/contact">Contact</a>
+      <a href="#">API Docs</a><a href="#">Privacy</a><a href="#">Terms</a>
+    </div>
+    <div class="fc2">© 2025 ChainSight · Hackathon 2025 · Powered by ML, Weather APIs & Real-time Data</div>
+  </div>
+</footer>
+
+<!-- ── Gemini AI Chat Widget HTML ──────────────────────────── -->
+<button id="ai-fab" onclick="toggleAiPanel()" title="Ask ChainSight AI">
+  <div class="ai-pulse"></div>
+  <svg viewBox="0 0 24 24">
+    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" stroke-width="0" fill="rgba(255,255,255,0.2)"/>
+    <path d="M8 12h8M12 8l4 4-4 4" stroke-width="2.2"/>
+  </svg>
+</button>
+
+<div id="ai-panel">
+  <div id="ai-panel-hdr">
+    <div class="ai-hdr-ico">
+      <svg viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/>
+      </svg>
+    </div>
+    <div class="ai-hdr-info">
+      <div class="ai-hdr-name">ChainSight AI</div>
+      <div class="ai-hdr-sub"><span class="ai-online-dot"></span> Powered by Gemini · Always on</div>
+    </div>
+    <button id="ai-panel-close" onclick="toggleAiPanel()"><i class="fas fa-times"></i></button>
+  </div>
+
+  <div id="ai-msgs">
+    <div class="ai-msg bot">
+      <div class="ai-msg-av"><i class="fas fa-robot"></i></div>
+      <div class="ai-msg-bubble">
+        Hi! I'm your ChainSight AI assistant powered by Gemini. Ask me anything about supply chain logistics, shipment delays, weather impacts, or route optimisation. 🚚
+      </div>
+    </div>
+  </div>
+
+  <div id="ai-suggestions">
+    <span class="ai-sugg" onclick="aiAskSugg(this)">How do I reduce delays?</span>
+    <span class="ai-sugg" onclick="aiAskSugg(this)">Best transport mode for cold cargo?</span>
+    <span class="ai-sugg" onclick="aiAskSugg(this)">What affects delay probability?</span>
+  </div>
+
+  <div id="ai-input-row">
+    <input type="text" id="ai-input" placeholder="Ask anything about supply chain…" maxlength="500" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAiMsg();}"/>
+    <button id="ai-send" onclick="sendAiMsg()" title="Send">
+      <i class="fas fa-paper-plane"></i>
+    </button>
+  </div>
+</div>
+<!-- ── End Gemini AI Chat Widget HTML ──────────────────────── -->
+
+<script>
+/* ── Particle canvas ──────────────────────────────────────── */
+(function(){
+  const cv = document.getElementById('pc');
+  const hero = cv.parentElement;
+  function resize(){ cv.width=hero.offsetWidth; cv.height=hero.offsetHeight; }
+  resize();
+  window.addEventListener('resize', resize);
+  const ctx = cv.getContext('2d');
+  const pts = Array.from({length:28},()=>({
+    x:Math.random()*cv.width, y:Math.random()*cv.height,
+    vx:(Math.random()-.5)*.35, vy:(Math.random()-.5)*.35,
+    r:Math.random()*2+.5, a:Math.random()*.4+.1
+  }));
+  function draw(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    pts.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0||p.x>cv.width) p.vx*=-1;
+      if(p.y<0||p.y>cv.height) p.vy*=-1;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(255,255,255,${p.a})`;ctx.fill();
+    });
+    for(let i=0;i<pts.length;i++) for(let j=i+1;j<pts.length;j++){
+      const dx=pts[i].x-pts[j].x, dy=pts[i].y-pts[j].y;
+      const dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<110){
+        ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);
+        ctx.strokeStyle=`rgba(79,124,255,${(1-dist/110)*.18})`;ctx.lineWidth=.8;ctx.stroke();
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ── Header scroll ───────────────────────────────────────── */
+window.addEventListener('scroll',()=> document.getElementById('hdr').classList.toggle('up', scrollY>30));
+
+/* ── Sidebar ─────────────────────────────────────────────── */
+function toggleSb(){
+  const s=document.getElementById('sb'), o=document.getElementById('ov');
+  const open=s.classList.toggle('show');
+  o.classList.toggle('show',open);
+  document.body.style.overflow=open?'hidden':'';
+}
+function closeSb(){
+  document.getElementById('sb').classList.remove('show');
+  document.getElementById('ov').classList.remove('show');
+  document.body.style.overflow='';
+}
+
+/* ── Count-up animations ─────────────────────────────────── */
+function countUp(el){
+  const target=+el.dataset.n, suf=el.dataset.s||'';
+  if(target===0){el.textContent='0'+suf;return;}
+  const dur=1500, start=performance.now();
+  function step(now){
+    const p=Math.min((now-start)/dur,1);
+    const ease=1-Math.pow(1-p,4);
+    el.textContent=Math.round(ease*target)+suf;
+    if(p<1)requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+function runBars(){
+  document.querySelectorAll('.sc-fill[data-w]').forEach(el=>{
+    setTimeout(()=>{ el.style.width=el.dataset.w+'%'; },200);
+  });
+}
+let statsRan=false;
+const sObs=new IntersectionObserver(es=>{
+  es.forEach(e=>{
+    if(e.isIntersecting&&!statsRan){
+      statsRan=true;
+      document.querySelectorAll('[data-n]').forEach(countUp);
+      runBars();
+    }
+  });
+},{threshold:.25});
+const sr=document.querySelector('.stats');
+if(sr) sObs.observe(sr);
+setTimeout(()=>{
+  if(!statsRan&&sr){
+    const r=sr.getBoundingClientRect();
+    if(r.top<window.innerHeight){ statsRan=true; document.querySelectorAll('[data-n]').forEach(countUp); runBars(); }
+  }
+},400);
+
+/* ── Scroll reveal ───────────────────────────────────────── */
+const rObs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('on');});},{threshold:.08});
+document.querySelectorAll('.rev').forEach(el=>rObs.observe(el));
+
+/* ── Shipments localStorage logic ────────────────────────── */
+const STORAGE_KEY = 'chainsight_shipments';
+function loadShipments() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e){ return []; }
+}
+function saveShipments(list) { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }
+
+function deleteShipment(id) {
+  if (!confirm('Remove this shipment from the dashboard?')) return;
+  const list = loadShipments().filter(s => s.id !== id);
+  saveShipments(list);
+  renderDashboard();
+}
+function clearAllShipments() {
+  if (!confirm('Clear all saved shipments? This cannot be undone.')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  renderDashboard();
+}
+
+const transportMeta = {
+  road:  { icon: '🚛', cls: 'ri-road',  label: 'Road' },
+  sea:   { icon: '🚢', cls: 'ri-sea',   label: 'Sea' },
+  air:   { icon: '✈️', cls: 'ri-air',   label: 'Air' },
+  rail:  { icon: '🚂', cls: 'ri-rail',  label: 'Rail' },
+};
+const riskMeta = {
+  Low:      { cls: 'rb-low',      icon: '✅', barCls: 'pb-low',      numCls: 'pn-low',      dotColor: '#16a34a', ico: '✅', label: 'On Time' },
+  Moderate: { cls: 'rb-moderate', icon: '⚠️', barCls: 'pb-moderate', numCls: 'pn-moderate', dotColor: '#d97706', ico: '⚠️', label: 'Monitor' },
+  High:     { cls: 'rb-high',     icon: '🚨', barCls: 'pb-high',     numCls: 'pn-high',     dotColor: '#dc2626', ico: '🚨', label: 'Take Action' },
+};
+
+function formatDate(iso) {
+  const d = new Date(iso);
+  return d.toLocaleString('en-IN', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+}
+function shortId(id) { return id.replace('SHP-', '#').slice(0, 10); }
+
+function renderDashboard() {
+  const shipments = loadShipments();
+  const count = shipments.length;
+  const highRisk = shipments.filter(s => s.risk === 'High').length;
+  const modRisk  = shipments.filter(s => s.risk === 'Moderate').length;
+  const lowRisk  = shipments.filter(s => s.risk === 'Low').length;
+
+  const numEl   = document.getElementById('activeStatNum');
+  const barEl   = document.getElementById('activeStatBar');
+  const badgeEl = document.getElementById('activeStatBadge');
+  const notifEl = document.getElementById('notifBadge');
+
+  numEl.textContent = count;
+  barEl.style.width = Math.min(count * 10, 100) + '%';
+  notifEl.textContent = highRisk + modRisk;
+
+  if (count === 0) {
+    badgeEl.textContent = '— New'; badgeEl.className = 'st st-n';
+  } else if (highRisk > 0) {
+    badgeEl.textContent = `⚠ ${highRisk} High`; badgeEl.className = 'st st-d';
+  } else if (modRisk > 0) {
+    badgeEl.textContent = `~ ${modRisk} Moderate`; badgeEl.className = 'st st-w';
+  } else {
+    badgeEl.textContent = '✓ All Clear'; badgeEl.className = 'st st-u';
+  }
+
+  document.getElementById('shipCountBadge').textContent = count === 0 ? '0 Active' : `${count} Active`;
+  document.getElementById('clearAllBtn').style.display = count > 0 ? 'flex' : 'none';
+
+  const body = document.getElementById('shipPanelBody');
+
+  if (count === 0) {
+    body.innerHTML = `
+      <div class="es">
+        <div class="es-vis">
+          <div class="es-r es-r1"></div><div class="es-r es-r2"></div><div class="es-r es-r3"></div>
+          <div class="es-orbit"><div class="es-od"></div><div class="es-od"></div><div class="es-od"></div></div>
+          <div class="es-core"><i class="fas fa-truck"></i></div>
+        </div>
+        <h3>No Shipments Yet</h3>
+        <p>Add your first shipment to start receiving real-time tracking and AI-powered delay predictions.</p>
+        <button class="es-btn" onclick="location.href='/shipment'"><i class="fas fa-plus"></i> Add Your First Shipment</button>
+        <div class="es-hint"><i class="fas fa-lock"></i> Secure · Real-time · AI-powered</div>
+      </div>`;
+    return;
+  }
+
+  const ribbonHTML = `
+    <div class="risk-ribbon">
+      <div class="rr-item"><div class="rr-dot" style="background:#16a34a;"></div><div><div class="rr-lbl">Low Risk</div><div class="rr-num" style="color:#16a34a;">${lowRisk}</div></div></div>
+      <div class="rr-item"><div class="rr-dot" style="background:#d97706;"></div><div><div class="rr-lbl">Moderate</div><div class="rr-num" style="color:#d97706;">${modRisk}</div></div></div>
+      <div class="rr-item"><div class="rr-dot" style="background:#dc2626;"></div><div><div class="rr-lbl">High Risk</div><div class="rr-num" style="color:#dc2626;">${highRisk}</div></div></div>
+      <div class="rr-item"><div class="rr-dot" style="background:#1a56ff;"></div><div><div class="rr-lbl">Total</div><div class="rr-num" style="color:#1a56ff;">${count}</div></div></div>
+    </div>`;
+
+  const rowsHTML = shipments.map((s, rowIdx) => {
+    const tm  = transportMeta[s.transport] || transportMeta.road;
+    const rm  = riskMeta[s.risk]           || riskMeta.Low;
+    const prob = s.delayProbability || 0;
+    const wxBad = s.anyBadWeather;
+    const wxTemp = s.originWeather?.temp != null ? s.originWeather.temp.toFixed(1) + '°C' : '—';
+    const delay = `${rowIdx * 50}ms`;
+    return `
+      <tr style="animation-delay:${delay}">
+        <td><div class="td-id">${shortId(s.id)}</div></td>
+        <td>
+          <div class="td-route">
+            <div class="td-route-icon ${tm.cls}">${tm.icon}</div>
+            <div>
+              <div class="td-route-main">${s.origin} → ${s.destination}</div>
+              <div class="td-route-sub">${tm.label} · ${s.cargo || 'General'}</div>
+            </div>
+          </div>
+        </td>
+        <td><span class="risk-badge ${rm.cls}">${rm.icon} ${s.risk}</span></td>
+        <td>
+          <div class="prob-cell">
+            <div class="prob-bar-wrap"><div class="prob-bar-fill ${rm.barCls}" style="width:0%" data-w="${prob}"></div></div>
+            <span class="prob-num ${rm.numCls}">${prob}%</span>
+          </div>
+        </td>
+        <td class="hide-sm"><span class="wx-chip ${wxBad ? 'bad' : ''}">${wxBad ? '⚠️' : '🌤️'} ${wxTemp}</span></td>
+        <td class="hide-sm"><div class="td-time">${formatDate(s.savedAt)}</div></td>
+        <td>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <button class="act-btn" style="background:#eff3ff;color:#1a56ff;" onclick="openDetail('${s.id}')" title="View details"><i class="fas fa-eye"></i></button>
+            <button class="act-btn act-del" onclick="deleteShipment('${s.id}')" title="Delete"><i class="fas fa-trash"></i></button>
+          </div>
+        </td>
+      </tr>`;
+  }).join('');
+
+  body.innerHTML = ribbonHTML + `
+    <div style="overflow-x:auto;">
+      <table class="shp-table">
+        <thead>
+          <tr>
+            <th>ID</th><th>Route</th><th>Risk</th><th>Delay Prob</th>
+            <th class="hide-sm">Weather</th><th class="hide-sm">Saved</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>${rowsHTML}</tbody>
+      </table>
+    </div>`;
+
+  setTimeout(() => {
+    document.querySelectorAll('.prob-bar-fill[data-w]').forEach(el => {
+      el.style.width = el.dataset.w + '%';
+    });
+  }, 100);
+}
+
+/* ── Detail modal ────────────────────────────────────────── */
+function openDetail(id) {
+  const s = loadShipments().find(x => x.id === id);
+  if (!s) return;
+  const rm  = riskMeta[s.risk]           || riskMeta.Low;
+  const tm  = transportMeta[s.transport] || transportMeta.road;
+  const prob = s.delayProbability || 0;
+  const r = 28, circ = 2 * Math.PI * r;
+  const fill = prob < 35 ? '#22c55e' : prob < 60 ? '#f59e0b' : '#ef4444';
+  document.getElementById('dmTitle').textContent = `${s.origin} → ${s.destination}`;
+  document.getElementById('dmSub').textContent = `${tm.label} · ${s.cargo || 'General'} · Saved ${formatDate(s.savedAt)}`;
+  const trafficLabels = ['Low','Moderate','High'];
+  const delayReasonLabels = ['None','Weather','Traffic'];
+  const wxO = s.originWeather || {}, wxD = s.destWeather || {};
+  document.getElementById('dmBody').innerHTML = `
+    <div class="dm-section">
+      <div class="dm-big-risk ${s.risk.toLowerCase()}">
+        <div class="dm-risk-ico">${rm.ico}</div>
+        <div style="flex:1;">
+          <div class="dm-risk-title">${rm.label} — ${s.risk} Risk</div>
+          <div class="dm-risk-prob">Delay probability: <strong>${prob}%</strong></div>
+          <div class="dm-tags" style="margin-top:8px;">
+            <span class="dm-tag info">${tm.icon} ${tm.label}</span>
+            <span class="dm-tag info"><i class="fas fa-box" style="font-size:10px;"></i> ${s.cargo || 'General'}</span>
+            ${s.anyBadWeather ? '<span class="dm-tag warn">⛈️ Bad weather on corridor</span>' : '<span class="dm-tag good">🌤️ Clear weather</span>'}
+            <span class="dm-tag ${s.trafficStatus >= 2 ? 'bad' : s.trafficStatus === 1 ? 'warn' : 'good'}">🚦 ${trafficLabels[s.trafficStatus || 0]} traffic</span>
+            ${s.delayReason > 0 ? `<span class="dm-tag warn">⚠️ Delay: ${delayReasonLabels[s.delayReason]}</span>` : ''}
+          </div>
+        </div>
+        <div class="dm-prob-ring">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="${r}" fill="none" stroke="#e5eaf5" stroke-width="7"/>
+            <circle cx="36" cy="36" r="${r}" fill="none" stroke-width="7" stroke-linecap="round"
+              stroke="${fill}" stroke-dasharray="${circ}" stroke-dashoffset="${circ - (prob/100)*circ}"
+              style="transition:stroke-dashoffset 1s ease;"/>
+          </svg>
+          <div class="dm-prob-num" style="color:${fill}">${prob}%</div>
+        </div>
+      </div>
+    </div>
+    <div class="dm-section">
+      <div class="dm-sec-title">Route Details</div>
+      <div class="dm-grid">
+        <div class="dm-card"><div class="dm-card-lbl">Origin</div><div class="dm-card-val" style="font-size:15px;">${s.origin}</div></div>
+        <div class="dm-card"><div class="dm-card-lbl">Destination</div><div class="dm-card-val" style="font-size:15px;">${s.destination}</div></div>
+        <div class="dm-card"><div class="dm-card-lbl">Distance</div><div class="dm-card-val">${s.distanceKm ? s.distanceKm + ' km' : '—'}</div></div>
+        <div class="dm-card"><div class="dm-card-lbl">Est. Travel Time</div><div class="dm-card-val">${s.durationHrs ? s.durationHrs + ' hrs' : '—'}</div><div class="dm-card-sub">Includes traffic</div></div>
+      </div>
+    </div>
+    <div class="dm-section">
+      <div class="dm-sec-title">Weather Conditions</div>
+      <div class="dm-grid">
+        <div class="dm-card"><div class="dm-card-lbl">📍 Origin Temp</div><div class="dm-card-val">${wxO.temp != null ? wxO.temp.toFixed(1) + '°C' : '—'}</div><div class="dm-card-sub">${wxO.description || '—'}</div></div>
+        <div class="dm-card"><div class="dm-card-lbl">🏁 Destination Temp</div><div class="dm-card-val">${wxD.temp != null ? wxD.temp.toFixed(1) + '°C' : '—'}</div><div class="dm-card-sub">${wxD.description || '—'}</div></div>
+        <div class="dm-card"><div class="dm-card-lbl">🌡️ Worst Temp</div><div class="dm-card-val">${s.worstTemp != null ? s.worstTemp.toFixed(1) + '°C' : '—'}</div><div class="dm-card-sub">Across full corridor</div></div>
+        <div class="dm-card"><div class="dm-card-lbl">💨 Worst Wind</div><div class="dm-card-val">${s.worstWind != null ? s.worstWind.toFixed(1) + ' m/s' : '—'}</div><div class="dm-card-sub">Avg humidity: ${s.avgHumidity != null ? s.avgHumidity.toFixed(0) + '%' : '—'}</div></div>
+      </div>
+    </div>
+    <div class="dm-section">
+      <div class="dm-sec-title">Shipment ID</div>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px 16px;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--muted);letter-spacing:1px;">${s.id}</div>
+      <div style="margin-top:10px;display:flex;gap:10px;justify-content:flex-end;">
+        <a href="/shipment" style="background:#eff3ff;color:#1a56ff;border:1px solid #c7d7ff;border-radius:9px;padding:8px 16px;font-size:12px;font-weight:700;text-decoration:none;display:flex;align-items:center;gap:6px;">
+          <i class="fas fa-plus"></i> New Shipment
+        </a>
+        <button onclick="deleteShipment('${s.id}');closeDetail();" style="background:#fff1f2;color:#dc2626;border:1px solid #fca5a5;border-radius:9px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;">
+          <i class="fas fa-trash"></i> Delete
+        </button>
+      </div>
+    </div>`;
+  document.getElementById('detailOverlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closeDetail() {
+  document.getElementById('detailOverlay').classList.remove('show');
+  document.body.style.overflow = '';
+}
+function closeDetailOverlay(e) { if (e.target === document.getElementById('detailOverlay')) closeDetail(); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeDetail(); } });
+
+renderDashboard();
+
+/* ── Saved toast ─────────────────────────────────────────── */
+(function() {
+  const qs = new URLSearchParams(location.search);
+  if (qs.get('saved') === '1') {
+    history.replaceState({}, '', location.pathname);
+    const t = document.getElementById('toastEl');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3500);
+  }
+})();
+
+/* ── Auth header ─────────────────────────────────────────── */
+(function applyAuthHeader() {
+  var s = null;
+  try { s = JSON.parse(localStorage.getItem('cs_session') || 'null'); } catch(e) {}
+  var btn = document.querySelector('a.signin');
+  if (!btn || !s || !s.firstName) return;
+  var first = s.firstName;
+  var initials = (first[0] + (s.lastName ? s.lastName[0] : '')).toUpperCase();
+  btn.style.cssText = [
+    'display:flex;align-items:center;gap:8px;padding:5px 14px 5px 6px;',
+    'background:linear-gradient(135deg,#1a56ff,#4f7cff);border:none;border-radius:24px;',
+    'font-family:"Plus Jakarta Sans",sans-serif;font-size:13px;font-weight:700;color:#fff;',
+    'cursor:pointer;text-decoration:none;box-shadow:0 4px 18px rgba(26,86,255,.38);',
+    'transition:all .3s;position:relative;'
+  ].join('');
+  btn.innerHTML =
+    '<div style="width:26px;height:26px;background:rgba(255,255,255,.25);border-radius:50%;' +
+    'display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;">' +
+    initials + '</div>Hi,\u00a0' + first;
+  btn.removeAttribute('href');
+  btn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    var m = document.getElementById('cs-user-menu');
+    if (m) { m.remove(); return; }
+    m = document.createElement('div');
+    m.id = 'cs-user-menu';
+    m.style.cssText = [
+      'position:absolute;top:calc(100% + 8px);right:0;background:#fff;',
+      'border:1.5px solid #e5eaf5;border-radius:14px;',
+      'box-shadow:0 12px 40px rgba(26,86,255,.14);',
+      'min-width:190px;z-index:9999;overflow:hidden;',
+      'font-family:"Plus Jakarta Sans",sans-serif;'
+    ].join('');
+    m.innerHTML =
+      '<div style="padding:12px 16px;border-bottom:1px solid #f0f3fb;">' +
+        '<div style="font-size:13px;font-weight:700;color:#0c0c1e;">' + s.firstName + ' ' + (s.lastName || '') + '</div>' +
+        '<div style="font-size:11px;color:#7e8ca0;margin-top:2px;">' + s.email + '</div>' +
+      '</div>' +
+      '<a href="index.html" style="display:flex;align-items:center;gap:10px;padding:10px 16px;' +
+      'font-size:13px;font-weight:600;color:#555;text-decoration:none;" ' +
+      'onmouseover="this.style.background=\'#f0f3fb\'" onmouseout="this.style.background=\'transparent\'">' +
+        '<i class="fas fa-home" style="width:14px;color:#1a56ff;font-size:12px;"></i>&nbsp;Dashboard</a>' +
+      '<div id="cs-so" style="display:flex;align-items:center;gap:10px;padding:10px 16px;' +
+      'font-size:13px;font-weight:600;color:#dc2626;cursor:pointer;" ' +
+      'onmouseover="this.style.background=\'#fff1f2\'" onmouseout="this.style.background=\'transparent\'">' +
+        '<i class="fas fa-sign-out-alt" style="width:14px;font-size:12px;"></i>&nbsp;Sign Out</div>';
+    btn.appendChild(m);
+    document.getElementById('cs-so').addEventListener('click', function() {
+      localStorage.removeItem('cs_session');
+      window.location.href = 'login.html';
+    });
+  });
+  document.addEventListener('click', function() {
+    var m = document.getElementById('cs-user-menu'); if (m) m.remove();
+  });
+})();
+
+/* ── Gemini AI Chat Widget Logic ─────────────────────────── */
+let aiPanelOpen = false;
+let aiIsBusy = false;
+
+function toggleAiPanel() {
+  aiPanelOpen = !aiPanelOpen;
+  document.getElementById('ai-panel').classList.toggle('open', aiPanelOpen);
+  if (aiPanelOpen) {
+    setTimeout(() => document.getElementById('ai-input').focus(), 360);
+  }
+}
+
+function aiAppendMsg(role, html) {
+  const msgs = document.getElementById('ai-msgs');
+  const div = document.createElement('div');
+  div.className = `ai-msg ${role}`;
+  const avIcon = role === 'bot' ? '<i class="fas fa-robot"></i>' : '<i class="fas fa-user"></i>';
+  div.innerHTML = `
+    <div class="ai-msg-av">${avIcon}</div>
+    <div class="ai-msg-bubble">${html}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return div;
+}
+
+function aiShowTyping() {
+  const msgs = document.getElementById('ai-msgs');
+  const div = document.createElement('div');
+  div.className = 'ai-msg bot';
+  div.id = 'ai-typing-indicator';
+  div.innerHTML = `
+    <div class="ai-msg-av"><i class="fas fa-robot"></i></div>
+    <div class="ai-msg-bubble">
+      <div class="ai-typing"><span></span><span></span><span></span></div>
+    </div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function aiRemoveTyping() {
+  const el = document.getElementById('ai-typing-indicator');
+  if (el) el.remove();
+}
+
+function aiFormatReply(text) {
+  /* Convert markdown-lite to HTML for chat bubbles */
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/`(.*?)`/g, '<code style="background:rgba(0,0,0,.08);padding:1px 5px;border-radius:4px;font-size:12px;">$1</code>')
+    .replace(/\n\n/g, '</p><p style="margin-top:6px;">')
+    .replace(/\n/g, '<br>')
+    .replace(/^/, '<p>').replace(/$/, '</p>');
+}
+
+async function sendAiMsg(overrideText) {
+  if (aiIsBusy) return;
+  const input = document.getElementById('ai-input');
+  const text  = (overrideText || input.value).trim();
+  if (!text) return;
+
+  /* Hide suggestions after first user message */
+  document.getElementById('ai-suggestions').style.display = 'none';
+
+  aiAppendMsg('user', text.replace(/</g,'&lt;').replace(/>/g,'&gt;'));
+  input.value = '';
+
+  aiIsBusy = true;
+  document.getElementById('ai-send').disabled = true;
+  aiShowTyping();
+
+  /* Build a supply-chain aware system context */
+  const systemCtx = `You are ChainSight AI, an expert supply chain and logistics assistant embedded in the ChainSight platform. 
+ChainSight is an ML-powered shipment delay prediction system that analyses weather, traffic, temperature, and logistics data to give delay risk scores. 
+Answer the user's question concisely and helpfully. Focus on supply chain, logistics, weather impacts, route optimisation, and delay management. 
+Keep responses under 150 words unless a detailed breakdown is needed. Use plain language.`;
+
+  try {
+    const response = await fetch('/ask-ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt: systemCtx + '\n\nUser question: ' + text })
+    });
+
+    if (!response.ok) throw new Error('Server error ' + response.status);
+    const data = await response.json();
+    aiRemoveTyping();
+
+    if (data.error) {
+      aiAppendMsg('bot', '⚠️ Sorry, something went wrong: ' + data.error);
+    } else {
+      aiAppendMsg('bot', aiFormatReply(data.reply || 'No response received.'));
+    }
+  } catch (err) {
+    aiRemoveTyping();
+    aiAppendMsg('bot', '⚠️ Could not reach the AI service. Please check your connection or try again shortly.');
+    console.error('[ChainSight AI]', err);
+  } finally {
+    aiIsBusy = false;
+    document.getElementById('ai-send').disabled = false;
+    document.getElementById('ai-input').focus();
+  }
+}
+
+function aiAskSugg(el) {
+  const text = el.textContent;
+  document.getElementById('ai-input').value = text;
+  sendAiMsg(text);
+}
+
+/* Close AI panel on Escape */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && aiPanelOpen) toggleAiPanel();
+});
+</script>
+</body>
+</html>

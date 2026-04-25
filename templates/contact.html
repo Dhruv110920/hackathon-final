@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ChainSight – Support Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+<style>
+:root{
+  --blue:#1a56ff;--blue-soft:#4f7cff;--blue-glow:rgba(26,86,255,.35);
+  --blue-dim:#eef2ff;--blue-dim2:#e4ecff;
+  --dark:#060612;--dark2:#0d0d20;
+  --surface:#ffffff;--bg:#f0f3fb;
+  --border:#e5eaf5;--border2:rgba(255,255,255,.08);
+  --text:#0c0c1e;--muted:#7e8ca0;
+  --green:#22c55e;--amber:#f59e0b;--red:#ef4444;
+  --sidebar-w:252px;--hdr:62px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:#c5cfea;border-radius:99px;}::-webkit-scrollbar-thumb:hover{background:var(--blue);}
+
+/* HEADER */
+.hdr{display:flex;justify-content:space-between;align-items:center;padding:0 26px;height:var(--hdr);background:rgba(255,255,255,.85);backdrop-filter:blur(22px) saturate(200%);position:fixed;top:0;left:0;right:0;z-index:1000;border-bottom:1px solid var(--border);box-shadow:0 1px 0 var(--border),0 4px 24px rgba(26,86,255,.06);transition:all .3s;}
+.hdr.up{background:rgba(255,255,255,.97);box-shadow:0 4px 36px rgba(26,86,255,.1);}
+.hdr-l{display:flex;align-items:center;gap:14px;}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.logo-box{width:38px;height:38px;background:linear-gradient(135deg,#1a56ff,#4f7cff);border-radius:11px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(26,86,255,.42);transition:transform .4s cubic-bezier(.34,1.56,.64,1),box-shadow .3s;}
+.logo-box svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+.logo:hover .logo-box{transform:rotate(-11deg) scale(1.12);}
+.logo-txt{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--dark);letter-spacing:-.6px;}
+.logo-txt em{color:var(--blue);font-style:normal;}
+.nav{display:flex;align-items:center;gap:2px;}
+.nav a{text-decoration:none;color:#555;font-size:14px;font-weight:600;padding:6px 14px;border-radius:8px;transition:all .2s;position:relative;}
+.nav a::after{content:'';position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:0;height:2px;background:var(--blue);border-radius:2px;transition:width .25s;}
+.nav a:hover{color:var(--blue);background:var(--blue-dim);}
+.nav a:hover::after,.nav a.on::after{width:calc(100% - 22px);}
+.nav a.on{color:var(--blue);}
+.hdr-r{display:flex;align-items:center;gap:10px;}
+.notif{position:relative;width:38px;height:38px;background:#fff;border:1.5px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .28s;}
+.notif i{color:var(--blue);font-size:15px;transition:transform .35s cubic-bezier(.34,1.56,.64,1);}
+.notif:hover{background:var(--blue-dim);border-color:var(--blue);}
+.notif:hover i{transform:rotate(18deg) scale(1.15);}
+.nbadge{position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;font-size:9px;font-weight:800;width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2.5px solid var(--bg);}
+.signin{display:flex;align-items:center;gap:8px;padding:7px 16px 7px 7px;background:linear-gradient(135deg,#1a56ff,#4f7cff);border:none;border-radius:24px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;color:#fff;cursor:pointer;text-decoration:none;box-shadow:0 4px 18px rgba(26,86,255,.38);transition:all .3s cubic-bezier(.34,1.56,.64,1);}
+.s-av{width:26px;height:26px;background:rgba(255,255,255,.22);border-radius:50%;display:flex;align-items:center;justify-content:center;}
+.s-av i{font-size:11px;}
+.signin:hover{transform:translateY(-2px) scale(1.05);}
+.sep{position:fixed;top:var(--hdr);left:0;right:0;height:3px;z-index:999;background:linear-gradient(90deg,transparent,var(--blue) 20%,var(--blue-soft) 50%,var(--blue) 80%,transparent);background-size:200% 100%;animation:sep-slide 3s linear infinite;}
+@keyframes sep-slide{0%{background-position:100% 0}100%{background-position:-100% 0}}
+.mtog{display:none;width:36px;height:36px;border-radius:8px;align-items:center;justify-content:center;cursor:pointer;font-size:19px;color:#555;transition:all .2s;}
+.mtog:hover{color:var(--blue);background:var(--blue-dim);}
+
+/* APP LAYOUT */
+.app{display:flex;margin-top:calc(var(--hdr) + 3px);min-height:calc(100vh - var(--hdr) - 3px);}
+.sb{width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);position:fixed;top:calc(var(--hdr)+3px);left:0;bottom:0;z-index:800;display:flex;flex-direction:column;transition:transform .42s cubic-bezier(.4,0,.2,1);overflow:hidden;}
+.sb-top{padding:22px 14px 16px;}
+.sb-sec{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.sb-sec::after{content:'';flex:1;height:1px;background:var(--border);}
+.sbtn{display:flex;align-items:center;gap:11px;width:100%;padding:12px 13px;border-radius:13px;border:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .3s cubic-bezier(.34,1.56,.64,1);text-decoration:none;margin-bottom:9px;position:relative;overflow:hidden;}
+.sbtn-ico{width:34px;height:34px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
+.sbtn:hover .sbtn-ico{transform:rotate(-10deg) scale(1.15);}
+.sbtn-new{background:linear-gradient(135deg,#1a56ff,#4f7cff);color:#fff;box-shadow:0 6px 22px rgba(26,86,255,.38);}
+.sbtn-new .sbtn-ico{background:rgba(255,255,255,.2);color:#fff;}
+.sbtn-new:hover{transform:translateY(-2px) scale(1.01);}
+.sb-div{height:1px;background:var(--border);margin:4px 14px 14px;}
+.sb-nav{padding:0 8px;flex:1;}
+.sbnl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:700;padding:0 6px;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.sbnl::after{content:'';flex:1;height:1px;background:var(--border);}
+.sbl{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;font-size:14px;color:#555;text-decoration:none;transition:all .22s;margin-bottom:3px;font-weight:600;}
+.sbl-i{width:28px;height:28px;border-radius:7px;background:transparent;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);transition:all .22s;}
+.sbl:hover{background:var(--blue-dim);color:var(--blue);}
+.sbl:hover .sbl-i,.sbl.on .sbl-i{background:#d8e4ff;color:var(--blue);}
+.sbl.on{background:var(--blue-dim);color:var(--blue);font-weight:700;}
+.sb-foot{padding:14px;border-top:1px solid var(--border);}
+.sys-ok{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#f7fff9;border:1px solid #bbf7d0;border-radius:11px;}
+.sdot{width:8px;height:8px;background:var(--green);border-radius:50%;flex-shrink:0;animation:sdot 2.2s ease-in-out infinite;}
+@keyframes sdot{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.45)}50%{box-shadow:0 0 0 6px rgba(34,197,94,0)}}
+.sys-txt{font-size:12px;color:#16a34a;font-weight:700;}
+.sys-sub{font-size:10px;color:#4ade80;margin-top:1px;}
+.ov{position:fixed;inset:0;z-index:700;background:rgba(4,4,16,.5);backdrop-filter:blur(7px);opacity:0;visibility:hidden;transition:all .35s;}
+.ov.show{opacity:1;visibility:visible;}
+
+/* MAIN */
+.main{margin-left:var(--sidebar-w);flex:1;padding:28px 26px 48px;min-height:100%;}
+
+/* PAGE HERO */
+.page-hero{
+  position:relative;border-radius:22px;overflow:hidden;padding:44px 50px;margin-bottom:24px;
+  background:linear-gradient(135deg,#040410 0%,#0c0c28 35%,#0a1540 70%,#07091e 100%);
+  box-shadow:0 28px 80px rgba(4,4,16,.4),0 0 0 1px rgba(255,255,255,.04);
+  animation:fadeUp .9s cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+.ph-grid{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(79,124,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(79,124,255,.06) 1px,transparent 1px);background-size:44px 44px;animation:grid-move 24s linear infinite;}
+@keyframes grid-move{0%{background-position:0 0}100%{background-position:44px 44px}}
+.ph-orb1{position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(26,86,255,.2) 0%,transparent 65%);top:-120px;right:-80px;pointer-events:none;animation:orb1 9s ease-in-out infinite;}
+@keyframes orb1{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-20px) scale(1.06)}}
+.ph-live{position:absolute;top:20px;right:22px;display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:100px;padding:5px 14px;font-size:11px;color:rgba(255,255,255,.55);font-weight:600;letter-spacing:.5px;}
+.live-d{width:7px;height:7px;background:#4ade80;border-radius:50%;animation:ldot 1.6s ease-in-out infinite;}
+@keyframes ldot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.6)}}
+.ph-cont{position:relative;z-index:2;max-width:580px;}
+.ph-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(26,86,255,.18);border:1px solid rgba(79,124,255,.3);border-radius:100px;padding:5px 14px 5px 7px;font-size:11px;font-weight:700;color:#a5b4fc;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:16px;animation:fadeUp .9s both .1s;}
+.ph-cont h1{font-family:'Syne',sans-serif;font-size:clamp(24px,3vw,40px);font-weight:800;color:#fff;letter-spacing:-1.5px;line-height:1.1;margin-bottom:11px;}
+.ph-cont h1 em{font-style:normal;color:transparent;background:linear-gradient(90deg,#60a5fa,#818cf8,#a78bfa,#60a5fa);background-size:300%;-webkit-background-clip:text;background-clip:text;animation:gshift 5s linear infinite;}
+@keyframes gshift{0%{background-position:0 0}100%{background-position:300% 0}}
+.ph-cont p{font-size:14px;color:rgba(255,255,255,.5);line-height:1.8;max-width:420px;}
+
+/* GRID LAYOUT */
+.content-grid{display:grid;grid-template-columns:1fr 380px;gap:22px;align-items:start;}
+
+/* CARDS */
+.card{background:var(--surface);border:1.5px solid var(--border);border-radius:18px;box-shadow:0 2px 14px rgba(26,86,255,.05);overflow:hidden;transition:box-shadow .3s,transform .3s,border-color .3s;animation:fadeUp .7s cubic-bezier(.22,1,.36,1) both;}
+.card:hover{box-shadow:0 18px 52px rgba(26,86,255,.12);border-color:#cdd8ff;transform:translateY(-3px);}
+.card-hd{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border);}
+.card-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;display:flex;align-items:center;gap:10px;}
+.card-title-ico{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;background:var(--blue-dim);color:var(--blue);transition:transform .3s cubic-bezier(.34,1.56,.64,1),background .25s;}
+.card:hover .card-title-ico{transform:rotate(-9deg) scale(1.12);background:var(--blue);color:#fff;}
+.card-body{padding:22px;}
+
+/* CONTACT FORM */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.field{position:relative;}
+.field label{display:block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin-bottom:6px;}
+.field-wrap{position:relative;}
+.field-ico{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;font-size:13px;transition:color .2s;}
+.field-ico.top{top:15px;transform:none;}
+.field input,.field select,.field textarea{
+  width:100%;background:#f8faff;border:1.5px solid var(--border);border-radius:11px;
+  padding:12px 13px 12px 38px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13.5px;
+  color:var(--text);outline:none;appearance:none;-webkit-appearance:none;
+  transition:border-color .22s,background .22s,box-shadow .22s,transform .18s;
+}
+.field input::placeholder,.field textarea::placeholder{color:#b0bcc8;font-weight:300;}
+.field textarea{padding-top:13px;resize:none;height:104px;line-height:1.65;}
+.field select option{background:#fff;}
+.field input:hover,.field select:hover,.field textarea:hover{border-color:rgba(26,86,255,.25);background:#fff;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:rgba(26,86,255,.65);background:#fff;box-shadow:0 0 0 3.5px rgba(26,86,255,.1);transform:translateY(-1px);}
+.field:focus-within .field-ico{color:var(--blue);}
+.sel-arr::after{content:'';position:absolute;right:13px;top:50%;transform:translateY(-50%);width:8px;height:5px;background:var(--muted);clip-path:polygon(0 0,100% 0,50% 100%);pointer-events:none;}
+.mb14{margin-bottom:14px;}
+
+/* SUBMIT BTN */
+.btn-submit{
+  width:100%;margin-top:4px;padding:13px 20px;background:linear-gradient(135deg,#1a56ff,#4f7cff);
+  color:#fff;font-family:'Syne',sans-serif;font-weight:700;font-size:15px;letter-spacing:.04em;
+  border:none;border-radius:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;
+  position:relative;overflow:hidden;box-shadow:0 4px 18px rgba(26,86,255,.38);
+  transition:transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .22s;
+}
+.btn-submit::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.12),transparent);pointer-events:none;}
+.btn-submit:hover{transform:translateY(-3px) scale(1.015);box-shadow:0 10px 36px rgba(26,86,255,.48);}
+.btn-submit:active{transform:scale(.99);}
+.btn-submit .arr{transition:transform .22s cubic-bezier(.34,1.56,.64,1);}
+.btn-submit:hover .arr{transform:translateX(5px);}
+
+/* SUCCESS */
+.success-msg{display:none;margin-top:14px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:11px;padding:13px 17px;color:#15803d;font-size:13px;align-items:center;gap:9px;}
+
+/* SIDE CARDS */
+.side-card{background:var(--surface);border:1.5px solid var(--border);border-radius:16px;padding:20px;box-shadow:0 2px 10px rgba(26,86,255,.04);position:relative;overflow:hidden;transition:transform .3s cubic-bezier(.34,1.56,.64,1),box-shadow .3s,border-color .3s;margin-bottom:16px;animation:fadeUp .7s cubic-bezier(.22,1,.36,1) both;}
+.side-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--blue),var(--blue-soft));transform:scaleX(0);transform-origin:left;transition:transform .35s cubic-bezier(.22,1,.36,1);}
+.side-card:hover::before{transform:scaleX(1);}
+.side-card:hover{transform:translateY(-5px);box-shadow:0 20px 52px rgba(26,86,255,.13);border-color:#cdd8ff;}
+.sc-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--dark);display:flex;align-items:center;gap:9px;margin-bottom:11px;}
+.sc-ico{width:30px;height:30px;border-radius:8px;background:var(--blue-dim);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:12px;transition:background .25s,transform .3s cubic-bezier(.34,1.56,.64,1),box-shadow .25s;}
+.side-card:hover .sc-ico{background:var(--blue);color:#fff;transform:rotate(-9deg) scale(1.12);box-shadow:0 4px 14px rgba(26,86,255,.35);}
+.phone-big{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--blue);letter-spacing:.03em;margin-bottom:3px;transition:letter-spacing .2s;}
+.side-card:hover .phone-big{letter-spacing:.05em;}
+.phone-sub{font-size:12px;color:var(--muted);}
+.btn-side{
+  width:100%;padding:10px 15px;margin-top:11px;
+  background:var(--blue-dim);color:var(--blue);
+  border:1.5px solid rgba(26,86,255,.2);border-radius:9px;
+  font-family:'Syne',sans-serif;font-weight:700;font-size:13px;letter-spacing:.04em;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;
+  transition:background .22s,color .22s,border-color .22s,transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .22s;
+}
+.btn-side:hover{background:var(--blue);color:#fff;border-color:var(--blue);transform:translateY(-2px);box-shadow:0 6px 20px rgba(26,86,255,.32);}
+.btn-side:hover i{transform:scale(1.15);}
+.btn-side i{transition:transform .2s;}
+
+/* QUICK CHIPS */
+.chip-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:11px;}
+.chip{padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;background:#fff;color:var(--blue);border:1px solid rgba(26,86,255,.16);cursor:default;transition:background .2s,color .2s,transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .2s;}
+.chip:hover{background:var(--blue);color:#fff;transform:translateY(-2px);box-shadow:0 4px 12px rgba(26,86,255,.28);}
+
+/* STARS */
+.stars{display:flex;gap:4px;margin-bottom:11px;}
+.star{font-size:20px;cursor:pointer;color:rgba(26,86,255,.15);transition:color .15s,transform .2s cubic-bezier(.34,1.56,.64,1);}
+.star:hover,.star.on{color:#f59e0b;transform:scale(1.3) rotate(-5deg);}
+
+/* ═══════════════════════════════════════
+   AI CHAT WIDGET
+═══════════════════════════════════════ */
+.chat-fab{
+  position:fixed;bottom:26px;right:26px;z-index:1000;
+  width:56px;height:56px;border-radius:50%;border:none;cursor:pointer;
+  background:linear-gradient(135deg,#1a56ff,#4f7cff);
+  box-shadow:0 6px 24px rgba(26,86,255,.5);
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .28s cubic-bezier(.34,1.56,.64,1),box-shadow .28s;
+  animation:fadeUp .5s ease 0.2s both;
+}
+.chat-fab:hover{transform:scale(1.12) rotate(8deg);box-shadow:0 10px 36px rgba(26,86,255,.6);}
+.chat-fab .unread{position:absolute;top:-4px;right:-4px;width:18px;height:18px;background:var(--red);color:#fff;border-radius:50%;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2.5px solid var(--bg);animation:pop .5s cubic-bezier(.34,1.56,.64,1) both 2s;}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+
+/* CHAT WINDOW */
+.chat-win{
+  position:fixed;bottom:96px;right:26px;z-index:1000;width:360px;
+  background:#fff;border:1.5px solid var(--border);border-radius:20px;
+  box-shadow:0 28px 80px rgba(26,86,255,.16),0 6px 20px rgba(0,0,0,.07);
+  display:flex;flex-direction:column;overflow:hidden;
+  transform:translateY(20px) scale(.97);opacity:0;pointer-events:none;
+  transition:transform .38s cubic-bezier(.22,1,.36,1),opacity .3s;
+  max-height:580px;
+}
+.chat-win.open{transform:translateY(0) scale(1);opacity:1;pointer-events:auto;}
+
+/* CHAT HEADER */
+.chat-hd{
+  background:linear-gradient(135deg,#040410,#0c0c28,#0a1540);
+  padding:14px 16px;display:flex;align-items:center;justify-content:space-between;
+  position:relative;overflow:hidden;
+}
+.chat-hd::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(79,124,255,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(79,124,255,.08) 1px,transparent 1px);background-size:24px 24px;}
+.chat-hd-l{display:flex;align-items:center;gap:10px;position:relative;z-index:1;}
+.chat-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#1a56ff,#4f7cff);display:flex;align-items:center;justify-content:center;font-size:15px;border:2px solid rgba(255,255,255,.2);}
+.chat-name{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:#fff;letter-spacing:.02em;}
+.chat-status{font-size:10px;color:rgba(255,255,255,.55);display:flex;align-items:center;gap:4px;margin-top:1px;}
+.chat-status .dot{width:6px;height:6px;background:#4ade80;border-radius:50%;animation:ldot 1.6s ease-in-out infinite;}
+.chat-hd-r{display:flex;align-items:center;gap:6px;position:relative;z-index:1;}
+.chat-x{background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.7);cursor:pointer;width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;transition:background .15s,transform .15s;}
+.chat-x:hover{background:rgba(255,255,255,.22);transform:rotate(90deg);}
+.chat-min{background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.7);cursor:pointer;width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;transition:background .15s;}
+.chat-min:hover{background:rgba(255,255,255,.22);}
+
+/* QUICK SUGGESTIONS */
+.quick-bar{padding:10px 12px 8px;border-bottom:1px solid var(--border);display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;}
+.quick-bar::-webkit-scrollbar{display:none;}
+.qchip{flex-shrink:0;padding:5px 11px;background:#f1f5ff;color:var(--blue);border:1px solid rgba(26,86,255,.15);border-radius:99px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .2s,transform .18s;}
+.qchip:hover{background:var(--blue);color:#fff;transform:translateY(-1px);}
+
+/* MESSAGES */
+.chat-msgs{flex:1;overflow-y:auto;padding:14px 13px;display:flex;flex-direction:column;gap:10px;min-height:200px;max-height:320px;}
+.chat-msgs::-webkit-scrollbar{width:3px;}
+.chat-msgs::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+
+.msg{display:flex;flex-direction:column;max-width:88%;animation:msgIn .3s cubic-bezier(.22,1,.36,1);}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.msg.bot{align-self:flex-start;}
+.msg.user{align-self:flex-end;}
+
+.msg-bubble{padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.55;}
+.msg.bot .msg-bubble{background:#f1f5ff;color:var(--text);border-bottom-left-radius:4px;border:1px solid rgba(26,86,255,.08);}
+.msg.user .msg-bubble{background:linear-gradient(135deg,#1a56ff,#4f7cff);color:#fff;border-bottom-right-radius:4px;}
+.msg-time{font-size:10px;color:var(--muted);margin-top:3px;padding:0 2px;}
+.msg.user .msg-time{text-align:right;}
+
+/* TYPING INDICATOR */
+.typing-dot{display:none;align-self:flex-start;animation:msgIn .3s cubic-bezier(.22,1,.36,1);}
+.typing-dot.show{display:flex;}
+.typing-dot .msg-bubble{display:flex;align-items:center;gap:4px;padding:10px 14px;}
+.typing-dot .dot{width:7px;height:7px;background:rgba(26,86,255,.4);border-radius:50%;animation:bounce 1.1s ease-in-out infinite;}
+.typing-dot .dot:nth-child(2){animation-delay:.18s;}
+.typing-dot .dot:nth-child(3){animation-delay:.36s;}
+@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+
+/* RISK CARD IN CHAT */
+.risk-card{background:linear-gradient(135deg,#f8faff,#f1f5ff);border:1.5px solid rgba(26,86,255,.12);border-radius:12px;padding:12px 14px;margin-top:6px;font-size:12px;}
+.risk-card .rc-title{font-family:'Syne',sans-serif;font-weight:800;font-size:13px;margin-bottom:8px;color:var(--dark);}
+.risk-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+.risk-row .rk-lbl{color:var(--muted);font-weight:600;}
+.risk-row .rk-val{font-family:'Syne',sans-serif;font-weight:800;}
+.rk-low{color:#16a34a;}.rk-mod{color:#d97706;}.rk-high{color:#dc2626;}
+.risk-bar{height:5px;background:#e5eaf5;border-radius:99px;overflow:hidden;margin-top:2px;}
+.risk-bar-fill{height:100%;border-radius:99px;transition:width 1s ease;}
+
+/* CHAT INPUT */
+.chat-in{display:flex;align-items:flex-end;gap:8px;padding:10px 12px;border-top:1px solid var(--border);}
+.chat-in textarea{
+  flex:1;background:#f8faff;border:1.5px solid var(--border);border-radius:11px;
+  padding:10px 13px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;color:var(--text);
+  outline:none;resize:none;max-height:90px;min-height:40px;line-height:1.5;
+  transition:border-color .2s,background .2s;
+}
+.chat-in textarea:focus{border-color:rgba(26,86,255,.55);background:#fff;}
+.chat-in textarea::placeholder{color:#b0bcc8;}
+.chat-send{width:38px;height:38px;background:linear-gradient(135deg,#1a56ff,#4f7cff);border:none;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;flex-shrink:0;transition:transform .2s cubic-bezier(.34,1.56,.64,1),box-shadow .2s;box-shadow:0 4px 14px rgba(26,86,255,.38);}
+.chat-send:hover{transform:scale(1.1) rotate(-5deg);box-shadow:0 6px 20px rgba(26,86,255,.5);}
+
+/* FEATURE CARDS */
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px;animation:fadeUp .7s cubic-bezier(.22,1,.36,1) both .5s;}
+.fc{background:var(--surface);border:1.5px solid var(--border);border-radius:16px;padding:20px 18px;position:relative;overflow:hidden;cursor:default;transition:all .35s cubic-bezier(.34,1.56,.64,1);}
+.fc::before{content:'';position:absolute;top:0;left:0;right:0;height:2.5px;background:linear-gradient(90deg,var(--blue),var(--blue-soft));transform:scaleX(0);transform-origin:left;transition:transform .38s cubic-bezier(.22,1,.36,1);}
+.fc:hover{transform:translateY(-5px);box-shadow:0 20px 52px rgba(26,86,255,.12);border-color:#cdd8ff;}
+.fc:hover::before{transform:scaleX(1);}
+.fc-ico{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:13px;transition:transform .35s cubic-bezier(.34,1.56,.64,1);}
+.fc:hover .fc-ico{transform:rotate(-9deg) scale(1.12);}
+.i-bl{background:#eff3ff;color:#3b5bdb}.i-cy{background:#e0f9ff;color:#0891b2}.i-gr{background:#f0fdf4;color:#16a34a}.i-am{background:#fffbeb;color:#d97706}.i-ro{background:#fff1f2;color:#e11d48}.i-te{background:#f0fdfa;color:#0d9488}
+.fc-t{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;margin-bottom:5px;}
+.fc-d{font-size:12.5px;color:var(--muted);line-height:1.6;}
+
+footer{margin-left:var(--sidebar-w);background:var(--dark);padding:26px 38px;}
+.fi{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;border-top:1px solid rgba(255,255,255,.07);padding-top:20px;}
+.fl{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#fff;}
+.fl em{color:#4f7cff;font-style:normal;}
+.flinks{display:flex;gap:18px;flex-wrap:wrap;}
+.flinks a{font-size:13px;color:rgba(255,255,255,.34);text-decoration:none;transition:color .2s;}
+.flinks a:hover{color:#4f7cff;}
+.fc2{font-size:12px;color:rgba(255,255,255,.2);text-align:center;width:100%;margin-top:8px;}
+
+@media(max-width:1100px){.feat-grid{grid-template-columns:repeat(2,1fr)}.content-grid{grid-template-columns:1fr}}
+@media(max-width:860px){.form-row{grid-template-columns:1fr}}
+@media(max-width:768px){
+  .nav{display:none}.mtog{display:flex}
+  .sb{transform:translateX(-100%)}.sb.show{transform:translateX(0)}
+  .main{margin-left:0;padding:14px 13px 48px}
+  footer{margin-left:0;padding:22px 18px}
+  .page-hero{padding:28px 22px}
+  .feat-grid{grid-template-columns:1fr}
+  .chat-win{width:calc(100vw - 32px);right:16px;}
+}
+</style>
+</head>
+<body>
+
+<div class="ov" id="ov" onclick="closeSb()"></div>
+
+<header class="hdr" id="hdr">
+  <div class="hdr-l">
+    <div class="mtog" id="mtog" onclick="toggleSb()"><i class="fas fa-bars"></i></div>
+    <a href="/" class="logo">
+      <div class="logo-box"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+      <span class="logo-txt">Chain<em>Sight</em></span>
+    </a>
+  </div>
+  <nav class="nav">
+    <a href="/">Home</a>
+    <a href="/about">About Us</a>
+    <a href="/contact" class="on">Contact Us</a>
+    <a href="/shipment">New Shipment</a>
+  </nav>
+  <div class="hdr-r">
+    <div class="notif" title="Notifications"><i class="fas fa-bell"></i><span class="nbadge">3</span></div>
+    <a href="/login" class="signin"><div class="s-av"><i class="fas fa-user"></i></div>Sign In</a>
+  </div>
+</header>
+<div class="sep"></div>
+
+<div class="app">
+  <aside class="sb" id="sb">
+    <div class="sb-top">
+      <div class="sb-sec">Quick Actions</div>
+      <a href="/shipment" class="sbtn sbtn-new">
+        <div class="sbtn-ico"><i class="fas fa-plus"></i></div>New Shipment
+      </a>
+    </div>
+    <div class="sb-div"></div>
+    <div class="sb-nav">
+      <div class="sbnl">Navigate</div>
+      <a href="/" class="sbl"><div class="sbl-i"><i class="fas fa-home"></i></div>Dashboard</a>
+      <a href="/shipment" class="sbl"><div class="sbl-i"><i class="fas fa-truck"></i></div>New Shipment</a>
+      <a href="/about" class="sbl"><div class="sbl-i"><i class="fas fa-info-circle"></i></div>About Us</a>
+      <a href="/contact" class="sbl on"><div class="sbl-i"><i class="fas fa-envelope"></i></div>Contact Us</a>
+    </div>
+    <div class="sb-foot">
+      <div class="sys-ok">
+        <div class="sdot"></div>
+        <div><div class="sys-txt">All Systems Online</div><div class="sys-sub">ML Model · Weather APIs</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- HERO -->
+    <div class="page-hero">
+      <div class="ph-grid"></div><div class="ph-orb1"></div>
+      <div class="ph-live"><div class="live-d"></div>AI Support Active</div>
+      <div class="ph-cont">
+        <div class="ph-badge"><span style="width:7px;height:7px;background:#60a5fa;border-radius:50%;display:inline-block;"></span>Support Center</div>
+        <h1>Chain<em>Sight</em> Support<br>& Contact Hub</h1>
+        <p>Submit a support ticket, track your shipment issues, or chat with our AI — powered by the same ML intelligence behind our prediction engine.</p>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT GRID -->
+    <div class="content-grid">
+
+      <!-- LEFT: FORM -->
+      <div class="card" style="animation-delay:.1s">
+        <div class="card-hd">
+          <div class="card-title">
+            <div class="card-title-ico"><i class="fas fa-ticket-alt"></i></div>
+            Submit a Support Ticket
+          </div>
+          <span style="font-size:11px;background:#f1f5ff;color:var(--blue);border-radius:99px;padding:3px 11px;font-weight:800;">New Ticket</span>
+        </div>
+        <div class="card-body">
+          <form id="supportForm">
+            <div class="form-row">
+              <div class="field">
+                <label>Full Name</label>
+                <div class="field-wrap">
+                  <i class="fas fa-user field-ico"></i>
+                  <input type="text" placeholder="John Doe" required>
+                </div>
+              </div>
+              <div class="field">
+                <label>Email Address</label>
+                <div class="field-wrap">
+                  <i class="fas fa-envelope field-ico"></i>
+                  <input type="email" placeholder="john@company.com" required>
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="field">
+                <label>Shipment ID</label>
+                <div class="field-wrap">
+                  <i class="fas fa-box field-ico"></i>
+                  <input type="text" placeholder="SHP-XXXXXXXXXX">
+                </div>
+              </div>
+              <div class="field">
+                <label>Phone Number</label>
+                <div class="field-wrap">
+                  <i class="fas fa-phone field-ico"></i>
+                  <input type="tel" placeholder="+91 98765 43210">
+                </div>
+              </div>
+            </div>
+            <div class="form-row mb14">
+              <div class="field">
+                <label>Issue Category</label>
+                <div class="field-wrap sel-arr">
+                  <i class="fas fa-tag field-ico"></i>
+                  <select>
+                    <option value="">Select Category</option>
+                    <option>Shipment Tracking</option>
+                    <option>Delivery Delay</option>
+                    <option>Route / Traffic Issue</option>
+                    <option>Weather Impact</option>
+                    <option>Damaged Package</option>
+                    <option>Wrong Delivery</option>
+                    <option>ML Prediction Query</option>
+                    <option>Account / Billing</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field">
+                <label>Priority</label>
+                <div class="field-wrap sel-arr">
+                  <i class="fas fa-flag field-ico"></i>
+                  <select>
+                    <option>Normal</option>
+                    <option>High</option>
+                    <option>Critical</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="field mb14">
+              <label>Describe Your Issue</label>
+              <div class="field-wrap">
+                <i class="fas fa-comment field-ico top"></i>
+                <textarea placeholder="Provide as much detail as possible — shipment ID, route, dates, what went wrong..."></textarea>
+              </div>
+            </div>
+            <button type="submit" class="btn-submit">
+              <i class="fas fa-paper-plane"></i>
+              <span>Submit Ticket</span>
+              <i class="fas fa-arrow-right arr"></i>
+            </button>
+          </form>
+          <div class="success-msg" id="successMsg">
+            <i class="fas fa-check-circle" style="font-size:18px;"></i>
+            Ticket submitted! ChainSight team will respond within 24 hours.
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: SIDE CARDS -->
+      <div>
+        <!-- Call -->
+        <div class="side-card" style="animation-delay:.2s">
+          <div class="sc-title">
+            <div class="sc-ico"><i class="fas fa-phone"></i></div>
+            Call Support
+          </div>
+          <div class="phone-big">+91 98765 43210</div>
+          <div class="phone-sub">Mon–Sat · 9 AM – 8 PM IST</div>
+          <button class="btn-side"><i class="fas fa-phone"></i> Call Now</button>
+        </div>
+
+        <!-- AI Chat -->
+        <div class="side-card" style="animation-delay:.3s">
+          <div class="sc-title">
+            <div class="sc-ico"><i class="fas fa-robot"></i></div>
+            AI Shipment Assistant
+          </div>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:10px;line-height:1.6;">Powered by ChainSight ML — ask about delays, routes, risk scores, and weather impact.</p>
+          <div class="chip-row">
+            <span class="chip" onclick="openChatWithMsg('Track my shipment')">Track shipment</span>
+            <span class="chip" onclick="openChatWithMsg('Is my shipment delayed?')">Check delay</span>
+            <span class="chip" onclick="openChatWithMsg('What is the delay risk?')">Risk score</span>
+            <span class="chip" onclick="openChatWithMsg('Optimize my route')">Route help</span>
+            <span class="chip" onclick="openChatWithMsg('I want to report an issue')">Report issue</span>
+          </div>
+          <button class="btn-side" onclick="toggleChat()"><i class="fas fa-comments"></i> Start AI Chat</button>
+        </div>
+
+        <!-- Feedback -->
+        <div class="side-card" style="animation-delay:.4s">
+          <div class="sc-title">
+            <div class="sc-ico"><i class="fas fa-star"></i></div>
+            Rate ChainSight
+          </div>
+          <div class="stars" id="stars">
+            <span class="star" data-i="1">★</span>
+            <span class="star" data-i="2">★</span>
+            <span class="star" data-i="3">★</span>
+            <span class="star" data-i="4">★</span>
+            <span class="star" data-i="5">★</span>
+          </div>
+          <div class="field" style="margin-bottom:10px;">
+            <div class="field-wrap">
+              <textarea style="height:72px;padding-left:13px;" placeholder="Tell us how we can improve our ML predictions..."></textarea>
+            </div>
+          </div>
+          <button class="btn-side" id="feedbackBtn"><i class="fas fa-check"></i> Submit Feedback</button>
+        </div>
+
+        <!-- SLA Info -->
+        <div class="side-card" style="animation-delay:.5s;">
+          <div class="sc-title">
+            <div class="sc-ico"><i class="fas fa-shield-alt"></i></div>
+            Response SLA
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;">
+              <span style="color:var(--muted);font-weight:600;">Critical</span>
+              <span style="font-family:'Syne',sans-serif;font-weight:800;color:#dc2626;">Under 1 hr</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;">
+              <span style="color:var(--muted);font-weight:600;">High</span>
+              <span style="font-family:'Syne',sans-serif;font-weight:800;color:#d97706;">Under 4 hrs</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;">
+              <span style="color:var(--muted);font-weight:600;">Normal</span>
+              <span style="font-family:'Syne',sans-serif;font-weight:800;color:#16a34a;">Under 24 hrs</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FEATURE CARDS -->
+    <div class="feat-grid">
+      <div class="fc"><div class="fc-ico i-bl"><i class="fas fa-route"></i></div><div class="fc-t">Route Optimization</div><div class="fc-d">AI-powered rerouting based on real-time traffic, weather, and road conditions.</div></div>
+      <div class="fc"><div class="fc-ico i-cy"><i class="fas fa-cloud-sun-rain"></i></div><div class="fc-t">Weather Intelligence</div><div class="fc-d">60+ live weather APIs monitoring every km of your shipment corridor.</div></div>
+      <div class="fc"><div class="fc-ico i-gr"><i class="fas fa-brain"></i></div><div class="fc-t">ML Delay Prediction</div><div class="fc-d">Gradient-boosted model predicts delays 48 hours ahead with 92% accuracy.</div></div>
+      <div class="fc"><div class="fc-ico i-am"><i class="fas fa-bell"></i></div><div class="fc-t">Smart Alerts</div><div class="fc-d">SMS, email & webhook alerts so your ops team always acts before delays happen.</div></div>
+      <div class="fc"><div class="fc-ico i-ro"><i class="fas fa-shield-alt"></i></div><div class="fc-t">Risk Scoring</div><div class="fc-d">Live 0–100 risk score per shipment based on weather, traffic, and congestion.</div></div>
+      <div class="fc"><div class="fc-ico i-te"><i class="fas fa-chart-line"></i></div><div class="fc-t">Analytics Dashboard</div><div class="fc-d">Deep carrier performance, delay trends, cost impact and accuracy reports.</div></div>
+    </div>
+
+  </main>
+</div>
+
+<footer>
+  <div class="fi">
+    <div class="fl">Chain<em>Sight</em></div>
+    <div class="flinks">
+      <a href="/about">About Us</a><a href="/contact">Contact</a>
+      <a href="#">API Docs</a><a href="#">Privacy</a><a href="#">Terms</a>
+    </div>
+    <div class="fc2">©️ 2025 ChainSight · Hackathon 2025 · Powered by ML, Weather APIs & Real-time Data</div>
+  </div>
+</footer>
+
+<!-- ═══════════════ AI CHAT WIDGET ═══════════════ -->
+<button class="chat-fab" id="chatFab" onclick="toggleChat()">
+  <i class="fas fa-robot" style="color:#fff;font-size:20px;"></i>
+  <div class="unread" id="chatUnread">1</div>
+</button>
+
+<div class="chat-win" id="chatWin">
+  <div class="chat-hd">
+    <div class="chat-hd-l">
+      <div class="chat-av">🤖</div>
+      <div>
+        <div class="chat-name">ChainSight AI</div>
+        <div class="chat-status"><span class="dot"></span>ML-Powered · Always Online</div>
+      </div>
+    </div>
+    <div class="chat-hd-r">
+      <button class="chat-min" onclick="toggleChat()" title="Minimise"><i class="fas fa-minus"></i></button>
+      <button class="chat-x" onclick="toggleChat()" title="Close"><i class="fas fa-times"></i></button>
+    </div>
+  </div>
+
+  <div class="quick-bar" id="quickBar">
+    <span class="qchip" onclick="sendQuick('Track my shipment')">📦 Track shipment</span>
+    <span class="qchip" onclick="sendQuick('Is my shipment delayed?')">⏱️ Check delay</span>
+    <span class="qchip" onclick="sendQuick('What is the delay risk?')">🤖 Risk score</span>
+    <span class="qchip" onclick="sendQuick('Is weather affecting my shipment?')">🌦️ Weather impact</span>
+    <span class="qchip" onclick="sendQuick('Optimize my route')">🛣️ Route optimize</span>
+    <span class="qchip" onclick="sendQuick('I want to report an issue')">📞 Report issue</span>
+    <span class="qchip" onclick="sendQuick('Connect me to an agent')">🧑‍💼 Talk to agent</span>
+  </div>
+
+  <div class="chat-msgs" id="chatMsgs">
+    <div class="msg bot">
+      <div class="msg-bubble">👋 Hey! I'm <strong>ChainSight AI</strong>, your intelligent logistics assistant.<br><br>I can help you with <strong>shipment tracking</strong>, <strong>delay predictions</strong>, <strong>route optimization</strong>, <strong>weather impact analysis</strong>, and much more.<br><br>What can I help you with today?</div>
+      <div class="msg-time">Just now</div>
+    </div>
+  </div>
+
+  <div class="msg typing-dot" id="typingDot">
+    <div class="msg-bubble"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+  </div>
+
+  <div class="chat-in">
+    <textarea id="chatInput" placeholder="Ask me anything about your shipment..." rows="1" onkeydown="handleChatKey(event)" oninput="autoResize(this)"></textarea>
+    <button class="chat-send" onclick="sendMessage()" title="Send"><i class="fas fa-paper-plane"></i></button>
+  </div>
+</div>
+
+<script>
+/* ── HEADER SCROLL ── */
+window.addEventListener('scroll',()=>document.getElementById('hdr').classList.toggle('up',scrollY>30));
+
+/* ── SIDEBAR ── */
+function toggleSb(){
+  const s=document.getElementById('sb'),o=document.getElementById('ov');
+  const open=s.classList.toggle('show');
+  o.classList.toggle('show',open);
+  document.body.style.overflow=open?'hidden':'';
+}
+function closeSb(){
+  document.getElementById('sb').classList.remove('show');
+  document.getElementById('ov').classList.remove('show');
+  document.body.style.overflow='';
+}
+
+/* ── FORM SUBMIT ── */
+document.getElementById('supportForm').addEventListener('submit',function(e){
+  e.preventDefault();
+  const btn=this.querySelector('.btn-submit');
+  btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> <span>Submitting...</span>';
+  btn.style.opacity='.75';btn.disabled=true;
+  setTimeout(()=>{
+    btn.style.display='none';
+    const m=document.getElementById('successMsg');
+    m.style.display='flex';
+  },1100);
+});
+
+/* ── STARS ── */
+document.getElementById('stars').addEventListener('click',e=>{
+  if(!e.target.classList.contains('star'))return;
+  const v=+e.target.dataset.i;
+  document.querySelectorAll('.star').forEach(s=>s.classList.toggle('on',+s.dataset.i<=v));
+});
+
+document.getElementById('feedbackBtn').addEventListener('click',function(){
+  this.innerHTML='<i class="fas fa-check"></i> Thanks for your feedback!';
+  this.style.background='rgba(22,163,74,.08)';
+  this.style.color='#16a34a';
+  this.style.borderColor='rgba(22,163,74,.3)';
+  this.disabled=true;
+});
+
+/* ══════════════════════════════════════
+   AI CHAT ENGINE
+══════════════════════════════════════ */
+let chatOpen=false;
+
+function toggleChat(){
+  chatOpen=!chatOpen;
+  document.getElementById('chatWin').classList.toggle('open',chatOpen);
+  document.getElementById('chatUnread').style.display='none';
+  if(chatOpen) document.getElementById('chatInput').focus();
+}
+
+function openChatWithMsg(msg){
+  if(!chatOpen) toggleChat();
+  setTimeout(()=>{ document.getElementById('chatInput').value=msg; sendMessage(); },400);
+}
+
+function sendQuick(msg){
+  addMsg(msg,'user');
+  document.getElementById('chatInput').value='';
+  processReply(msg);
+}
+
+function handleChatKey(e){
+  if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendMessage(); }
+}
+
+function autoResize(el){
+  el.style.height='auto';
+  el.style.height=Math.min(el.scrollHeight,90)+'px';
+}
+
+function now(){
+  return new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+}
+
+function addMsg(text,type){
+  const msgs=document.getElementById('chatMsgs');
+  const d=document.createElement('div');
+  d.className='msg '+type;
+  if(type==='bot'){
+    d.innerHTML=`<div class="msg-bubble">${text}</div><div class="msg-time">${now()}</div>`;
+  } else {
+    d.innerHTML=`<div class="msg-bubble">${text}</div><div class="msg-time">${now()}</div>`;
+  }
+  msgs.appendChild(d);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+function addRiskCard(shipId,risk,prob,weather){
+  const msgs=document.getElementById('chatMsgs');
+  const d=document.createElement('div');
+  d.className='msg bot';
+  const rk=risk==='High'?'rk-high':risk==='Moderate'?'rk-mod':'rk-low';
+  const barColor=risk==='High'?'linear-gradient(90deg,#dc2626,#ef4444)':risk==='Moderate'?'linear-gradient(90deg,#d97706,#fbbf24)':'linear-gradient(90deg,#16a34a,#4ade80)';
+  d.innerHTML=`
+    <div class="risk-card">
+      <div class="rc-title">📊 Shipment Risk Analysis — ${shipId}</div>
+      <div class="risk-row"><span class="rk-lbl">Risk Level</span><span class="rk-val ${rk}">${risk}</span></div>
+      <div class="risk-row"><span class="rk-lbl">Delay Probability</span><span class="rk-val ${rk}">${prob}%</span></div>
+      <div class="risk-bar"><div class="risk-bar-fill" style="width:0%;background:${barColor}" data-w="${prob}"></div></div>
+      <div class="risk-row" style="margin-top:8px;"><span class="rk-lbl">Weather Status</span><span class="rk-val">${weather}</span></div>
+      <div class="risk-row"><span class="rk-lbl">ML Confidence</span><span class="rk-val" style="color:#1a56ff;">92%</span></div>
+    </div>
+    <div class="msg-time">${now()}</div>`;
+  msgs.appendChild(d);
+  msgs.scrollTop=msgs.scrollHeight;
+  setTimeout(()=>{
+    d.querySelectorAll('.risk-bar-fill[data-w]').forEach(el=>el.style.width=el.dataset.w+'%');
+  },100);
+}
+
+function showTyping(){
+  const t=document.getElementById('typingDot');
+  t.classList.add('show');
+  const msgs=document.getElementById('chatMsgs');
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+function hideTyping(){ document.getElementById('typingDot').classList.remove('show'); }
+
+function sendMessage(){
+  const inp=document.getElementById('chatInput');
+  const text=inp.value.trim();
+  if(!text)return;
+  addMsg(text,'user');
+  inp.value='';
+  inp.style.height='auto';
+  processReply(text);
+}
+
+/* ── INTENT MATCHER ── */
+function getIntent(msg){
+  const m=msg.toLowerCase();
+
+  /* Greeting */
+  if(/^(hi|hello|hey|good morning|good evening|good afternoon|howdy|sup)\b/.test(m)) return 'greet';
+
+  /* Farewell */
+  if(/\b(bye|goodbye|see you|thanks|thank you|thx|cheers|ok thanks|great thanks)\b/.test(m)) return 'bye';
+
+  /* Track shipment */
+  if(/track|where is|locate|find my|shipment status|order status|where.*package|where.*parcel|where.*order|status of/.test(m)) return 'track';
+
+  /* Delay check */
+  if(/delayed?|late|behind schedule|not arrived|overdue|taking longer|delay.*why|why.*delay/.test(m)) return 'delay';
+
+  /* Arrival / ETA */
+  if(/when will|expected.*delivery|delivery time|arrival time|eta|arrive|how long/.test(m)) return 'eta';
+
+  /* Weather impact */
+  if(/weather|rain|storm|flood|snow|fog|wind|climate|hurricane|weather.*impact|weather.*delay/.test(m)) return 'weather';
+
+  /* Route / Traffic */
+  if(/route|traffic|congestion|road|optimize|best path|reroute|longer.*route|why.*route|road.*block/.test(m)) return 'route';
+
+  /* Risk / AI prediction */
+  if(/risk|predict|prediction|delay risk|likelihood|probability|risk score|on time|ai.*predict|ml.*predict|how likely/.test(m)) return 'risk';
+
+  /* Dispatched / Out for delivery */
+  if(/dispatch|out for delivery|picked up|shipped|in transit/.test(m)) return 'dispatch';
+
+  /* Damage / Wrong package */
+  if(/damage|broken|wrong|incorrect|missing|lost|not received|report.*issue|problem.*delivery|complaint/.test(m)) return 'issue';
+
+  /* Support / Agent */
+  if(/support|help|agent|human|customer care|contact.*support|talk.*someone|need.*help|call.*center/.test(m)) return 'support';
+
+  /* Default */
+  return 'unknown';
+}
+
+function extractShipId(msg){
+  const match=msg.match(/SHP-[A-Z0-9]+|\b[0-9]{6,12}\b/i);
+  return match?match[0]:null;
+}
+
+/* ── REPLY BANK ── */
+const replies={
+
+  greet:[
+    "👋 Hello! Welcome to <strong>ChainSight Support</strong>.<br><br>I'm your AI logistics assistant, trained on real-time weather, route, and ML prediction data. How can I help you today?<br><br>You can ask me about:<br>• 📦 Shipment tracking<br>• ⏱️ Delay predictions<br>• 🌦️ Weather impact<br>• 🛣️ Route optimization<br>• 📊 Risk scores",
+    "Hey there! 👋 Great to have you here at <strong>ChainSight</strong>.<br><br>Ask me anything about your shipments — from real-time location to our 48-hour ML delay forecast!",
+  ],
+
+  bye:[
+    "You're welcome! 😊 If you need anything else — tracking updates, delay forecasts, or route queries — don't hesitate to reach out.<br><br><strong>ChainSight AI</strong> is always online. Safe shipping! 🚚",
+    "Goodbye! 👋 Your shipments are in good hands with our 24/7 ML monitoring. Have a great day!",
+  ],
+
+  track:[
+    (msg)=>{
+      const id=extractShipId(msg);
+      if(id){
+        addRiskCard(id,'Moderate',62,'⚠️ Mild rain detected');
+        return `📦 <strong>Tracking Update for ${id}</strong><br><br>Here's the latest status I retrieved:<br><br>🟡 <strong>Status:</strong> In Transit — Mumbai Distribution Hub<br>📍 <strong>Current Location:</strong> NH-48, Maharashtra (342 km from destination)<br>🕒 <strong>Last Update:</strong> 2 hours ago<br>🏁 <strong>Destination:</strong> Pune Central Warehouse<br><br>⚠️ <em>Mild rainfall detected along corridor — ETA may shift by 1–2 hours.</em><br><br>Would you like a <strong>full risk analysis</strong> or <strong>route optimization</strong>?`;
+      }
+      return `📦 <strong>Shipment Tracking</strong><br><br>I can pull real-time tracking data for any of your shipments!<br><br>Please share your <strong>Shipment ID</strong> (e.g., <code>SHP-ABC123456</code>) and I'll fetch the live status, location, and delivery ETA.<br><br>💡 <em>Tip: You can find your Shipment ID in your dashboard or confirmation email.</em>`;
+    }
+  ],
+
+  delay:[
+    (msg)=>{
+      const id=extractShipId(msg);
+      const base=id?`for <strong>${id}</strong>`:'for your shipment';
+      addRiskCard(id||'SHP-LATEST','High',78,'🌧️ Heavy rain on corridor');
+      return `⏱️ <strong>Delay Analysis ${base}</strong><br><br>Our ML model has detected the following delay factors:<br><br>🌧️ <strong>Weather:</strong> Heavy rainfall on the NH-48 corridor — reducing truck speed by ~35%<br>🚦 <strong>Traffic:</strong> Moderate congestion near Pune bypass (Est. +45 min)<br>🤖 <strong>ML Prediction:</strong> 78% probability of delay<br><br>⚠️ <strong>Estimated Delay: 2–4 hours</strong><br><br>Our system has automatically flagged this for route re-evaluation. Would you like us to <strong>optimize the route</strong> to reduce delay?`;
+    }
+  ],
+
+  eta:[
+    "🕒 <strong>Estimated Delivery Time</strong><br><br>Based on current data from our ML engine:<br><br>📍 <strong>Current Distance:</strong> 342 km remaining<br>🚚 <strong>Avg Speed (adjusted for traffic):</strong> 58 km/h<br>🌦️ <strong>Weather Factor:</strong> +1.5 hrs (rain delay)<br><br>⏰ <strong>Expected Arrival: Tomorrow, 11:30 AM – 2:00 PM IST</strong><br><br>I'll monitor conditions every 30 minutes and alert you if the ETA changes significantly. Would you like to enable <strong>SMS alerts</strong>?",
+    "📅 Your shipment's ETA is calculated by our ML model using:<br>• Real-time traffic from 60+ data sources<br>• Live weather along the entire corridor<br>• Carrier performance history<br><br>Please share your <strong>Shipment ID</strong> for a precise estimate!",
+  ],
+
+  weather:[
+    (msg)=>{
+      addRiskCard('SHP-CURRENT','Moderate',55,'🌧️ Rain — visibility reduced');
+      return `🌦️ <strong>Weather Impact Report</strong><br><br>ChainSight is monitoring <strong>60+ live weather APIs</strong> across your route.<br><br>Current conditions:<br>🌧️ <strong>Origin (Mumbai):</strong> Heavy rain, 28°C, winds 22 km/h<br>⛅ <strong>Destination (Pune):</strong> Partly cloudy, 24°C, clear<br>⚠️ <strong>En-route:</strong> Rain band between km 140–280 — reducing visibility<br><br>🤖 <strong>ML Assessment:</strong> Weather accounts for <strong>+1.5 hour delay</strong> on this corridor.<br><br>Our system is evaluating alternate routes that avoid the rain band. Shall I show you the <strong>optimized route</strong>?`;
+    }
+  ],
+
+  route:[
+    `🛣️ <strong>Route Optimization Analysis</strong><br><br>ChainSight AI has analyzed <strong>3 possible routes</strong>:<br><br>❌ <strong>Route A (NH-48):</strong> 342 km — 🚦 Heavy traffic + 🌧️ rain — ETA +3.5 hrs<br>⚠️ <strong>Route B (NH-60):</strong> 368 km — Moderate traffic — ETA +1.2 hrs<br>✅ <strong>Route C (SH-4):</strong> 355 km — <em>Clear roads, no weather delays</em> — <strong>Recommended</strong><br><br>🤖 <strong>AI Recommendation:</strong> Switch to <strong>Route C (SH-4)</strong> — saves approximately <strong>2.3 hours</strong> and reduces delay risk from 78% → 22%.<br><br>Want me to apply this route to your shipment?`,
+  ],
+
+  risk:[
+    (msg)=>{
+      const id=extractShipId(msg)||'SHP-LATEST';
+      addRiskCard(id,'Moderate',62,'⚠️ Light rain detected');
+      return `🤖 <strong>AI Risk Assessment</strong><br><br>ChainSight's gradient-boosted ML model has analysed your shipment against <strong>47 real-time variables</strong>:<br><br>📊 <strong>Overall Risk Score: 62/100 — Moderate</strong><br><br>Risk breakdown:<br>🌦️ Weather Risk: <strong>Medium</strong> (rain corridor)<br>🚦 Traffic Risk: <strong>Low-Medium</strong><br>🛣️ Route Risk: <strong>Low</strong><br>📦 Cargo Risk: <strong>Low</strong><br><br>🎯 <strong>Model Confidence: 92%</strong> (trained on 100,000+ shipment records)<br><br>💡 <em>Acting on this alert could prevent a 2–4 hour delay.</em>`;
+    }
+  ],
+
+  dispatch:[
+    `✅ <strong>Dispatch Status</strong><br><br>Your shipment has been <strong>picked up and dispatched</strong>.<br><br>📦 <strong>Status:</strong> In Transit<br>🚚 <strong>Carrier:</strong> ChainSight Logistics Network<br>📍 <strong>Current Hub:</strong> Mumbai Distribution Center<br>🕒 <strong>Dispatched:</strong> Today, 08:45 AM IST<br><br>Our ML engine is monitoring the route in real-time. You'll receive automatic alerts if any delays are detected.<br><br>Would you like to track the live location?`,
+  ],
+
+  issue:[
+    `📞 <strong>Issue Reported — ChainSight Complaint System</strong><br><br>I'm sorry to hear about this issue! Let me help you resolve it quickly.<br><br>Please select your issue type:<br>• 📦 Damaged package<br>• 🔄 Wrong item received<br>• ❌ Order missing / not received<br>• 📋 Documentation problem<br>• 🕒 Excessive delay<br><br>To escalate immediately, please provide:<br>1️⃣ Shipment ID (e.g., SHP-XXXXXXXX)<br>2️⃣ Brief description<br>3️⃣ Photos if applicable<br><br>⚡ <em>Critical issues are assigned to our team within 1 hour.</em><br><br>Alternatively, you can <strong>submit a formal ticket</strong> using the form on this page.`,
+  ],
+
+  support:[
+    `🧑‍💼 <strong>Connecting You to ChainSight Support</strong><br><br>You can reach our team through:<br><br>📞 <strong>Phone:</strong> +91 98765 43210<br>&nbsp;&nbsp;&nbsp;&nbsp;Mon–Sat · 9 AM – 8 PM IST<br><br>📧 <strong>Email:</strong> support@chainsight.io<br>&nbsp;&nbsp;&nbsp;&nbsp;Response within 24 hrs<br><br>🎫 <strong>Ticket:</strong> Use the form on this page<br>&nbsp;&nbsp;&nbsp;&nbsp;Track status in your dashboard<br><br>🤖 <strong>AI Chat:</strong> I'm available 24/7 for instant answers!<br><br>For <strong>urgent shipment issues</strong>, our Critical SLA guarantees a response <strong>within 1 hour</strong>. Shall I raise a critical ticket on your behalf?`,
+  ],
+
+  unknown:[
+    `🤖 I'm ChainSight AI — let me help you better!<br><br>I'm specially trained for logistics queries. Try asking:<br><br>• <strong>"Where is my shipment?"</strong><br>• <strong>"Is my shipment delayed?"</strong><br>• <strong>"What is the delay risk score?"</strong><br>• <strong>"Is weather affecting my delivery?"</strong><br>• <strong>"Optimize my route"</strong><br>• <strong>"I want to report an issue"</strong><br><br>Or use the <strong>quick chips</strong> above for instant answers! 👆`,
+    `That's a great question! While I specialise in logistics intelligence, let me point you in the right direction.<br><br>For specific shipment queries, please share your <strong>Shipment ID</strong> and I can give you a real-time ML-powered analysis.<br><br>Or try the quick suggestion chips above! 🚀`,
+  ],
+};
+
+function processReply(msg){
+  const intent=getIntent(msg);
+  let bank=replies[intent]||replies.unknown;
+  showTyping();
+  const delay=800+Math.random()*600;
+  setTimeout(()=>{
+    hideTyping();
+    if(Array.isArray(bank)){
+      const r=bank[Math.floor(Math.random()*bank.length)];
+      if(typeof r==='function'){
+        const result=r(msg);
+        if(result) addMsg(result,'bot');
+      } else {
+        addMsg(r,'bot');
+      }
+    } else {
+      addMsg(bank,'bot');
+    }
+  },delay);
+}
+
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&chatOpen)toggleChat();});
+/* ── ChainSight Auth Header — paste this anywhere in your page <script> ── */
+(function applyAuthHeader() {
+  var s = null;
+  try { s = JSON.parse(localStorage.getItem('cs_session') || 'null'); } catch(e) {}
+  var btn = document.querySelector('a.signin');
+  if (!btn || !s || !s.firstName) return;
+  var first = s.firstName;
+  var initials = (first[0] + (s.lastName ? s.lastName[0] : '')).toUpperCase();
+  btn.style.cssText = [
+    'display:flex;align-items:center;gap:8px;padding:5px 14px 5px 6px;',
+    'background:linear-gradient(135deg,#1a56ff,#4f7cff);border:none;border-radius:24px;',
+    'font-family:"Plus Jakarta Sans",sans-serif;font-size:13px;font-weight:700;color:#fff;',
+    'cursor:pointer;text-decoration:none;box-shadow:0 4px 18px rgba(26,86,255,.38);',
+    'transition:all .3s;position:relative;'
+  ].join('');
+  btn.innerHTML =
+    '<div style="width:26px;height:26px;background:rgba(255,255,255,.25);border-radius:50%;' +
+    'display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;">' +
+    initials + '</div>Hi,\u00a0' + first;
+  btn.removeAttribute('href');
+  btn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    var m = document.getElementById('cs-user-menu');
+    if (m) { m.remove(); return; }
+    m = document.createElement('div');
+    m.id = 'cs-user-menu';
+    m.style.cssText = [
+      'position:absolute;top:calc(100% + 8px);right:0;background:#fff;',
+      'border:1.5px solid #e5eaf5;border-radius:14px;',
+      'box-shadow:0 12px 40px rgba(26,86,255,.14);',
+      'min-width:190px;z-index:9999;overflow:hidden;',
+      'font-family:"Plus Jakarta Sans",sans-serif;'
+    ].join('');
+    m.innerHTML =
+      '<div style="padding:12px 16px;border-bottom:1px solid #f0f3fb;">' +
+        '<div style="font-size:13px;font-weight:700;color:#0c0c1e;">' + s.firstName + ' ' + (s.lastName || '') + '</div>' +
+        '<div style="font-size:11px;color:#7e8ca0;margin-top:2px;">' + s.email + '</div>' +
+      '</div>' +
+      '<a href="index.html" style="display:flex;align-items:center;gap:10px;padding:10px 16px;' +
+      'font-size:13px;font-weight:600;color:#555;text-decoration:none;" ' +
+      'onmouseover="this.style.background=\'#f0f3fb\'" onmouseout="this.style.background=\'transparent\'">' +
+        '<i class="fas fa-home" style="width:14px;color:#1a56ff;font-size:12px;"></i>&nbsp;Dashboard</a>' +
+      '<div id="cs-so" style="display:flex;align-items:center;gap:10px;padding:10px 16px;' +
+      'font-size:13px;font-weight:600;color:#dc2626;cursor:pointer;" ' +
+      'onmouseover="this.style.background=\'#fff1f2\'" onmouseout="this.style.background=\'transparent\'">' +
+        '<i class="fas fa-sign-out-alt" style="width:14px;font-size:12px;"></i>&nbsp;Sign Out</div>';
+    btn.appendChild(m);
+    document.getElementById('cs-so').addEventListener('click', function() {
+      localStorage.removeItem('cs_session');
+      window.location.href = 'login.html';
+    });
+  });
+  document.addEventListener('click', function() {
+    var m = document.getElementById('cs-user-menu'); if (m) m.remove();
+  });
+})();
+</script>
+</body>
+</html>
