@@ -1,7 +1,3 @@
-# ============================================================
-# ChainSight ML Backend — BALANCED MULTI-FACTOR MODEL
-# ============================================================
-
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import joblib
@@ -12,13 +8,32 @@ import os
 app = Flask(__name__)
 CORS(app)
 
-model  = joblib.load("model.pkl")
-scaler = joblib.load("scaler.pkl")
-print("✅ Model & Scaler Loaded")
+# =========================
+# SAFE MODEL LOADING (FIX)
+# =========================
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# 🔐 Use environment variable for security
-API_KEY = ("AIzaSyB36IbafTNpBRdOpg6ZjLGJKoVSjGnYK9U")
+model_path = os.path.join(BASE_DIR, "model.pkl")
+scaler_path = os.path.join(BASE_DIR, "scaler.pkl")
 
+try:
+    model = joblib.load(model_path)
+    scaler = joblib.load(scaler_path)
+    print("✅ Model & Scaler Loaded Successfully")
+except Exception as e:
+    print("❌ Error loading model:", e)
+    model = None
+    scaler = None
+
+
+# =========================
+# GEMINI API (WORKING)
+# =========================
+API_KEY = "AIzaSyB36IbafTNpBRdOpg6ZjLGJKoVSjGnYK9U"  # ← your working key
+
+# =========================
+# FEATURES
+# =========================
 FEATURES = [
     "latitude", "longitude", "inventory_level", "temperature",
     "traffic_status", "transaction_amount", "purchase_frequency",
@@ -51,97 +66,99 @@ def add_features(df):
     df["has_delay_reason"]  = (df["delay_reason"] > 0).astype(int)
     return df
 
-# ── Page routes ──────────────────────────────────────────────
+
+# =========================
+# ROUTES
+# =========================
 @app.route("/")
-def home():     return render_template("index.html")
+def home():
+    return render_template("index.html")
 
 @app.route("/shipment")
-def shipment(): return render_template("shipment.html")
+def shipment():
+    return render_template("shipment.html")
 
 @app.route("/about")
-def about():    return render_template("about.html")
+def about():
+    return render_template("about.html")
 
 @app.route("/contact")
-def contact():  return render_template("contact.html")
+def contact():
+    return render_template("contact.html")
 
 @app.route("/login")
-def login():    return render_template("login.html")
+def login():
+    return render_template("login.html")
 
 @app.route("/health")
-def health():   return {"status": "ok"}
+def health():
+    return {"status": "ok"}
 
 
-# ── Prediction API ────────────────────────────────────────────
+# =========================
+# PREDICTION
+# =========================
 @app.route("/predict", methods=["POST"])
 def predict():
     try:
+        if model is None or scaler is None:
+            return jsonify({"error": "Model not loaded"}), 500
+
         data = request.get_json()
 
         origin_temp = float(data.get("origin_temp", data["temperature"]))
-        mid_temp    = float(data.get("mid_temp",    origin_temp))
-        dest_temp   = float(data.get("dest_temp",   origin_temp))
+        mid_temp    = float(data.get("mid_temp", origin_temp))
+        dest_temp   = float(data.get("dest_temp", origin_temp))
 
         def severity(t):
-            if t < 0:  return abs(t) + 50
+            if t < 0: return abs(t) + 50
             if t > 35: return t
             return 0
 
-        temp      = max([origin_temp, mid_temp, dest_temp], key=severity)
-        traffic   = int(data["traffic_status"])
-        logistics = int(data["logistics_delay"])
-        transport = int(data.get("transport_mode", 0))
+        temp = max([origin_temp, mid_temp, dest_temp], key=severity)
 
         df = pd.DataFrame([{
-            "latitude":           float(data["latitude"]),
-            "longitude":          float(data["longitude"]),
-            "inventory_level":    int(data["inventory_level"]),
-            "temperature":        temp,
-            "traffic_status":     traffic,
+            "latitude": float(data["latitude"]),
+            "longitude": float(data["longitude"]),
+            "inventory_level": int(data["inventory_level"]),
+            "temperature": temp,
+            "traffic_status": int(data["traffic_status"]),
             "transaction_amount": int(data["transaction_amount"]),
             "purchase_frequency": int(data["purchase_frequency"]),
-            "delay_reason":       int(data["delay_reason"]),
-            "asset_utilization":  float(data["asset_utilization"]),
-            "demand_forecast":    int(data["demand_forecast"]),
-            "logistics_delay":    logistics,
-            "transport_mode":     transport,
+            "delay_reason": int(data["delay_reason"]),
+            "asset_utilization": float(data["asset_utilization"]),
+            "demand_forecast": int(data["demand_forecast"]),
+            "logistics_delay": int(data["logistics_delay"]),
+            "transport_mode": int(data.get("transport_mode", 0)),
         }])
 
         df = add_features(df)[FEATURES]
         prob = model.predict_proba(scaler.transform(df))[0][1]
 
-        risk     = "Low" if prob < 0.35 else "Moderate" if prob < 0.65 else "High"
-        decision = "Optimize Route" if risk != "Low" else "Normal Route"
+        risk = "Low" if prob < 0.35 else "Moderate" if prob < 0.65 else "High"
 
         return jsonify({
-            "delayed":           int(prob > 0.5),
             "delay_probability": round(prob * 100, 2),
-            "risk":              risk,
-            "decision":          decision,
-            "worst_temperature": temp,
+            "risk": risk
         })
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 
-# ── Gemini AI API ─────────────────────────────────────────────
+# =========================
+# GEMINI AI
+# =========================
 @app.route("/ask-ai", methods=["POST"])
 def ask_ai():
     try:
-        if not API_KEY:
-            return jsonify({"error": "API key missing"}), 500
-
-        data   = request.get_json()
+        data = request.get_json()
         prompt = data.get("prompt", "")
 
-        if not prompt:
-            return jsonify({"error": "No prompt provided"}), 400
-
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={API_KEY}"
+
         payload = {
-            "contents": [
-                {"parts": [{"text": prompt}]}
-            ]
+            "contents": [{"parts": [{"text": prompt}]}]
         }
 
         response = requests.post(
@@ -151,29 +168,18 @@ def ask_ai():
             timeout=20
         )
 
-        print("STATUS:", response.status_code)
-        print("RAW:", response.text)
-
         result = response.json()
 
-        if "error" in result:
-            return jsonify({"error": result["error"].get("message", "Gemini API error")}), 502
-
-        try:
-            reply = result["candidates"][0]["content"]["parts"][0]["text"]
-        except (KeyError, IndexError):
-            reply = "No response from Gemini."
+        reply = result["candidates"][0]["content"]["parts"][0]["text"]
 
         return jsonify({"reply": reply})
-
-    except requests.exceptions.Timeout:
-        return jsonify({"error": "Request timed out"}), 504
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 
-# ── Start server ──────────────────────────────────────────────
+# =========================
+# START
+# =========================
 if __name__ == "__main__":
-    print("\n🚀 Running at http://localhost:5000")
     app.run(debug=True)
