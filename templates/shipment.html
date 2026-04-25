@@ -331,7 +331,6 @@
     <a href="/contact">Contact</a>
     <a href="/shipment" class="on">New Shipment</a>
   </nav>
-  <!-- ✅ PATCHED: bell → /notifications, badge = unread count -->
   <div class="hdr-r">
     <div class="notif" title="Notifications" onclick="location.href='/notifications'" style="cursor:pointer;">
       <i class="fas fa-bell"></i>
@@ -362,7 +361,7 @@
     <div class="sb-foot">
       <div class="sys-ok" id="apiStatusBox" style="background:#f7fff9;border:1px solid #bbf7d0;">
         <div class="sdot" id="apiDot" style="background:#16a34a;"></div>
-        <div><div class="sys-txt" id="apiStatusTxt" style="color:#16a34a;">Checking API…</div><div class="sys-sub" id="apiStatusSub" style="color:#4ade80;">localhost:5000</div></div>
+        <div><div class="sys-txt" id="apiStatusTxt" style="color:#16a34a;">Checking API…</div><div class="sys-sub" id="apiStatusSub" style="color:#4ade80;">Connecting…</div></div>
       </div>
     </div>
   </aside>
@@ -473,7 +472,7 @@
         <div class="predict-inner">
           <div class="predict-txt">
             <h2>Run ML Delay Prediction</h2>
-            <p>XGBoost model trained on real traffic, weather & logistics data. Inputs are auto-filled from live APIs and sent to your Flask backend at <code style="color:#60a5fa;font-size:12px;">localhost:5000/predict</code>.</p>
+            <p>XGBoost model trained on real traffic, weather & logistics data. Inputs are auto-filled from live APIs and sent to your Flask backend at <code style="color:#60a5fa;font-size:12px;">/predict</code>.</p>
           </div>
           <button class="predict-btn" id="predictBtn" onclick="runPrediction()">
             <div class="btn-ico"><i class="fas fa-brain"></i></div>Predict Now
@@ -512,7 +511,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 /* ════════════════════════════════════
-   ✅ NOTIFICATION HELPER — added for wiring
+   NOTIFICATION HELPER
 ════════════════════════════════════ */
 const NOTIF_KEY = 'chainsight_notifications';
 
@@ -545,12 +544,14 @@ function getUnreadNotifCount() {
 
 const OWM_KEY = 'f57645bee7acc23db35f614231429574';
 const ORS_KEY = 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjBiYmQwZmM0NmQ4ZjQzNmZiNWFhYmYxZTBjZWEzMWJiIiwiaCI6Im11cm11cjY0In0=';
-const ML_API  = 'http://localhost:5000/predict';
+
+// ✅ FIX: Use relative URL — works on localhost AND on Render/any host
+const ML_API = '/predict';
 
 let selectedType = null, liveData = {}, leafletMap = null, altRouteMap = null, apiOnline = false;
 let altMapLayers = [], currentAltIdx = -1;
 
-/* ✅ PATCHED: Show unread count instead of risk count */
+/* Sync notification badge on load */
 (function syncNotifBadge() {
   try {
     const el = document.getElementById('notifBadge');
@@ -717,10 +718,22 @@ async function runPrediction() {
   const payload = buildPayload();
   let result;
   try {
-    const resp = await fetch(ML_API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal: AbortSignal.timeout(6000) });
+    // ✅ FIX: ML_API is now '/predict' — hits the same server that served this page
+    const resp = await fetch(ML_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(10000)
+    });
     if (!resp.ok) { const err = await resp.json().catch(() => ({})); throw new Error(err.error || `HTTP ${resp.status}`); }
     result = await resp.json();
+    // Normalise field names — Flask returns delay_probability as a float (0-100)
+    if (result.delay_probability !== undefined) {
+      result.delay_probability = Math.round(result.delay_probability);
+      result.on_time_probability = 100 - result.delay_probability;
+    }
   } catch(e) {
+    console.warn('ML API error, using client simulation:', e.message);
     const p = simulateModel(payload);
     result = { delayed: p > 0.5 ? 1 : 0, delay_probability: Math.round(p * 100), on_time_probability: Math.round((1 - p) * 100), source: 'client-sim' };
   }
@@ -771,7 +784,7 @@ function showResult(result) {
           <div class="chip wx">${liveData.route?.distanceKm}km · ${liveData.route?.durationWithTrafficHrs}h</div>
           <div class="chip ${['tr','warn','bad'][liveData.trafficStatus]}">Traffic: ${['Low','Moderate','High'][liveData.trafficStatus]}</div>
           ${liveData.delayReason > 0 ? `<div class="chip warn">⚠️ ${['','Weather','Traffic'][liveData.delayReason]} risk</div>` : ''}
-          ${isSimulated ? '<div class="chip warn">⚡ Demo ML (backend offline)</div>' : '<div class="chip tr">✅ Live ML · localhost:5000</div>'}
+          ${isSimulated ? '<div class="chip warn">⚡ Demo ML (backend offline)</div>' : '<div class="chip tr">✅ Live ML · Flask /predict</div>'}
         </div>
         ${viewMapBtnHtml}
       </div>
@@ -889,7 +902,7 @@ async function setLoadStep(n) {
 function showLoading(show) { document.getElementById('loadingOverlay').classList.toggle('show', show); }
 
 /* ════════════════════════════════════
-   ✅ PATCHED: saveShipment pushes notifications
+   saveShipment — pushes notifications
 ════════════════════════════════════ */
 function saveShipment() {
   const origin = document.getElementById('originCity').value.trim();
@@ -924,20 +937,15 @@ function saveShipment() {
   saved.unshift(shipment);
   localStorage.setItem('chainsight_shipments', JSON.stringify(saved));
 
-  // ✅ Always push "Shipment Added" notification
   pushNotification({
     type:      'added',
     title:     'Shipment Added to Dashboard',
     desc:      '<strong>' + origin + ' → ' + dest + '</strong> ' + (selectedType || 'road') +
                ' shipment saved. Risk: <strong>' + risk + '</strong> (' + prob + '% delay probability).',
     route:     origin + ' → ' + dest,
-    risk,
-    prob,
-    cargo,
-    transport: selectedType || 'road',
+    risk, prob, cargo, transport: selectedType || 'road',
   });
 
-  // ✅ Push risk alert for Moderate or High
   if (risk === 'High') {
     pushNotification({
       type:  'risk_high',
@@ -960,7 +968,6 @@ function saveShipment() {
     });
   }
 
-  // Update bell badge immediately
   const notifBadge = document.getElementById('notifBadge');
   if (notifBadge) notifBadge.textContent = getUnreadNotifCount();
 
@@ -973,12 +980,35 @@ function saveShipment() {
   setTimeout(() => { location.href = '/?saved=1'; }, 900);
 }
 
+/* ════════════════════════════════════
+   ✅ FIX: checkApiStatus uses relative URL
+════════════════════════════════════ */
 async function checkApiStatus() {
-  const box = document.getElementById('apiStatusBox'), dot = document.getElementById('apiDot'), txt = document.getElementById('apiStatusTxt'), sub = document.getElementById('apiStatusSub');
+  const box = document.getElementById('apiStatusBox');
+  const dot = document.getElementById('apiDot');
+  const txt = document.getElementById('apiStatusTxt');
+  const sub = document.getElementById('apiStatusSub');
   try {
-    const r = await fetch('http://localhost:5000/health', { signal: AbortSignal.timeout(2500) });
-    if (r.ok) { apiOnline = true; txt.textContent = 'ML API Online'; txt.style.color = '#16a34a'; sub.textContent = 'localhost:5000 · Ready'; box.style.background = '#f7fff9'; box.style.borderColor = '#bbf7d0'; dot.style.background = '#16a34a'; } else throw new Error();
-  } catch { apiOnline = false; txt.textContent = 'ML API Offline'; txt.style.color = '#d97706'; sub.textContent = 'Demo simulation mode active'; box.style.background = '#fffbeb'; box.style.borderColor = '#fcd34d'; dot.style.background = '#d97706'; }
+    // ✅ Relative URL — works on localhost AND Render
+    const r = await fetch('/health', { signal: AbortSignal.timeout(3000) });
+    if (r.ok) {
+      apiOnline = true;
+      txt.textContent = 'ML API Online';
+      txt.style.color = '#16a34a';
+      sub.textContent = 'Flask /predict · Ready';
+      box.style.background = '#f7fff9';
+      box.style.borderColor = '#bbf7d0';
+      dot.style.background = '#16a34a';
+    } else { throw new Error('not ok'); }
+  } catch {
+    apiOnline = false;
+    txt.textContent = 'ML API Offline';
+    txt.style.color = '#d97706';
+    sub.textContent = 'Demo simulation active';
+    box.style.background = '#fffbeb';
+    box.style.borderColor = '#fcd34d';
+    dot.style.background = '#d97706';
+  }
 }
 
 checkApiStatus();

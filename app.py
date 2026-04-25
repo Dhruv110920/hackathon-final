@@ -6,7 +6,11 @@ import requests
 import os
 
 app = Flask(__name__)
-CORS(app)
+
+# ✅ FIX: CORS now allows all origins so the frontend (same server) can call /predict
+# When deployed on Render, the browser makes same-origin requests so CORS isn't
+# strictly needed, but keeping it here is harmless and helps during local dev.
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 # =========================
 # SAFE MODEL LOADING
@@ -17,10 +21,10 @@ scaler = None
 try:
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-    model_path = os.path.join(BASE_DIR, "model.pkl")
+    model_path  = os.path.join(BASE_DIR, "model.pkl")
     scaler_path = os.path.join(BASE_DIR, "scaler.pkl")
 
-    model = joblib.load(model_path)
+    model  = joblib.load(model_path)
     scaler = joblib.load(scaler_path)
 
     print("✅ Model & Scaler Loaded Successfully")
@@ -30,22 +34,24 @@ except Exception as e:
 
 
 # =========================
-# GEMINI API
+# GEMINI API KEY
 # =========================
-API_KEY = "AIzaSyCiDIODwiF-luAQdXKIyNEA_tr1S_b1ofc"   # ← replace with your working key
+API_KEY = "AIzaSyCiDIODwiF-luAQdXKIyNEA_tr1S_b1ofc"   # ← replace with your key
 
 
 # =========================
 # WEATHER API FUNCTION
 # =========================
 def get_weather_temp(lat, lon):
+    """Fetch live temperature from Open-Meteo (free, no key needed)."""
     try:
-        url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true"
+        url = (
+            f"https://api.open-meteo.com/v1/forecast"
+            f"?latitude={lat}&longitude={lon}&current_weather=true"
+        )
         res = requests.get(url, timeout=5)
         data = res.json()
-
         return data["current_weather"]["temperature"]
-
     except Exception as e:
         print("Weather API Error:", e)
         return 25  # fallback temp
@@ -88,7 +94,7 @@ def add_features(df):
 
 
 # =========================
-# ROUTES (FRONTEND)
+# FRONTEND ROUTES
 # =========================
 @app.route("/")
 def home():
@@ -110,9 +116,14 @@ def contact():
 def login():
     return render_template("login.html")
 
+@app.route("/notifications")
+def notifications():
+    return render_template("notifications.html")
+
+# ✅ FIX: /health now returns proper JSON with status 200
 @app.route("/health")
 def health():
-    return {"status": "ok"}
+    return jsonify({"status": "ok", "model_loaded": model is not None})
 
 
 # =========================
@@ -122,43 +133,50 @@ def health():
 def predict():
     try:
         if model is None or scaler is None:
-            return jsonify({"error": "Model not loaded"}), 500
+            return jsonify({"error": "Model not loaded. Check model.pkl and scaler.pkl."}), 500
 
-        data = request.get_json()
+        data = request.get_json(force=True)
+        if not data:
+            return jsonify({"error": "No JSON body received"}), 400
 
         lat = float(data["latitude"])
         lon = float(data["longitude"])
 
-        # 🔥 GET LIVE WEATHER
+        # Get live temperature (falls back to 25°C if API fails)
         temp = get_weather_temp(lat, lon)
 
         df = pd.DataFrame([{
-            "latitude": lat,
-            "longitude": lon,
-            "inventory_level": int(data["inventory_level"]),
-            "temperature": temp,
-            "traffic_status": int(data["traffic_status"]),
-            "transaction_amount": int(data["transaction_amount"]),
-            "purchase_frequency": int(data["purchase_frequency"]),
-            "delay_reason": int(data["delay_reason"]),
-            "asset_utilization": float(data["asset_utilization"]),
-            "demand_forecast": int(data["demand_forecast"]),
-            "logistics_delay": int(data["logistics_delay"]),
-            "transport_mode": int(data.get("transport_mode", 0)),
+            "latitude":           lat,
+            "longitude":          lon,
+            "inventory_level":    int(data.get("inventory_level", 250)),
+            "temperature":        temp,
+            "traffic_status":     int(data.get("traffic_status", 0)),
+            "transaction_amount": int(data.get("transaction_amount", 300)),
+            "purchase_frequency": int(data.get("purchase_frequency", 5)),
+            "delay_reason":       int(data.get("delay_reason", 0)),
+            "asset_utilization":  float(data.get("asset_utilization", 80.0)),
+            "demand_forecast":    int(data.get("demand_forecast", 200)),
+            "logistics_delay":    int(data.get("logistics_delay", 0)),
+            "transport_mode":     int(data.get("transport_mode", 0)),
         }])
 
         df = add_features(df)[FEATURES]
 
         prob = model.predict_proba(scaler.transform(df))[0][1]
-
+        prob_pct = round(prob * 100, 2)
         risk = "Low" if prob < 0.35 else "Moderate" if prob < 0.65 else "High"
 
         return jsonify({
-            "delay_probability": round(prob * 100, 2),
-            "risk": risk,
-            "temperature_used": temp
+            "delayed":             1 if prob > 0.5 else 0,
+            "delay_probability":   prob_pct,
+            "on_time_probability": round(100 - prob_pct, 2),
+            "risk":                risk,
+            "temperature_used":    temp,
+            "source":              "flask-ml",
         })
 
+    except KeyError as e:
+        return jsonify({"error": f"Missing field: {e}"}), 400
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -169,10 +187,13 @@ def predict():
 @app.route("/ask-ai", methods=["POST"])
 def ask_ai():
     try:
-        data = request.get_json()
+        data   = request.get_json(force=True)
         prompt = data.get("prompt", "")
 
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={API_KEY}"
+        url = (
+            f"https://generativelanguage.googleapis.com/v1beta/models/"
+            f"gemini-2.5-flash:generateContent?key={API_KEY}"
+        )
 
         payload = {
             "contents": [{"parts": [{"text": prompt}]}]
@@ -182,7 +203,7 @@ def ask_ai():
             url,
             json=payload,
             headers={"Content-Type": "application/json"},
-            timeout=20
+            timeout=20,
         )
 
         result = response.json()
@@ -191,10 +212,13 @@ def ask_ai():
         if "error" in result:
             return jsonify({"error": result["error"]["message"]}), 500
 
-        reply = result.get("candidates", [{}])[0] \
-                      .get("content", {}) \
-                      .get("parts", [{}])[0] \
-                      .get("text", "No response")
+        reply = (
+            result
+            .get("candidates", [{}])[0]
+            .get("content", {})
+            .get("parts", [{}])[0]
+            .get("text", "No response")
+        )
 
         return jsonify({"reply": reply})
 
@@ -206,4 +230,6 @@ def ask_ai():
 # START
 # =========================
 if __name__ == "__main__":
-    app.run(debug=True)
+    # ✅ Use PORT env var if set by Render; fall back to 5000 locally
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=False)
