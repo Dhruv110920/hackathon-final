@@ -29,7 +29,7 @@ except Exception as e:
 # =========================
 # GEMINI API (WORKING)
 # =========================
-API_KEY = "AIzaSyB36IbafTNpBRdOpg6ZjLGJKoVSjGnYK9U"  # ← your working key
+API_KEY = "AIzaSyCp_WmBaAI2TDiCanHw0_wEkciJF9XmKMk"  # ← your working key
 
 # =========================
 # FEATURES
@@ -170,13 +170,23 @@ def ask_ai():
 
         result = response.json()
 
-        reply = result["candidates"][0]["content"]["parts"][0]["text"]
+        # 🔴 DEBUG PRINT (VERY IMPORTANT)
+        print("Gemini Response:", result)
+
+        # ✅ HANDLE ERROR RESPONSE
+        if "error" in result:
+            return jsonify({"error": result["error"]["message"]}), 500
+
+        # ✅ SAFE EXTRACTION
+        reply = result.get("candidates", [{}])[0] \
+                      .get("content", {}) \
+                      .get("parts", [{}])[0] \
+                      .get("text", "No response")
 
         return jsonify({"reply": reply})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
 
 # =========================
 # START
